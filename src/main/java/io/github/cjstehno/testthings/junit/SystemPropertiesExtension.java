@@ -15,21 +15,29 @@
  */
 package io.github.cjstehno.testthings.junit;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
-import static java.lang.reflect.Modifier.isStatic;
-import static java.util.Arrays.stream;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isStatic;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
 
 /**
  * A test extension used to update the System properties with a configured set of properties, resetting it back to the
@@ -44,17 +52,23 @@ import static java.util.Arrays.stream;
  * <strong>NOTE:</strong> Due to the global nature of the System properties, the test methods under this extension
  * are locked so that only one should run at a time - that being said, if you run into odd issues, try executing these
  * tests in a single-threaded manner (and/or report a bug if you feel the functionality could be improved).
+ * <p>
+ * <p>
+ * FIXME: update based on new config (annotation and layered check)
  */
+@Slf4j
 public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachCallback {
 
     private static final String SYSTEM_PROPERTIES = "SYSTEM_PROPERTIES";
-    private final Map<String, String> originals = new HashMap<>();
+    private static final Namespace NAMESPACE = create("test-things", "system-props");
     private final Lock lock = new ReentrantLock();
 
     @Override public void beforeEach(final ExtensionContext context) throws Exception {
         lock.lock();
 
-        resolveConfiguredProperties(context.getRequiredTestClass()).forEach((k, v) -> {
+        val originals = new HashMap<String, String>();
+
+        resolveConfiguredProperties(context.getRequiredTestClass(), context.getRequiredTestMethod()).forEach((k, v) -> {
             val key = k.toString();
             val value = v.toString();
 
@@ -64,9 +78,14 @@ public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachC
             // replace the value
             setProperty(key, value);
         });
+
+        context.getStore(NAMESPACE).put(Thread.currentThread().getName(), originals);
     }
 
-    @Override public void afterEach(final ExtensionContext context) throws Exception {
+    @Override @SuppressWarnings("unchecked")
+    public void afterEach(final ExtensionContext context) throws Exception {
+        val originals = (Map<String, String>) context.getStore(NAMESPACE).get(Thread.currentThread().getName());
+
         // reset to the original values
         originals.forEach(System::setProperty);
         originals.clear();
@@ -87,23 +106,60 @@ public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachC
         return props;
     }
 
-    // FIXME: these resolvers I use would make a good extension helper toolkit
+    private static Properties resolveConfiguredProperties(final Class<?> testClass, final Method testMethod) {
+        var properties = resolveAppliedProperties(testClass, testMethod);
+
+        if (properties.isEmpty()) {
+            properties = resolvePropertiesField(testClass, SYSTEM_PROPERTIES);
+
+            if (properties.isEmpty()) {
+                properties = resolveMapField(testClass, SYSTEM_PROPERTIES);
+            }
+        }
+
+        return properties.orElseThrow(() -> new IllegalArgumentException("No Properties have been configured."));
+    }
+
+    private static Optional<Properties> resolveAppliedProperties(final Class<?> testClass, final Method testMethod) {
+        val applyPropertiesAnno = findAnnotation(testMethod, ApplyProperties.class);
+        if (applyPropertiesAnno.isPresent()) {
+            val fieldName = applyPropertiesAnno.get().value();
+            val props = resolvePropertiesField(testClass, fieldName);
+            return props.isEmpty() ? resolveMapField(testClass, fieldName) : props;
+
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<Properties> resolvePropertiesField(final Class<?> testClass, final String fieldName) {
+        return firstField(testClass, fieldName, Properties.class).map(f -> {
+            try {
+                return (Properties) f.get(testClass);
+            } catch (IllegalAccessException e) {
+                log.error("Unable to extract Properties from field ({}): {}", f.getName(), e.getMessage(), e);
+                return new Properties();
+            }
+        });
+    }
+
     @SuppressWarnings("unchecked")
-    private static Properties resolveConfiguredProperties(final Class<?> testClass) {
-        return stream(testClass.getDeclaredFields())
-            .filter(f -> isStatic(f.getModifiers()))
-            .filter(f -> f.getName().equals(SYSTEM_PROPERTIES))
-            .filter(f -> f.getType().equals(Properties.class) || f.getType().equals(Map.class))
-            .findAny()
-            .map(f -> {
-                try {
-                    return f.getType().equals(Properties.class) ? (Properties) f.get(testClass) : asProperties((Map<String, String>) f.get(testClass));
-                } catch (Exception ex) {
-                    throw new IllegalArgumentException("Unable to resolve configured properties: " + ex.getMessage(), ex);
-                }
-            })
-            .orElseThrow(() -> new IllegalArgumentException(
-                "A Properties or Map<String,String> must be defined to configure the properties."
-            ));
+    private static Optional<Properties> resolveMapField(final Class<?> testClass, final String fieldName) {
+        return firstField(testClass, fieldName, Map.class).map(f -> {
+            try {
+                return asProperties((Map<String, String>) f.get(testClass));
+            } catch (IllegalAccessException e) {
+                log.error("Unable to extract Map<String,String> from field ({}): {}", f.getName(), e.getMessage(), e);
+                return new Properties();
+            }
+        });
+    }
+
+    private static Optional<Field> firstField(final Class<?> testClass, final String fieldName, final Class<?> fieldType) {
+        return findFields(
+            testClass,
+            f -> isStatic(f) && f.getType().equals(fieldType) && f.getName().equals(fieldName),
+            TOP_DOWN
+        ).stream().findFirst();
     }
 }

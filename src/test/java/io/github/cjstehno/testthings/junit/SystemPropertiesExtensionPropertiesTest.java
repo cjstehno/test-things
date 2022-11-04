@@ -34,10 +34,24 @@ class SystemPropertiesExtensionPropertiesTest {
         "first.name", "Bob",
         "last.name", "Jones"
     ));
+    @SuppressWarnings("unused")
+    static final Properties OVERLAY = asProperties(Map.of(
+        "first.name", "Fred",
+        "last.name", "Smith"
+    ));
 
     @Test void checkValues() {
         assertEquals("Bob", getProperty("first.name"));
         assertEquals("Jones", getProperty("last.name"));
+
+        assertNull(getProperty("player.name"));
+        assertNull(getProperty("player.score"));
+    }
+
+    @Test @ApplyProperties("OVERLAY")
+    void checkOverlayValues(){
+        assertEquals("Fred", getProperty("first.name"));
+        assertEquals("Smith", getProperty("last.name"));
 
         assertNull(getProperty("player.name"));
         assertNull(getProperty("player.score"));

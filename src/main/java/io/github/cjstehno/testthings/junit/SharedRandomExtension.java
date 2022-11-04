@@ -55,6 +55,8 @@ public class SharedRandomExtension implements BeforeEachCallback, AfterEachCallb
     public static long DEFAULT_KNOWN_SEED = 4242424242L;
     private static final String KNOWN_SEED = "KNOWN_SEED";
 
+    // FIXME: allow config of seed with each test method?
+
     @Override public void beforeEach(final ExtensionContext context) throws Exception {
         // set the seed to the default or configured value
         ((SharedRandom) current()).reseed(resolveKnownSeed(context.getRequiredTestClass()));
