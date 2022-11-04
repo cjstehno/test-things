@@ -15,36 +15,163 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
+/**
+ * An enumeration of some color names.
+ */
 public enum ColorName {
+
+    /**
+     * White.
+     */
     WHITE,
+
+    /**
+     * Yellow.
+     */
     YELLOW,
+
+    /**
+     * Blue.
+     */
     BLUE,
+
+    /**
+     * Red.
+     */
     RED,
+
+    /**
+     * Green.
+     */
     GREEN,
+
+    /**
+     * Black.
+     */
     BLACK,
+
+    /**
+     * Brown.
+     */
     BROWN,
+
+    /**
+     * Azure.
+     */
     AZURE,
+
+    /**
+     * Ivory.
+     */
     IVORY,
+
+    /**
+     * Teal.
+     */
     TEAL,
+
+    /**
+     * Silver.
+     */
     SILVER,
+
+    /**
+     * Purple.
+     */
     PURPLE,
+
+    /**
+     * Navy blue.
+     */
     NAVY_BLUE,
+
+    /**
+     * Pea Green.
+     */
     PEA_GREEN,
+
+    /**
+     * Gray.
+     */
     GRAY,
+
+    /**
+     * Orange.
+     */
     ORANGE,
+
+    /**
+     * Maroon.
+     */
     MAROON,
+
+    /**
+     * Charcoal.
+     */
     CHARCOAL,
+
+    /**
+     * Aquamarine.
+     */
     AQUAMARINE,
+
+    /**
+     * Coral (no, not Rick's son)
+     */
     CORAL,
+
+    /**
+     * Fuchsia.
+     */
     FUCHSIA,
+
+    /**
+     * Wheat.
+     */
     WHEAT,
+
+    /**
+     * Lime.
+     */
     LIME,
+
+    /**
+     * Crimson.
+     */
     CRIMSON,
+
+    /**
+     * Khaki.
+     */
     KHAKI,
+
+    /**
+     * Hot Pink.
+     */
     HOT_PINK,
+
+    /**
+     * Magenta.
+     */
     MAGENTA,
+
+    /**
+     * Olden.
+     */
     OLDEN,
+
+    /**
+     * Plum.
+     */
     PLUM,
+
+    /**
+     * Olive.
+     */
     OLIVE,
+
+    /**
+     * Cyan.
+     */
     CYAN;
 }

@@ -28,28 +28,33 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
+import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.stream;
 
 /**
- * FIXME: document - properties configured as system properties using
- * - Properties object
- * - Map<String, String>
+ * A test extension used to update the System properties with a configured set of properties, resetting it back to the
+ * original values after each test.
  * <p>
- * This is a before/after ALL extension - the properties are considered read-only and should not change
- * between test methods
+ * In order to provide the property values to be injected, you must provide either a <code>Properties</code> or
+ * <code>Map&lt;String,String&gt;</code> object named "SYSTEM_PROPERTIES" on the test class as a static field.
  * <p>
- * The tests run with this extension are locked so taht only one should execute at a time - still be careful
- * of overlapping execution.
+ * Before each test method is executed, the configured properties will be injected into the System properties; however,
+ * the original values will be stored and replaced after the test method has finished.
+ *
+ * <strong>NOTE:</strong> Due to the global nature of the System properties, the test methods under this extension
+ * are locked so that only one should run at a time - that being said, if you run into odd issues, try executing these
+ * tests in a single-threaded manner (and/or report a bug if you feel the functionality could be improved).
  */
 public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachCallback {
 
+    private static final String SYSTEM_PROPERTIES = "SYSTEM_PROPERTIES";
     private final Map<String, String> originals = new HashMap<>();
     private final Lock lock = new ReentrantLock();
 
     @Override public void beforeEach(final ExtensionContext context) throws Exception {
         lock.lock();
 
-        resolveConfiguredProperties(context.getRequiredTestInstance()).forEach((k, v) -> {
+        resolveConfiguredProperties(context.getRequiredTestClass()).forEach((k, v) -> {
             val key = k.toString();
             val value = v.toString();
 
@@ -69,24 +74,30 @@ public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachC
         lock.unlock();
     }
 
+    /**
+     * A helper method that may be used to convert a <code>Map</code> to a <code>Properties</code> object containing
+     * the same data.
+     *
+     * @param map the map of property data
+     * @return a Properties object containing the map data
+     */
     public static Properties asProperties(final Map<String, String> map) {
         val props = new Properties();
         props.putAll(map);
         return props;
     }
 
+    // FIXME: these resolvers I use would make a good extension helper toolkit
     @SuppressWarnings("unchecked")
-    private static Properties resolveConfiguredProperties(final Object testInstance) {
-        return stream(testInstance.getClass().getDeclaredFields())
+    private static Properties resolveConfiguredProperties(final Class<?> testClass) {
+        return stream(testClass.getDeclaredFields())
+            .filter(f -> isStatic(f.getModifiers()))
+            .filter(f -> f.getName().equals(SYSTEM_PROPERTIES))
             .filter(f -> f.getType().equals(Properties.class) || f.getType().equals(Map.class))
             .findAny()
             .map(f -> {
                 try {
-                    if (f.getType().equals(Properties.class)) {
-                        return (Properties) f.get(testInstance);
-                    } else {
-                        return asProperties((Map<String, String>) f.get(testInstance));
-                    }
+                    return f.getType().equals(Properties.class) ? (Properties) f.get(testClass) : asProperties((Map<String, String>) f.get(testClass));
                 } catch (Exception ex) {
                     throw new IllegalArgumentException("Unable to resolve configured properties: " + ex.getMessage(), ex);
                 }

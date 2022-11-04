@@ -26,6 +26,9 @@ import java.util.function.Function;
 import static io.github.cjstehno.testthings.inject.Injection.findField;
 import static io.github.cjstehno.testthings.inject.Injection.findGetter;
 
+/**
+ * FIXME: document
+ */
 @RequiredArgsConstructor
 public class UpdateInjection implements Injection {
 
@@ -33,6 +36,9 @@ public class UpdateInjection implements Injection {
     private final Function<Object, Object> updater;
     private final boolean preferProps;
 
+    /**
+     * FIXME: document
+     */
     @Override
     public void injectInto(final Object instance) throws ReflectiveOperationException {
         val field = findField(instance.getClass(), name);
@@ -60,5 +66,4 @@ public class UpdateInjection implements Injection {
 
         return currentValue;
     }
-
 }

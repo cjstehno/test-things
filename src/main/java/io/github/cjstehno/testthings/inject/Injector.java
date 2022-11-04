@@ -31,18 +31,27 @@ public final class Injector {
 
     private final InjectionsImpl injections;
 
+    /**
+     * FIXME: document
+     */
     public static Injector injector(final Consumer<Injections> prescription) {
         val injections = new InjectionsImpl();
         prescription.accept(injections);
         return new Injector(injections);
     }
 
+    /**
+     * FIXME: document
+     */
     public static <T> T inject(final T instance, final Consumer<Injections> prescription) throws ReflectiveOperationException {
         return injector(prescription).inject(instance);
     }
 
-    // TODO: better excepotion?
+    /**
+     * FIXME: document
+     */
     public <T> T inject(final T instance) throws ReflectiveOperationException {
+        // TODO: better excepotion?
         return injections.apply(instance);
     }
 }

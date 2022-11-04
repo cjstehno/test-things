@@ -19,8 +19,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * A standardized person object for use in testing.
+ */
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Person {
+
     private String name;
     private BirthGender birthGender;
     private int age;

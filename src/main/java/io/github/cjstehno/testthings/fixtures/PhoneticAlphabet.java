@@ -15,33 +15,139 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
+/**
+ * An enumeration of the military phonetic alphabet.
+ */
 public enum PhoneticAlphabet {
 
+    /**
+     * Alpha - A.
+     */
     ALPHA,
+
+    /**
+     * Bravo - B.
+     */
     BRAVO,
+
+    /**
+     * Charlie - C.
+     */
     CHARLIE,
+
+    /**
+     * Delta - D.
+     */
     DELTA,
+
+    /**
+     * Echo - E.
+     */
     ECHO,
+
+    /**
+     * Foxtrot - F.
+     */
     FOXTROT,
+
+    /**
+     * Golf - G.
+     */
     GOLF,
+
+    /**
+     * Hotel - H.
+     */
     HOTEL,
+
+    /**
+     * India - I.
+     */
     INDIA,
+
+    /**
+     * Juliet - J.
+     */
     JULIET,
+
+    /**
+     * Kilo - K.
+     */
     KILO,
+
+    /**
+     * Lima - L.
+     */
     LIMA,
+
+    /**
+     * Mike - M.
+     */
     MIKE,
+
+    /**
+     * November - N.
+     */
     NOVEMBER,
+
+    /**
+     * Oscar - O.
+     */
     OSCAR,
+
+    /**
+     * Papa - P.
+     */
     PAPA,
+
+    /**
+     * Quebec - Q.
+     */
     QUEBEC,
+
+    /**
+     * Romeo - R.
+     */
     ROMEO,
+
+    /**
+     * Sierra - S.
+     */
     SIERRA,
+
+    /**
+     * Tango - T.
+     */
     TANGO,
+
+    /**
+     * Uniform - U.
+     */
     UNIFORM,
+
+    /**
+     * Victor - V.
+     */
     VICTOR,
+
+    /**
+     * Whisky - W.
+     */
     WHISKEY,
+
+    /**
+     * X-ray - X.
+     */
     XRAY,
+
+    /**
+     * Yankee - Y.
+     */
     YANKEE,
+
+    /**
+     * Zulu - Z.
+     */
     ZULU;
 
     public String toLetter() {

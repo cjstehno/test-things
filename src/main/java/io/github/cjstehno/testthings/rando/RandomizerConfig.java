@@ -15,13 +15,50 @@
  */
 package io.github.cjstehno.testthings.rando;
 
+/**
+ * The configuration interface for the ObjectRandomizer
+ */
 public interface RandomizerConfig {
 
+    // FIXME: rename ObjectRandomizerConfig?
+
+    /**
+     * fIXME: document
+     *
+     * @param name the property name
+     * @param randomizer the randomizer
+     * @return this config instance
+     * @param <P> the property type
+     */
     <P> RandomizerConfig property(final String name, final Randomizer<P> randomizer);
 
+    /**
+     * fIXME: document
+     *
+     * @param type the property type
+     * @param randomizer the randomizer
+     * @return this config instance
+     * @param <P> the property type
+     */
     <P> RandomizerConfig propertyType(final Class<P> type, final Randomizer<P> randomizer);
 
+    /**
+     * fIXME: document
+     *
+     * @param name the field name
+     * @param randomizer the randomizer
+     * @return this config instance
+     * @param <P> the field type
+     */
     <P> RandomizerConfig field(final String name, final Randomizer<P> randomizer);
 
+    /**
+     * fIXME: document
+     *
+     * @param type the field type
+     * @param randomizer the randomizer
+     * @return this config instance
+     * @param <P> the property type
+     */
     <P> RandomizerConfig fieldType(final Class<P> type, final Randomizer<P> randomizer);
 }

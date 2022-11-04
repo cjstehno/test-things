@@ -19,8 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-// beware of when prop|field type configs overlap
-// property (setter) randomization should be preferred over field-based
+// FIXME: beware of when prop|field type configs overlap
+// FIXME: property (setter) randomization should be preferred over field-based
+
+/**
+ * fIXME: document
+ */
 class RandomizerConfigImpl implements RandomizerConfig {
 
     private final Map<Class<?>, Randomizer<?>> propertyTypeRandomizers = new HashMap<>();

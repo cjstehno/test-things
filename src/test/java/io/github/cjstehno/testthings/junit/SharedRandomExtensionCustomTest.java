@@ -15,29 +15,25 @@
  */
 package io.github.cjstehno.testthings.junit;
 
+import io.github.cjstehno.testthings.rando.SharedRandom;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Map;
-
-import static java.lang.System.getProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-@ExtendWith(SystemPropertiesExtension.class)
-class SystemPropertiesExtensionMapTest {
+@ExtendWith(SharedRandomExtension.class)
+class SharedRandomExtensionCustomTest {
 
     @SuppressWarnings("unused")
-    static final Map<String, String> SYSTEM_PROPERTIES = Map.of(
-        "player.name", "bjones",
-        "player.score", "123,987"
-    );
+    private static final long KNOWN_SEED = 1234123512342L;
 
-    @Test void checkValues() {
-        assertEquals("bjones", getProperty("player.name"));
-        assertEquals("123,987", getProperty("player.score"));
+    @Test void testing() {
+        val rand = SharedRandom.current();
 
-        assertNull(getProperty("first.name"));
-        assertNull(getProperty("last.name"));
+        assertEquals(KNOWN_SEED, ((SharedRandom) rand).getSeed());
+        assertEquals(285594675, rand.nextInt());
+        assertEquals(-1649795800, rand.nextInt());
+        assertEquals(-1558589534, rand.nextInt());
     }
 }

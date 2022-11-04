@@ -28,7 +28,7 @@ import java.util.Map;
 
 import static io.github.cjstehno.testthings.inject.Injector.inject;
 import static io.github.cjstehno.testthings.inject.Injector.injector;
-import static io.github.cjstehno.testthings.rando.Randomizers.oneOf;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

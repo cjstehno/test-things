@@ -22,8 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static io.github.cjstehno.testthings.rando.ObjectRandomizer.randomize;
-import static io.github.cjstehno.testthings.rando.Randomizers.intRange;
-import static io.github.cjstehno.testthings.rando.Randomizers.oneOf;
+import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
 import static java.lang.String.format;
 
 class ObjectRandomizerTest {
@@ -35,18 +35,18 @@ class ObjectRandomizerTest {
     void general_usage() {
         Randomizer<SomethingElse> rando = randomize(SomethingElse.class, config -> {
             config.property("name", oneOf("alpha", "bravo", "charlie"));
-            config.property("score", intRange(10, 100));
+            config.property("score", anIntBetween(10, 100));
             config.field("added", oneOf("one", "two"));
         });
 
-        rando.list(5).forEach(System.out::println);
+        rando.many(5).forEach(System.out::println);
     }
 
     @Test @DisplayName("Randomizing nested objects")
     void nested_objects() {
         Randomizer<SomethingElse> randoThing = randomize(SomethingElse.class, config -> {
             config.property("name", oneOf("alpha", "bravo", "charlie"));
-            config.property("score", intRange(10, 100));
+            config.property("score", anIntBetween(10, 100));
             config.field("added", oneOf("one", "two"));
         });
 
@@ -54,7 +54,7 @@ class ObjectRandomizerTest {
             cfg.property("thing", randoThing);
         });
 
-        rando.list(5).forEach(System.out::println);
+        rando.many(5).forEach(System.out::println);
     }
 
     @Test @DisplayName("General Usage (with global types)")
@@ -62,10 +62,10 @@ class ObjectRandomizerTest {
         Randomizer<SomethingElse> rando = randomize(SomethingElse.class, config -> {
             config.propertyType(String.class, oneOf("alpha", "bravo", "charlie"));
             config.property("name", oneOf("Bob", "Joe"));
-            config.fieldType(int.class, intRange(25, 50));
+            config.fieldType(int.class, anIntBetween(25, 50));
         });
 
-        rando.list(5).forEach(System.out::println);
+        rando.many(5).forEach(System.out::println);
     }
 
     static class Something {

@@ -31,7 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TemporalMatcherTest {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
     private static final LocalDateTime TARGET_DATETIME = LocalDateTime.of(2022, OCTOBER, 1, 10, 25, 15, 0);
     private static final LocalDate TARGET_DATE = LocalDate.of(2022, OCTOBER, 1);
 
@@ -99,7 +100,7 @@ class TemporalMatcherTest {
         "10/08/2022,false",
     })
     void weekday(final String date, final boolean expected) {
-        assertEquals(expected, isWeekday().matches(parse(date, FORMATTER)));
+        assertEquals(expected, isWeekday().matches(parse(date, DATE_FORMATTER)));
     }
 
     @ParameterizedTest @CsvSource({
@@ -112,6 +113,29 @@ class TemporalMatcherTest {
         "10/08/2022,true",
     })
     void weekend(final String date, final boolean expected) {
-        assertEquals(expected, isWeekend().matches(parse(date, FORMATTER)));
+        assertEquals(expected, isWeekend().matches(parse(date, DATE_FORMATTER)));
+    }
+
+    @ParameterizedTest @CsvSource({
+        "10/31/2022 23:59:59,false",
+        "11/01/2022 00:00:00,true",
+        "11/01/2022 01:00:00,true",
+        "11/01/2022 05:23:11,true",
+        "11/01/2022 11:59:59,true",
+        "11/01/2022 12:00:00,false",
+    })
+    void morning(final String date, final boolean expected){
+        assertEquals(expected, isInMorning().matches(LocalDateTime.parse(date, DATE_TIME_FORMATTER)));
+    }
+
+    @ParameterizedTest @CsvSource({
+        "11/01/2022 11:59:59,false",
+        "11/01/2022 12:00:00,true",
+        "11/01/2022 17:23:11,true",
+        "11/01/2022 23:59:59,true",
+        "11/01/2022 00:00:00,false",
+    })
+    void afternoon(final String date, final boolean expected){
+        assertEquals(expected, isInAfternoon().matches(LocalDateTime.parse(date, DATE_TIME_FORMATTER)));
     }
 }

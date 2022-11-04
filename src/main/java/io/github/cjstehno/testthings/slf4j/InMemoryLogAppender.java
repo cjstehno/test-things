@@ -44,8 +44,6 @@ public class InMemoryLogAppender extends AppenderBase<ILoggingEvent> {
 
     /**
      * Must be called to initiate the log event recording - to register the log appender with the logger.
-     *
-     * @return a reference to this appender
      */
     public void attach() {
         start();

@@ -21,32 +21,44 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static io.github.cjstehno.testthings.fixtures.PhoneticAlphabet.*;
+import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.arrayOf;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SharedRandomExtension.class)
-class RandomizersTest {
+class CoreRandomizersTest {
 
     // FIXME: test all
 
     @Test @SuppressWarnings("RedundantArrayCreation")
     void oneOfArray() {
-        val rando = Randomizers.oneOf(new String[]{"alpha", "bravo", "charlie"});
+        val rando = CoreRandomizers.oneOf(new String[]{"alpha", "bravo", "charlie"});
         assertEquals("bravo", rando.one());
         assertEquals("alpha", rando.one());
         assertEquals("alpha", rando.one());
     }
 
     @Test void oneOfVarargs() {
-        val rando = Randomizers.oneOf("alpha", "bravo", "charlie");
+        val rando = CoreRandomizers.oneOf("alpha", "bravo", "charlie");
         assertEquals("bravo", rando.one());
         assertEquals("alpha", rando.one());
         assertEquals("alpha", rando.one());
     }
 
     @Test void oneOfEnum() {
-        val rando = Randomizers.oneOf(PhoneticAlphabet.class);
+        val rando = CoreRandomizers.oneOf(PhoneticAlphabet.class);
         assertEquals(PhoneticAlphabet.JULIET, rando.one());
-        assertEquals(PhoneticAlphabet.ROMEO, rando.one());
+        assertEquals(ROMEO, rando.one());
         assertEquals(PhoneticAlphabet.GOLF, rando.one());
+    }
+
+    @Test void array() {
+        val rando = arrayOf(anIntBetween(1, 3), oneOf(PhoneticAlphabet.class));
+        assertArrayEquals(new PhoneticAlphabet[]{ROMEO}, rando.one());
+        assertArrayEquals(new PhoneticAlphabet[]{LIMA, ALPHA}, rando.one());
+        assertArrayEquals(new PhoneticAlphabet[]{ALPHA, XRAY}, rando.one());
     }
 }

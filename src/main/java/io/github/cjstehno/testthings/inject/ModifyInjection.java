@@ -20,12 +20,18 @@ import lombok.val;
 
 import java.util.function.Consumer;
 
+/**
+ * FIXME: document
+ */
 @RequiredArgsConstructor
 public class ModifyInjection implements Injection {
 
     private final String name;
     private final Consumer<Object> modifier;
 
+    /**
+     * FIXME: document
+     */
     @Override public void injectInto(Object instance) throws ReflectiveOperationException {
         val field = Injection.findField(instance.getClass(), name);
         if (field.isPresent()) {

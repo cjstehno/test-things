@@ -30,20 +30,28 @@ import static java.lang.System.nanoTime;
 @Slf4j
 public class SharedRandom implements RandomGenerator {
 
-    // TODO: document
+    /**
+     * The System property which may be used to specify a custom seed value (e.g "test-things.rando.seed").
+     */
     public static final String SEED_PROPERTY = "test-things.rando.seed";
 
-    private static ThreadLocal<SharedRandom> SHARED = ThreadLocal.withInitial(() -> new SharedRandom(null));
+    private static ThreadLocal<SharedRandom> SHARED = ThreadLocal.withInitial(() -> {
+        log.info("Creating a new random.");
+        return new SharedRandom(null);
+    });
 
-    @Getter private final long seed;
+    @Getter private long seed;
     private Random random;
 
     private SharedRandom(final Long seed) {
-        this.seed = resolveSeed(seed);
-        this.random = new Random(this.seed);
-        log.info("Using seed (set '{}' to pin): {}", SEED_PROPERTY, this.seed);
+        reseed(resolveSeed(seed));
     }
 
+    /**
+     * Retrieves the singleton instance of the RandomGenerator for the current thread.
+     *
+     * @return the random generator instance
+     */
     public static RandomGenerator current() {
         return SHARED.get();
     }
@@ -52,15 +60,32 @@ public class SharedRandom implements RandomGenerator {
         return random.nextLong();
     }
 
+    /**
+     * Updates the seed value and rebuilds the internal random generator.
+     *
+     * @param newSeed the new seed value
+     */
     public void reseed(final long newSeed) {
+        seed = newSeed;
         random = new Random(newSeed);
-        log.info("Resetting seed to {}", newSeed);
+        log.info("Updating seed to {}", newSeed);
     }
 
+    /**
+     * Builds a SharedRandom with the specified seed.
+     *
+     * @param seed the seed
+     * @return the SharedRandom instance
+     */
     public static SharedRandom generator(final Long seed) {
         return new SharedRandom(seed);
     }
 
+    /**
+     * Builds a SharedRandom with the default seed.
+     *
+     * @return the SharedRandom instance
+     */
     public static SharedRandom generator() {
         return generator(null);
     }

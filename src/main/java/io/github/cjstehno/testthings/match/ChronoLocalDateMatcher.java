@@ -15,28 +15,57 @@
  */
 package io.github.cjstehno.testthings.match;
 
-import org.hamcrest.BaseMatcher;
+import lombok.NoArgsConstructor;
 import org.hamcrest.Matcher;
 
 import java.time.chrono.ChronoLocalDate;
 
+import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.Matchers.*;
 
-// FIXME: document - some are just syntactic helpers allowing cleaner use of existing matchers
-public abstract class ChronoLocalDateMatcher extends BaseMatcher<ChronoLocalDate> {
+/**
+ * Provides some matchers for working with <code>ChronoLocalDate</code> objects - most of these are just syntax aliases
+ * on top of standard Hamcrest matchers - useful to make code more clear.
+ */
+@NoArgsConstructor(access = PRIVATE)
+public final class ChronoLocalDateMatcher {
 
+    /**
+     * Matches a date that is before (less than but not equal to) the specified date value.
+     *
+     * @param date the target date value
+     * @return the matcher
+     */
     public static Matcher<ChronoLocalDate> isBefore(final ChronoLocalDate date) {
         return lessThan(date);
     }
 
+    /**
+     * Matches a date that is after (greater than but not equal to) the specified date value.
+     *
+     * @param date the target date value
+     * @return the matcher
+     */
     public static Matcher<ChronoLocalDate> isAfter(final ChronoLocalDate date) {
         return greaterThan(date);
     }
 
+    /**
+     * Matches a date that is before or equal to the specified date value.
+     *
+     * @param date the target date value
+     * @return the matcher
+     */
     public static Matcher<ChronoLocalDate> isEqualOrBefore(final ChronoLocalDate date) {
         return lessThanOrEqualTo(date);
     }
 
+    /**
+     * Matches a date that is after or equal to the specified date value.
+     *
+     * @param date the target date value
+     * @return the matcher
+     */
     public static Matcher<ChronoLocalDate> isEqualOrAfter(final ChronoLocalDate date) {
         return greaterThanOrEqualTo(date);
     }

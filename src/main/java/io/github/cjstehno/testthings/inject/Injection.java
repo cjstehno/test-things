@@ -24,11 +24,23 @@ import java.util.Optional;
 
 import static java.util.Locale.ROOT;
 
+/**
+ * Defines an injection of an Object into another Object.
+ */
 public interface Injection {
 
+    // FIXME: needs refactoring (and its impls)
+
+    /**
+     * Performs the injection into the provided instance.
+     *
+     * @param instance the instance where things should be injected.
+     * @throws ReflectiveOperationException if there is a problem
+     */
     void injectInto(final Object instance) throws ReflectiveOperationException;
 
     // FIXME: pull these out into a util
+
     static Optional<Field> findField(final Class<?> inClass, final String name) {
         try {
             val field = inClass.getDeclaredField(name);

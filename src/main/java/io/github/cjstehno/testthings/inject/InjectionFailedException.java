@@ -15,22 +15,26 @@
  */
 package io.github.cjstehno.testthings.inject;
 
+import lombok.Getter;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
+/**
+ * An exception noting that an injection failed.
+ */
 public class InjectionFailedException extends RuntimeException {
 
-    private final List<Throwable> exceptions = new LinkedList<>();
+    /**
+     * The collection of exceptions.
+     */
+    @Getter private final List<Throwable> exceptions = new LinkedList<>();
 
     InjectionFailedException(final List<Throwable> exes) {
         this.exceptions.addAll(exes);
-    }
-
-    public List<Throwable> getExceptions() {
-        return exceptions;
     }
 
     @Override public String getMessage() {

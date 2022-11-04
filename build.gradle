@@ -1,7 +1,10 @@
 plugins {
     id 'java-library'
-    id "com.github.hierynomus.license" version '0.16.1'
+    id 'com.github.hierynomus.license' version '0.16.1'
     id 'jacoco'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'org.asciidoctor.jvm.gems' version '3.3.2'
+    id 'com.stehno.gradle.webpreview' version '0.3.0'
 }
 
 group = 'io.github.cjstehno.testthings'
@@ -59,4 +62,74 @@ license {
     ext.year = Calendar.instance.get(Calendar.YEAR)
 
     excludes(['**/*.txt', '**/*.dtd', '**/*.xml', '**/*.ent', '**/*.jks', '**/*.jpg'])
+}
+
+asciidoctor {
+    baseDir file('src/docs/asciidoc')
+    options doctype: 'book'
+    attributes(
+        'source-highlighter': 'rouge',
+        'coderay-linenums-mode': 'table',
+        icon: 'font',
+        linkattrs: true,
+        encoding: 'utf-8'
+    )
+}
+
+webPreview {
+    resourceDir = file('build/site')
+}
+
+task site(dependsOn: ['build', 'javadoc', 'jacocoTestReport', 'asciidoctor']) {
+    doLast {
+        def vars = [
+            project_version: project.version,
+            year           : Calendar.instance.get(Calendar.YEAR)
+        ]
+
+        mkdir 'build/site'
+
+        copy {
+            from 'src/site'
+            into 'build/site'
+            include '**/*.html'
+            expand vars
+        }
+
+        copy {
+            from 'src/site'
+            into 'build/site'
+            include '**/css/**'
+            include '**/js/**'
+            include '**/img/**'
+        }
+
+        // Copy the coverage reports
+        copy {
+            from 'build/reports/jacoco/test/html'
+            include '**/**'
+            into 'build/site/jacoco'
+        }
+
+        // Copy the test reports
+        copy {
+            from 'build/reports/tests/test'
+            include '**/**'
+            into 'build/site/tests'
+        }
+
+        // Copy the javadocs
+        copy {
+            from 'build/docs/javadoc'
+            include '**/**'
+            into 'build/site/javadoc'
+        }
+
+        // copy the generated user-guide
+        copy {
+            from 'build/docs/asciidoc'
+            include 'user_guide.html'
+            into 'build/site/docs'
+        }
+    }
 }

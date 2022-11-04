@@ -15,17 +15,60 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
 /**
- * An enumeration of birth genders.
+ * An enumeration of the planets in our solar system.
  */
-public enum BirthGender {
-    /**
-     * Male birth gender.
-     */
-    MALE,
+public enum Planet {
 
     /**
-     * Female birth gender.
+     * Mercury.
      */
-    FEMALE;
+    MERCURY,
+
+    /**
+     * Venus.
+     */
+    VENUS,
+
+    /**
+     * Earth.
+     */
+    EARTH,
+
+    /**
+     * Mars.
+     */
+    MARS,
+
+    /**
+     * Saturn.
+     */
+    SATURN,
+
+    /**
+     * Jupiter.
+     */
+    JUPITER,
+
+    /**
+     * Uranus (he he).
+     */
+    URANUS,
+
+    /**
+     * Neptune.
+     */
+    NEPTUNE,
+
+    /**
+     * Pluto (sill a plant in my heart).
+     */
+    PLUTO;
+
+    @Override public String toString() {
+        return capitalize(name().toLowerCase(ROOT));
+    }
 }

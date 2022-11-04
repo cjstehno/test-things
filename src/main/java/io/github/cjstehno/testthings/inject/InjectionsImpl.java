@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Default Injections implementation.
+ */
 public class InjectionsImpl implements Injections {
 
-    private List<Injection> injections = new LinkedList<>();
+    private final List<Injection> injections = new LinkedList<>();
 
     @Override public Injections set(final String name, final Object value, final boolean preferSetter) {
         injections.add(new SetInjection(name, value, preferSetter));

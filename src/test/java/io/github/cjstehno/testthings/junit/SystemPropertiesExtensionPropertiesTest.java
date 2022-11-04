@@ -29,7 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ExtendWith(SystemPropertiesExtension.class)
 class SystemPropertiesExtensionPropertiesTest {
 
-    static final Properties props = asProperties(Map.of(
+    @SuppressWarnings("unused")
+    static final Properties SYSTEM_PROPERTIES = asProperties(Map.of(
         "first.name", "Bob",
         "last.name", "Jones"
     ));

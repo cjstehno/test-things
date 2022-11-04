@@ -26,22 +26,34 @@ import java.util.function.Supplier;
 import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-// FIXME: document - used to verify conditions
+/**
+ * Some utility methods useful for verifying common functionality of objects.
+ */
 @NoArgsConstructor(access = PRIVATE)
 public final class Verifiers {
 
-    // FIXME: note that the generated instance should be the same data just not the same instace
+    /**
+     * An alias to the <code>verifyEqualsAndHashCode(Object,Object)</code> method, calling the provided
+     * <code>Supplier&lt;Object&gt;</code> for each. See that method description for details.
+     *
+     * @param supplier a supplier that will be called twice to provide the objects to be used in the test
+     */
     public static void verifyEqualsAndHashCode(final Supplier<Object> supplier) {
         verifyEqualsAndHashCode(supplier.get(), supplier.get());
     }
 
-    // FIXME: note that the generated instance should be the same data just not the same instace
+    /**
+     * Used to verify that the <code>equals(Object)</code> and <code>hashCode()</code> methods return values that meet
+     * with the standard contract for those methods.
+     *
+     * The two instances provided should be equivalent, but not the same instance.
+     *
+     * @param instanceA the first instance
+     * @param instanceB the second instance
+     */
     public static void verifyEqualsAndHashCode(final Object instanceA, final Object instanceB) {
-        // TODO: add expection labels
         assertThat(instanceA, equalTo(instanceA));
         assertThat(instanceB, equalTo(instanceB));
         assertThat(instanceA, equalTo(instanceB));
@@ -52,26 +64,57 @@ public final class Verifiers {
         assertThat(instanceB.hashCode(), equalTo(instanceA.hashCode()));
     }
 
-    // FIXME: document
+    /**
+     * Used to verify that the <code>toString()</code> method of the object provided by the
+     * <code>Supplier&lt;Object&gt;</code> matches the expected String.
+     *
+     * @param expected the expected string
+     * @param supplier a supplier that will be used to generate the object to be tested
+     */
     public static void verifyToString(final String expected, final Supplier<Object> supplier) {
         verifyToString(expected, supplier.get());
     }
 
+    /**
+     * Used to verify that the <code>toString()</code> method of the object provided by the
+     * <code>Supplier&lt;Object&gt;</code> matches the given Matcher.
+     *
+     * @param matcher the Matcher for the generated string
+     * @param supplier a supplier that will be used to generate the object to be tested
+     */
     public static void verifyToString(final Matcher<String> matcher, final Supplier<Object> supplier) {
         verifyToString(matcher, supplier.get());
     }
 
+    /**
+     * Used to verify that the <code>toString()</code> method of the object provided by the matches the given Matcher.
+     *
+     * @param matcher the Matcher for the generated string
+     * @param obj the object to be tested
+     */
     public static void verifyToString(final Matcher<String> matcher, final Object obj) {
         assertThat(obj.toString(), matcher);
     }
 
-    // FIXME: document
+    /**
+     * Used to verify that the <code>toString()</code> method of the object provided by the matches the given string.
+     *
+     * @param expected the expected string value
+     * @param obj the object to be tested
+     */
     public static void verifyToString(final String expected, final Object obj) {
         verifyToString(equalTo(expected), obj);
     }
 
     // FIXME: serdes matcher version
 
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param object the object to be verified
+     * @param expected the expected byte array
+     */
     public static void verifySerdes(final SerdesProvider provider, final Object object, final byte[] expected) {
         try {
             val serialized = provider.serializeToBytes(object);
@@ -85,6 +128,12 @@ public final class Verifiers {
         }
     }
 
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param object the object to be verified
+     */
     public static void verifySerdes(final SerdesProvider provider, final Object object) {
         try {
             val serialized = provider.serializeToBytes(object);
@@ -96,7 +145,13 @@ public final class Verifiers {
         }
     }
 
-    // FIXME: document
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param object the object to be verified
+     * @param expected the expected string
+     */
     public static void verifySerdes(final SerdesProvider provider, final Object object, final String expected) {
         try {
             val serialized = provider.serializeToString(object);
@@ -110,6 +165,13 @@ public final class Verifiers {
         }
     }
 
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param object the object to be verified
+     * @param expected the expected byte array
+     */
     public static void verifySerialization(final SerdesProvider provider, final Object object, final byte[] expected) {
         try {
             assertArrayEquals(expected, provider.serializeToBytes(object));
@@ -118,6 +180,13 @@ public final class Verifiers {
         }
     }
 
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param object the object to be verified
+     * @param expected the expected string
+     */
     public static void verifySerialization(final SerdesProvider provider, final Object object, final String expected) {
         try {
             assertEquals(expected, provider.serializeToString(object));
@@ -126,6 +195,13 @@ public final class Verifiers {
         }
     }
 
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param bytes the serialized bytes
+     * @param expectedObject the expected deserialized object
+     */
     public static void verifyDeserialization(final SerdesProvider provider, final byte[] bytes, final Object expectedObject) {
         try {
             assertEquals(expectedObject, provider.deserialize(bytes, expectedObject.getClass()));
@@ -134,6 +210,13 @@ public final class Verifiers {
         }
     }
 
+    /**
+     * FIXME: document
+     *
+     * @param provider the serdes provider
+     * @param string the serialized string
+     * @param expectedObject the expected deserialized object
+     */
     public static void verifyDeserialization(final SerdesProvider provider, final String string, final Object expectedObject) {
         try {
             assertEquals(expectedObject, provider.deserialize(string, expectedObject.getClass()));

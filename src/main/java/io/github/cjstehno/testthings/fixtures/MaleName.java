@@ -15,63 +15,262 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Locale;
-
 import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
+/**
+ * An enumeration of some male names.
+ */
 public enum MaleName {
+
+    /**
+     * Liam.
+     */
     LIAM,
+
+    /**
+     * Noah.
+     */
     NOAH,
+
+    /**
+     * Oliver.
+     */
     OLIVER,
+
+    /**
+     * Elijah.
+     */
     ELIJAH,
+
+    /**
+     * James.
+     */
     JAMES,
+
+    /**
+     * William.
+     */
     WILLIAM,
+
+    /**
+     * Benjamin.
+     */
     BENJAMIN,
+
+    /**
+     * Lucas.
+     */
     LUCAS,
+
+    /**
+     * Henry.
+     */
     HENRY,
+
+    /**
+     * Theodore.
+     */
     THEODORE,
+
+    /**
+     * Jack.
+     */
     JACK,
+
+    /**
+     * Levi.
+     */
     LEVI,
+
+    /**
+     * Alexander.
+     */
     ALEXANDER,
+
+    /**
+     * Jackson.
+     */
     JACKSON,
+
+    /**
+     * Mateo.
+     */
     MATEO,
+
+    /**
+     * Daniel.
+     */
     DANIEL,
+
+    /**
+     * Michael.
+     */
     MICHAEL,
+
+    /**
+     * Mason.
+     */
     MASON,
+
+    /**
+     * Sebastian.
+     */
     SEBASTIAN,
+
+    /**
+     * Ethan.
+     */
     ETHAN,
+
+    /**
+     * Logan.
+     */
     LOGAN,
+
+    /**
+     * Owen.
+     */
     OWEN,
+
+    /**
+     * Samuel.
+     */
     SAMUEL,
+
+    /**
+     * Jacom.
+     */
     JACOB,
+
+    /**
+     * Asher.
+     */
     ASHER,
+
+    /**
+     * Aiden.
+     */
     AIDEN,
+
+    /**
+     * John.
+     */
     JOHN,
+
+    /**
+     * Joseph.
+     */
     JOSEPH,
+
+    /**
+     * Wyatt.
+     */
     WYATT,
+
+    /**
+     * David.
+     */
     DAVID,
+
+    /**
+     * Leo.
+     */
     LEO,
+
+    /**
+     * Luke, I am NOT your father.
+     */
     LUKE,
+
+    /**
+     * Julian.
+     */
     JULIAN,
+
+    /**
+     * Hudson.
+     */
     HUDSON,
+
+    /**
+     * Grayson.
+     */
     GRAYSON,
+
+    /**
+     * Matthew.
+     */
     MATTHEW,
+
+    /**
+     * Ezra.
+     */
     EZRA,
+
+    /**
+     * Gabriel.
+     */
     GABRIEL,
+
+    /**
+     * Carter.
+     */
     CARTER,
+
+    /**
+     * Isaac.
+     */
     ISAAC,
+
+    /**
+     * Jayden.
+     */
     JAYDEN,
+
+    /**
+     * Luca. Do you live on the second floor?
+     */
     LUCA,
+
+    /**
+     * Anthony.
+     */
     ANTHONY,
+
+    /**
+     * Dylan.
+     */
     DYLAN,
+
+    /**
+     * Lincoln.
+     */
     LINCOLN,
+
+    /**
+     * Thomas.
+     */
     THOMAS,
+
+    /**
+     * Maverick.
+     */
     MAVERICK,
+
+    /**
+     * Elias.
+     */
     ELIAS,
+
+    /**
+     * Josiah.
+     */
     JOSIAH,
+
+    /**
+     * CHARLES.
+     */
     CHARLES;
 
     @Override public String toString() {

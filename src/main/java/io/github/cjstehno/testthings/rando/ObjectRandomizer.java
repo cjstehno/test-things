@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 package io.github.cjstehno.testthings.rando;
+
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -26,17 +28,21 @@ import java.util.stream.Collectors;
 
 import static java.lang.Character.toLowerCase;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
+/**
+ * Randomizer used to generate randomized complex objects.
+ *
+ * TODO: more details
+ *
+ * @param <T> the type of randomized object
+ */
 @RequiredArgsConstructor(access = PRIVATE)
 public final class ObjectRandomizer<T> implements Randomizer<T> {
 
     private final Class<T> type;
     private final RandomizerConfigImpl randomizerConfig;
-
-    // FIXME: add way to specify the seed so that values can be repeated
-    // FIXME: also log the seed used so that it can be reused
 
     /**
      * Used to configure a Randomizer which will produce random objects built using the specified `RandomizerConfig`.
@@ -99,13 +105,13 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
 
     // FIXME: these should be moved to a utility
     private static List<Method> findSetters(final Class<?> inClass) {
-        final List<Method> setters = stream(inClass.getDeclaredMethods())
+        final List<Method> setters = Arrays.stream(inClass.getDeclaredMethods())
             .filter(method -> method.getName().startsWith("set") && method.getParameterCount() == 1)
-            .collect(Collectors.toList());
+            .collect(toList());
 
         Class<?> superclass = inClass.getSuperclass();
         while (superclass != Object.class) {
-            stream(superclass.getDeclaredMethods())
+            Arrays.stream(superclass.getDeclaredMethods())
                 .filter(method -> method.getName().startsWith("set") && method.getParameterCount() == 1)
                 .forEach(setters::add);
 
@@ -119,7 +125,7 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
     }
 
     private static List<Field> findFields(final Class<?> inClass) {
-        final List<Field> fields = stream(inClass.getDeclaredFields()).collect(Collectors.toList());
+        final List<Field> fields = Arrays.stream(inClass.getDeclaredFields()).collect(toList());
 
         Class<?> superclass = inClass.getSuperclass();
         while (superclass != Object.class) {

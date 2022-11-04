@@ -23,6 +23,9 @@ import lombok.val;
 import static io.github.cjstehno.testthings.inject.Injection.findField;
 import static io.github.cjstehno.testthings.inject.Injection.findSetter;
 
+/**
+ * FIXME: document
+ */
 @RequiredArgsConstructor
 public class SetInjection implements Injection {
 
@@ -30,16 +33,17 @@ public class SetInjection implements Injection {
     private final Object value;
     private final boolean preferSetter;
 
+    /**
+     * FIXME: document
+     */
     @Override
     public void injectInto(final Object instance) throws ReflectiveOperationException {
-
         Class<?> valueType = value.getClass();
         Object injectedValue = value;
 
-        if (value instanceof Randomizer<?>) {
-            val rando = (Randomizer<?>) value;
-            valueType = rando.getClass().getTypeParameters()[0].getClass();
+        if (value instanceof Randomizer<?> rando) {
             injectedValue = rando.one();
+            valueType = rando.getClass();
         }
 
         if (preferSetter) {

@@ -22,9 +22,12 @@ import io.github.cjstehno.testthings.fixtures.Person;
 import lombok.NoArgsConstructor;
 import lombok.val;
 
-import static io.github.cjstehno.testthings.rando.Randomizers.intRange;
-import static io.github.cjstehno.testthings.rando.Randomizers.oneOf;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
+import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
 
+/**
+ * A randomizer used to generate random <code>Person</code> instances from the fixtures.
+ */
 @NoArgsConstructor(staticName = "person")
 public class PersonRandomizer implements Randomizer<Person> {
 
@@ -36,6 +39,6 @@ public class PersonRandomizer implements Randomizer<Person> {
             case FEMALE -> oneOf(FemaleName.class);
         };
 
-        return new Person(nameRando.one().toString(), birthGender, intRange(1, 100).one());
+        return new Person(nameRando.one().toString(), birthGender, anIntBetween(1, 100).one());
     }
 }

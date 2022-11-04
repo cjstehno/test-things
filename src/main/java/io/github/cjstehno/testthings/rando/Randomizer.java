@@ -15,8 +15,11 @@
  */
 package io.github.cjstehno.testthings.rando;
 
+import lombok.val;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -40,10 +43,8 @@ public interface Randomizer<T> {
      * @param count the number of items in the list
      * @return an unmodifiable list of randomly generated items
      */
-    default List<T> list(int count) {
-        // FIXME: rename to many(count) and return a collection?
-        // NOTE: not simplifying this method to allow exceptions to propagate properly
-        final List<T> values = new ArrayList<>(10);
+    default List<T> many(int count) {
+        val values = new ArrayList<T>(10);
 
         for (int i = 0; i < count; i++) {
             values.add(one());
@@ -52,5 +53,13 @@ public interface Randomizer<T> {
         return unmodifiableList(values);
     }
 
-    // FIXME: add Stream<T> stream(int count) - for use with parameterized tests source factories
+    /**
+     * Used to generate a stream of `count` randomly generated instances of the target class.
+     *
+     * @param count the number of items in the stream
+     * @return a Stream of randomly generated items
+     */
+    default Stream<T> stream(int count) {
+        return many(count).stream();
+    }
 }

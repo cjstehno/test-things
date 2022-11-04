@@ -18,56 +18,259 @@ package io.github.cjstehno.testthings.fixtures;
 import static java.util.Locale.ROOT;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
+/**
+ * An enumeration of some unisex names.
+ */
 public enum UnisexName {
+
+    /**
+     * Logan.
+     */
     LOGAN,
+
+    /**
+     * Avery.
+     */
     AVERY,
+
+    /**
+     * Riley.
+     */
     RILEY,
+
+    /**
+     * Parker.
+     */
     PARKER,
+
+    /**
+     * Cameron.
+     */
     CAMERON,
+
+    /**
+     * Ryan.
+     */
     RYAN,
+
+    /**
+     * River.
+     */
     RIVER,
+
+    /**
+     * Angel.
+     */
     ANGEL,
+
+    /**
+     * Rowan.
+     */
     ROWAN,
+
+    /**
+     * Jordan.
+     */
     JORDAN,
+
+    /**
+     * Sawyer.
+     */
     SAWYER,
+
+    /**
+     * Charlie.
+     */
     CHARLIE,
+
+    /**
+     * Quinn.
+     */
     QUINN,
+
+    /**
+     * Blake.
+     */
     BLAKE,
+
+    /**
+     * Peyton.
+     */
     PEYTON,
+
+    /**
+     * Hayden.
+     */
     HAYDEN,
+
+    /**
+     * Emery.
+     */
     EMERY,
+
+    /**
+     * Emerson.
+     */
     EMERSON,
+
+    /**
+     * Amari.
+     */
     AMARI,
+
+    /**
+     * Eden.
+     */
     EDEN,
+
+    /**
+     * Elliott.
+     */
     ELLIOTT,
+
+    /**
+     * Elliot.
+     */
     ELLIOT,
+
+    /**
+     * Finley.
+     */
     FINLEY,
+
+    /**
+     * Remi.
+     */
     REMI,
+
+    /**
+     * Remington.
+     */
     REMINGTON,
+
+    /**
+     * Phoenix.
+     */
     PHOENIX,
+
+    /**
+     * Sage.
+     */
     SAGE,
+
+    /**
+     * Oakley.
+     */
     OAKLEY,
+
+    /**
+     * Reese.
+     */
     REESE,
+
+    /**
+     * Karter.
+     */
     KARTER,
+
+    /**
+     * Dakota.
+     */
     DAKOTA,
+
+    /**
+     * Tatum.
+     */
     TATUM,
+
+    /**
+     * Taylor.
+     */
     TAYLOR,
+
+    /**
+     * Rory.
+     */
     RORY,
+
+    /**
+     * Morgan.
+     */
     MORGAN,
+
+    /**
+     * Lennox.
+     */
     LENNOX,
+
+    /**
+     * Ariel.
+     */
     ARIEL,
+
+    /**
+     * Sutton.
+     */
     SUTTON,
+
+    /**
+     * Dallas.
+     */
     DALLAS,
+
+    /**
+     * Aspen.
+     */
     ASPEN,
+
+    /**
+     * Lennon.
+     */
     LENNON,
+
+    /**
+     * Ari.
+     */
     ARI,
+
+    /**
+     * Alexis.
+     */
     ALEXIS,
+
+    /**
+     * Marley.
+     */
     MARLEY,
+
+    /**
+     * London.
+     */
     LONDON,
+
+    /**
+     * Armani.
+     */
     ARMANI,
+
+    /**
+     * Ellis.
+     */
     ELLIS,
+
+    /**
+     * Remy.
+     */
     REMY,
+
+    /**
+     * Wren.
+     */
     WREN,
+
+    /**
+     * Reign.
+     */
     REIGN;
 
     @Override public String toString() {

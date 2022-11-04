@@ -15,29 +15,24 @@
  */
 package io.github.cjstehno.testthings.junit;
 
+import io.github.cjstehno.testthings.rando.SharedRandom;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Map;
-
-import static java.lang.System.getProperty;
+import static io.github.cjstehno.testthings.junit.SharedRandomExtension.DEFAULT_KNOWN_SEED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-@ExtendWith(SystemPropertiesExtension.class)
-class SystemPropertiesExtensionMapTest {
+@ExtendWith(SharedRandomExtension.class) @Slf4j
+class SharedRandomExtensionDefaultTest {
 
-    @SuppressWarnings("unused")
-    static final Map<String, String> SYSTEM_PROPERTIES = Map.of(
-        "player.name", "bjones",
-        "player.score", "123,987"
-    );
+    @Test void testing() {
+        val rand = SharedRandom.current();
 
-    @Test void checkValues() {
-        assertEquals("bjones", getProperty("player.name"));
-        assertEquals("123,987", getProperty("player.score"));
-
-        assertNull(getProperty("first.name"));
-        assertNull(getProperty("last.name"));
+        assertEquals(DEFAULT_KNOWN_SEED, ((SharedRandom) rand).getSeed());
+        assertEquals(1519007222, rand.nextInt());
+        assertEquals(281705563, rand.nextInt());
+        assertEquals(716866189, rand.nextInt());
     }
 }

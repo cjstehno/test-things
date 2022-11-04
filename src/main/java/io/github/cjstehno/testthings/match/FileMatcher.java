@@ -28,39 +28,81 @@ import java.util.function.Predicate;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /// FIXME: similar one for Path?
+
+/**
+ * Matchers useful for matching File information.
+ */
 public abstract class FileMatcher extends BaseMatcher<File> {
 
     // FIXME: test
 
+    /**
+     * FIXME: document
+     */
     public static Matcher<File> nameMatches(final Matcher<String> nameMatcher) {
         return new FileNameMatcher(nameMatcher);
     }
 
+    /**
+     * FIXME: document
+     */
     public static Matcher<File> nameEqualTo(final String name) {
         return nameMatches(equalTo(name));
     }
 
+    /**
+     * FIXME: document
+     */
     public static Matcher<File> extensionMatches(final Matcher<String> extensionMatcher) {
         return new FileExtensionMatcher(extensionMatcher);
     }
 
+    /**
+     * FIXME: document
+     */
     public static Matcher<File> extensionEqualTo(final String extension) {
         return extensionMatches(equalTo(extension));
     }
 
-    public static Matcher<File> exists() {
+    /**
+     * FIXME: document
+     */
+    public static Matcher<File> fileExists() {
         return new FilePredicateMatcher(File::exists);
     }
 
+    /**
+     * FIXME: document
+     */
     public static Matcher<File> isReadable() {
         return new FilePredicateMatcher(File::canRead);
     }
 
+    /**
+     * FIXME: document
+     */
     public static Matcher<File> isWritable() {
         return new FilePredicateMatcher(File::canWrite);
     }
 
-    public static Matcher<File> sizeMatches(final Matcher<Long> sizeMatcher) {
+    /**
+     * FIXME: document
+     */
+    public static Matcher<File> isFile() {
+        return new FilePredicateMatcher(File::isFile);
+    }
+
+    /**
+     * FIXME: document
+     */
+    public static Matcher<File> isDirectory() {
+        return new FilePredicateMatcher(File::isDirectory);
+    }
+
+    /**
+     * FIXME: document
+     */
+    public static Matcher<File> fileSizeMatches(final Matcher<Long> sizeMatcher) {
         return new FileSizeMatcher(sizeMatcher);
     }
 
