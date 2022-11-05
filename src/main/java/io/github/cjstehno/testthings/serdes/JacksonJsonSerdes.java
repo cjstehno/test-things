@@ -20,11 +20,17 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 
+/**
+ * A {@link SerdesProvider} implementation based on the Jackson JSON framework.
+ */
 @RequiredArgsConstructor
 public class JacksonJsonSerdes implements SerdesProvider {
 
     private final ObjectMapper mapper;
 
+    /**
+     * Creates a serdes provider for JSON with an instantiated {@link ObjectMapper}.
+     */
     public JacksonJsonSerdes() {
         this(new ObjectMapper());
     }

@@ -35,4 +35,14 @@ class SharedRandomExtensionDefaultTest {
         assertEquals(281705563, rand.nextInt());
         assertEquals(716866189, rand.nextInt());
     }
+
+    @Test @ApplySeed(987654321L)
+    void testingApplied() {
+        val rand = SharedRandom.current();
+
+        assertEquals(987654321L, ((SharedRandom) rand).getSeed());
+        assertEquals(1314001071, rand.nextInt());
+        assertEquals(-778345979, rand.nextInt());
+        assertEquals(196174297, rand.nextInt());
+    }
 }

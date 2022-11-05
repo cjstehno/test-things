@@ -1,0 +1,22 @@
+
+== Data Fixtures
+
+The library provides some collections of useful test fixtures:
+
+Birth Genders.
+
+Color Names.
+
+Female Names.
+
+Male Names.
+
+Unisex Names.
+
+Phonetic Alphabet.
+
+Planets.
+
+US States.
+
+Person.

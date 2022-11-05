@@ -19,8 +19,10 @@ import io.github.cjstehno.testthings.serdes.SerdesProvider;
 import lombok.NoArgsConstructor;
 import lombok.val;
 import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -223,5 +225,11 @@ public final class Verifiers {
         } catch (final IOException ioe) {
             fail("Exception thrown during deserialization verification", ioe);
         }
+    }
+
+    // TODO: move to AtomicVerifiers?
+
+    public static void verifyAtomicInteger(final int expected, final AtomicInteger value){
+        assertEquals(expected, value.get());
     }
 }

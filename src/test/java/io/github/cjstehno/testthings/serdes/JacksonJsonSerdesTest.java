@@ -13,29 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.rando;
+package io.github.cjstehno.testthings.serdes;
 
 import io.github.cjstehno.testthings.fixtures.BirthGender;
-import io.github.cjstehno.testthings.fixtures.MaleName;
 import io.github.cjstehno.testthings.fixtures.Person;
-import io.github.cjstehno.testthings.junit.SharedRandomExtension;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.io.IOException;
 
 import static io.github.cjstehno.testthings.fixtures.BirthGender.FEMALE;
-import static io.github.cjstehno.testthings.fixtures.BirthGender.MALE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SharedRandomExtension.class)
-class PersonRandomizerTest {
+class JacksonJsonSerdesTest {
 
-    @Test void randomPerson() {
-        val rando = PersonRandomizer.randomPerson();
+    private JacksonJsonSerdes serdes;
+    private Person person;
 
-        assertEquals(new Person("Luke", MALE, 31), rando.one());
-        assertEquals(new Person("John", MALE, 54), rando.one());
-        assertEquals(new Person("William", MALE, 2), rando.one());
-        assertEquals(new Person("Lily", FEMALE, 78), rando.one());
+    @BeforeEach void beforeEach(){
+        serdes = new JacksonJsonSerdes();
+        person = new Person("Jessica", FEMALE, 33);
+    }
+
+    @Test void serdesBytes() throws IOException {
+        val bytes = serdes.serializeToBytes(person);
+        val obj = serdes.deserialize(bytes, Person.class);
+
+        assertEquals(person, obj);
+    }
+
+    @Test void serdesString() throws IOException {
+        val json = serdes.serializeToString(person);
+        val obj = serdes.deserialize(json, Person.class);
+
+        assertEquals(person, obj);
     }
 }

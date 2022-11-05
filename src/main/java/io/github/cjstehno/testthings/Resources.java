@@ -109,8 +109,6 @@ public final class Resources {
         return provider.deserialize(resourceToBytes(path), type);
     }
 
-    // FIXME: pull out and create one for each type?
-
     /**
      * Loads the resource at the specified path as bytes and then deserializes as JSON it to the specified object type.
      *

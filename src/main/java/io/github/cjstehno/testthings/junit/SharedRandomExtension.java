@@ -20,11 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.platform.commons.support.ModifierSupport;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Optional;
 
 import static io.github.cjstehno.testthings.rando.SharedRandom.current;
 import static java.lang.System.nanoTime;
-import static java.lang.reflect.Modifier.isStatic;
-import static java.util.Arrays.stream;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
 
 /**
  * A JUnit test extension used to test randomized scenarios in a way that removes the randomness. This extension will
@@ -44,6 +50,8 @@ import static java.util.Arrays.stream;
  * <strong>Note:</strong> In case you are not aware, the seed-based random number generation is not really random - if
  * you use the same seed, you get the same "random" values in the same order, which is the basis for this method of
  * testing.
+ *
+ * FIXME: update with annotation docs
  */
 @Slf4j
 public class SharedRandomExtension implements BeforeEachCallback, AfterEachCallback {
@@ -55,11 +63,9 @@ public class SharedRandomExtension implements BeforeEachCallback, AfterEachCallb
     public static long DEFAULT_KNOWN_SEED = 4242424242L;
     private static final String KNOWN_SEED = "KNOWN_SEED";
 
-    // FIXME: allow config of seed with each test method?
-
     @Override public void beforeEach(final ExtensionContext context) throws Exception {
         // set the seed to the default or configured value
-        ((SharedRandom) current()).reseed(resolveKnownSeed(context.getRequiredTestClass()));
+        ((SharedRandom) current()).reseed(resolveKnownSeed(context.getRequiredTestClass(), context.getRequiredTestMethod()));
     }
 
     @Override public void afterEach(final ExtensionContext context) throws Exception {
@@ -67,21 +73,29 @@ public class SharedRandomExtension implements BeforeEachCallback, AfterEachCallb
         ((SharedRandom) current()).reseed(nanoTime());
     }
 
-    private static long resolveKnownSeed(final Class<?> testClass) throws Exception {
-        return stream(testClass.getDeclaredFields())
-            .filter(f -> isStatic(f.getModifiers()))
-            .filter(f -> f.getName().equals(KNOWN_SEED))
-            .filter(f -> f.getType().equals(long.class))
-            .findFirst()
-            .map(f -> {
+    private static long resolveKnownSeed(final Class<?> testClass, final Method testMethod) throws Exception {
+        var seed = findAnnotation(testMethod, ApplySeed.class).map(ApplySeed::value);
+
+        if (seed.isEmpty()) {
+            seed = firstField(testClass, KNOWN_SEED, Long.TYPE).map(f -> {
                 try {
                     f.setAccessible(true);
                     return (long) f.get(testClass);
-                } catch (Exception ex) {
-                    log.error("Unable to resolve known seed - returning default value.", ex);
+                } catch (final IllegalAccessException e) {
+                    log.warn("Unable to access field ({}) - using default: {}", f.getName(), e.getMessage(), e);
                     return DEFAULT_KNOWN_SEED;
                 }
-            })
-            .orElse(DEFAULT_KNOWN_SEED);
+            });
+        }
+
+        return seed.orElse(DEFAULT_KNOWN_SEED);
+    }
+
+    private static Optional<Field> firstField(final Class<?> testClass, final String fieldName, final Class<?> fieldType) {
+        return findFields(
+            testClass,
+            f -> ModifierSupport.isStatic(f) && f.getType().equals(fieldType) && f.getName().equals(fieldName),
+            TOP_DOWN
+        ).stream().findFirst();
     }
 }

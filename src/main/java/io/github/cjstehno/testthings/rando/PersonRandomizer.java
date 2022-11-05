@@ -28,7 +28,7 @@ import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween
 /**
  * A randomizer used to generate random <code>Person</code> instances from the fixtures.
  */
-@NoArgsConstructor(staticName = "person")
+@NoArgsConstructor(staticName = "randomPerson")
 public class PersonRandomizer implements Randomizer<Person> {
 
     @Override public Person one() {

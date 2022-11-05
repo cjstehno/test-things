@@ -26,7 +26,18 @@ import static java.lang.Long.parseLong;
 import static java.lang.System.getProperty;
 import static java.lang.System.nanoTime;
 
-// TODO: document
+/**
+ * A thread-safe "random" number generated similar to the {@link java.util.concurrent.ThreadLocalRandom}, but with the
+ * ability to have its seed changed after construction.
+ *
+ * The ability to know and change the seed at runtime is very useful in allowing for repeatable testing of "random"-based
+ * utilities. If you use the same seed, the same values will be generated in the same order.
+ *
+ * The seed may be injected programmatically, or a system property may be set ("test-tings.rando.seed") which will
+ * specify the seed for the whole JVM.
+ *
+ * <strong>NOTE:</strong> Setting the seed to a known value should ONLY be used for development and testing purposes.
+ */
 @Slf4j
 public class SharedRandom implements RandomGenerator {
 

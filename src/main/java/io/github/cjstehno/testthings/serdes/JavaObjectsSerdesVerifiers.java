@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.fixtures;
+package io.github.cjstehno.testthings.serdes;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import io.github.cjstehno.testthings.Verifiers;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import static lombok.AccessLevel.PRIVATE;
 
-/**
- * A standardized person object for use in testing.
- */
-@Data @NoArgsConstructor @AllArgsConstructor
-public class Person implements Serializable {
+@NoArgsConstructor(access = PRIVATE)
+public final class JavaObjectsSerdesVerifiers {
 
-    private String name;
-    private BirthGender birthGender;
-    private int age;
+    // FIXME: test
+
+    public static void verifySerialization(final Object object, final String expected) {
+        Verifiers.verifySerialization(new JavaObjectSerdes(), object, expected);
+    }
+
+    public static void verifySerdes(final Object object, final String json) {
+        Verifiers.verifySerdes(new JavaObjectSerdes(), object, json);
+    }
 }

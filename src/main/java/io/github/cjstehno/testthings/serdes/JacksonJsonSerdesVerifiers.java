@@ -23,6 +23,8 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class JacksonJsonSerdesVerifiers {
 
+    // FIXME: test
+
     public static void verifySerialization(final Object object, final String expected) {
         Verifiers.verifySerialization(new JacksonJsonSerdes(), object, expected);
     }

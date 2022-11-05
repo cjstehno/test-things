@@ -13,21 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.fixtures;
+package io.github.cjstehno.testthings.junit;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
+import java.lang.annotation.*;
 
 /**
- * A standardized person object for use in testing.
+ * Annotation used by the {@link LifecycleExtension} to annotate methods that should be run by the extension.
  */
-@Data @NoArgsConstructor @AllArgsConstructor
-public class Person implements Serializable {
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Lifecycle {
 
-    private String name;
-    private BirthGender birthGender;
-    private int age;
+    /**
+     * The test lifecycle extension point identifier.
+     */
+    enum LifecyclePoint {
+        BEFORE_ALL, BEFORE_EACH, AFTER_EACH, AFTER_ALL;
+    }
+
+    /**
+     * The lifecycle extension point represented by the annotation.
+     *
+     * @return the extension point
+     */
+    LifecyclePoint value();
 }

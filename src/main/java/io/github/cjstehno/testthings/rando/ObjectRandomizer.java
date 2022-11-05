@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static java.lang.Character.toLowerCase;
 import static java.util.Arrays.asList;
@@ -42,7 +41,7 @@ import static lombok.AccessLevel.PRIVATE;
 public final class ObjectRandomizer<T> implements Randomizer<T> {
 
     private final Class<T> type;
-    private final RandomizerConfigImpl randomizerConfig;
+    private final ObjectRandomizerConfigImpl randomizerConfig;
 
     /**
      * Used to configure a Randomizer which will produce random objects built using the specified `RandomizerConfig`.
@@ -52,8 +51,8 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
      * @param <T>    the type of the randomized object
      * @return the Randomizer which will produce random instances of the target class.
      */
-    public static <T> Randomizer<T> randomize(final Class<T> type, final Consumer<RandomizerConfig> config) {
-        final RandomizerConfigImpl randomizerConfig = new RandomizerConfigImpl();
+    public static <T> Randomizer<T> randomize(final Class<T> type, final Consumer<ObjectRandomizerConfig> config) {
+        final ObjectRandomizerConfigImpl randomizerConfig = new ObjectRandomizerConfigImpl();
         config.accept(randomizerConfig);
         return new ObjectRandomizer<>(type, randomizerConfig);
     }

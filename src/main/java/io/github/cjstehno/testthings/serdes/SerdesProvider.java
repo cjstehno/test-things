@@ -19,16 +19,11 @@ import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-// FIXME: document - this allows different imple
-
 /**
  * An interface to allow for different serialization/deserialization framework implementations to use the same
  * testing framework methods.
  */
 public interface SerdesProvider {
-
-    // FIXME: JacksonJson, JavaObject, JavaXML?, JacksonXML?
-    // FIXME: maybe remove the string methods and just use bytes - the verifiers can do the string conversion
 
     /**
      * Serialize the object to bytes.

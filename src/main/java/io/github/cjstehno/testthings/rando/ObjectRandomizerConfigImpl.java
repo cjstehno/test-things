@@ -25,29 +25,29 @@ import java.util.Optional;
 /**
  * fIXME: document
  */
-class RandomizerConfigImpl implements RandomizerConfig {
+class ObjectRandomizerConfigImpl implements ObjectRandomizerConfig {
 
     private final Map<Class<?>, Randomizer<?>> propertyTypeRandomizers = new HashMap<>();
     private final Map<String, Randomizer<?>> propertyRandomizers = new HashMap<>();
     private final Map<Class<?>, Randomizer<?>> fieldTypeRandomizers = new HashMap<>();
     private final Map<String, Randomizer<?>> fieldRandomizers = new HashMap<>();
 
-    public <P> RandomizerConfig property(final String name, final Randomizer<P> randomizer) {
+    public <P> ObjectRandomizerConfig property(final String name, final Randomizer<P> randomizer) {
         propertyRandomizers.put(name, randomizer);
         return this;
     }
 
-    @Override public <P> RandomizerConfig propertyType(Class<P> type, Randomizer<P> randomizer) {
+    @Override public <P> ObjectRandomizerConfig propertyType(Class<P> type, Randomizer<P> randomizer) {
         propertyTypeRandomizers.put(type, randomizer);
         return this;
     }
 
-    public <P> RandomizerConfig field(final String name, final Randomizer<P> randomizer) {
+    public <P> ObjectRandomizerConfig field(final String name, final Randomizer<P> randomizer) {
         fieldRandomizers.put(name, randomizer);
         return this;
     }
 
-    public <P> RandomizerConfig fieldType(final Class<P> type, final Randomizer<P> randomizer) {
+    public <P> ObjectRandomizerConfig fieldType(final Class<P> type, final Randomizer<P> randomizer) {
         fieldTypeRandomizers.put(type, randomizer);
         return this;
     }

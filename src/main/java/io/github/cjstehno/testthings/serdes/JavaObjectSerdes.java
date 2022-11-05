@@ -17,19 +17,19 @@ package io.github.cjstehno.testthings.serdes;
 
 import lombok.val;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 
-public class JavaObjectSerdes implements SerdesProvider {
-
-    // FIXME: will not work with string verifiers
+/**
+ *  A {@link SerdesProvider} based on the Java object serialization framework.
+ *
+ *  <strong>NOTE:</strong> This implementation does not support string-based operations.
+ */
+public final class JavaObjectSerdes implements SerdesProvider {
 
     @Override public byte[] serializeToBytes(final Object object) throws IOException {
-        ensureSerializable(object);
+        if (!(object instanceof Serializable)) {
+            throw new UnsupportedOperationException("The object does not implement Serializable.");
+        }
 
         try (val bytes = new ByteArrayOutputStream()) {
             try (val output = new ObjectOutputStream(bytes)) {
@@ -40,13 +40,18 @@ public class JavaObjectSerdes implements SerdesProvider {
         }
     }
 
+    /**
+     * String-based serialization is not supported.
+     */
     @Override public String serializeToString(final Object object) throws IOException {
         throw new UnsupportedOperationException("Java Object Serialization does not support serialization to String.");
     }
 
     @Override @SuppressWarnings("unchecked")
     public <T> T deserialize(final byte[] bytes, final Class<? extends T> type) throws IOException {
-        // FIXME: test class for serialziabel too?
+        if(!Serializable.class.isAssignableFrom(type)){
+            throw new UnsupportedOperationException("The object does not implement Serializable.");
+        }
 
         try (val bytess = new ByteArrayInputStream(bytes)) {
             try (val input = new ObjectInputStream(bytess)) {
@@ -57,13 +62,10 @@ public class JavaObjectSerdes implements SerdesProvider {
         }
     }
 
+    /**
+     * String-based deserialization is not supported.
+     */
     @Override public <T> T deserialize(final String string, final Class<? extends T> type) throws IOException {
         throw new UnsupportedOperationException("Java Object Serialization does not support deserialization from String.");
-    }
-
-    private static void ensureSerializable(final Object obj) {
-        if (!(obj instanceof Serializable)) {
-            throw new UnsupportedOperationException("The object does not implement Serializable.");
-        }
     }
 }

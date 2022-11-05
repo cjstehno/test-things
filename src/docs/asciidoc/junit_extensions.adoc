@@ -1,0 +1,100 @@
+== JUnit 5 Extensions
+
+An interesting, and useful part of JUnit 5 is the https://junit.org/junit5/docs/current/user-guide/#extensions[Extension Mechanism].
+You can quickly and easily add extensions to make your testing easier and more robust.
+
+The test-things library provides a handful of extensions to aid in test simplification.
+
+=== LifecycleExtension
+
+The `LifecycleExtension` is an extension used to an occasional gap in the JUnit extension framework - specifically around how the before and after callbacks are applied.
+
+Consider the case when you have an extension configured in a test as follows:
+
+[source,java]
+----
+@ExtendWith(HelpfulExtension.class)
+class SomeInterestingTest {
+
+    private DataProvider provider;
+
+    @BeforeEach void beforeEach(){
+        provider = configureProvider();
+        provider.start();
+    }
+
+    @AfterEach void afterEach(){
+        provider.shutdown();
+    }
+
+    // Tests that use the provider with the extension
+}
+----
+
+Here we have a (fictional) `DataProvider` that must be configured in a specific manner for the test; however, this `DataProvider` is also discovered by the `HelpfulExtension`. The problem is that the `@BeforeEach` and `@AfterEach` annotated methods are executed _after_ those provided by the extension, meaning that depending on how the extension is written, you may not have the `provider` populated when you need it - if it's your extension you can modify the extension to resolve this issue, but if the extension is from a 3rd party you need to find another approach.
+
+That's where the `LifecycleExtension` comes into play. If you add it _before_ the `HelpfulExtension` in the list of extensions and then modify the two configuration methods as follows:
+
+[source,java]
+----
+@ExtendWith({LifecyleExtension.class, HelpfulExtension.class})
+class SomeInterestingTest {
+
+    private DataProvider provider;
+
+    @Lifecycle(BEFORE) void beforeEach(){
+        provider = configureProvider();
+        provider.start();
+    }
+
+    @Lifecycle(AFTER) void afterEach(){
+        provider.shutdown();
+    }
+
+    // Tests that use the provider with the extension
+}
+----
+
+The `LifecycleExtension` will now execute _before_ the `HelpfulExtension`. What this extension does is look for the methods annotated with a `@Lifecycle` annotation, of which there are four types: `BEFORE_ALL`, `BEFORE_EACH`, `AFTER_EACH`, and `AFTER_ALL`, mapping to the standard JUnit 5 lifecycle callbacks of the same name.
+
+When the test executes, the `LifecycleExtension` will find all of the lifecycle-annotated methods and execute them in the order they are discovered, then the other extensions will be applied, and then finally the callbacks for the test itself.
+
+In our example, the `beforeEach()` and `afterEach()` methods are called early enough to configure the `provider` instance so that everything works as it should.
+
+Similarly, the extension has support for `BEFORE_ALL` and `AFTER_ALL` static lifecycle methods.
+
+Note that the types of method allowed for each lifecycle extension point is as follows:
+
+[cols="1,1"]
+|===
+|Lifecycle Point |Method modifier
+
+|`BEFORE_ALL`
+|`static`
+
+|`BEFORE_EACH`
+|non-`static`
+
+|`AFTER_EACH`
+|non-`static`
+
+|`AFTER_ALL`
+|`static`
+|===
+
+TIP: If your lifecycle annotated methods are not being executed, be sure that your method signature meets the criteria described above.
+
+=== DatabaseExtension
+
+The `DatabaseExtension` is provided as a framework-agnostic means of setting up and tearing down a database, using a provided `DataSource` instance.
+
+> #FIXME:# add the new setupDataSource, tearDownDataSource methods
+
+
+=== SharedRandomExtension
+
+helpful when using shared-random for testing
+
+=== SystemPropertiesExtension
+
+sometimes you need to chnage system props during testing

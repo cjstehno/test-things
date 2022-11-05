@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.fixtures;
+package io.github.cjstehno.testthings.junit;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
+import java.lang.annotation.*;
 
 /**
- * A standardized person object for use in testing.
+ * When used with the <code>SharedRandomExtension</code> on a test method, it will inject the specified seed
+ * value and use it rather than any other configured value.
  */
-@Data @NoArgsConstructor @AllArgsConstructor
-public class Person implements Serializable {
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface ApplySeed {
 
-    private String name;
-    private BirthGender birthGender;
-    private int age;
+    /**
+     * The configured seed value.
+     *
+     * @return the configured seed value.
+     */
+    long value();
 }
