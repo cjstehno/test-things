@@ -99,6 +99,40 @@ helpful when using shared-random for testing
 
 sometimes you need to chnage system props during testing
 
-=== ResourceExtension
+=== ResourcesExtension
 
-add stuff here...
+The `ResourcesExtension` provides for the injection of classpath resource paths or content based on object type annotated with the `@Resource` annotation - the supported types are as follows:
+
+* A `Path` will be populated with the path representation of the provided classpath value.
+* A `File` will be populated with the file representation of the provided classpath value.
+* A `String` will be populated with the contents of the file at the classpath location, as a String.
+* An `InputStream` will be populated with the content of the file at the classpath location, as an InputStream.
+* A `Reader` will be populated with the content of the file at the classpath location, as a Reader.
+* A byte array (`byte[]`) will be populated with the content of the file at the classpath location, as a array of bytes.
+* Any other object type will attempt to deserialize the contents of the file at the classpath location using the configured `serdes` value of the annotation (defaulting to `JacksonJsonSerdes` if none is specified.
+
+The annotated types may be:
+
+* *Static Fields.* A `static` field annotated with the `@Resource` annotation will be populated during the "BeforeAll" callback.
+* *Non-Static Fields.* A non-`static` field annotated with the {@link Resource} annotation will be populated during the "BeforeEach" callback.
+* *Callback or Test Method Parameters.* A lifecycle callback or test method parameter annotated with the `@Resource` annotation will be populated when that method is called by the test framework.
+
+A contrived example could look something like the following:
+
+[source,java]
+----
+@ExtendWith(ResourcesExtension.class)
+class SomeTest {
+    @Resource('/resource-01.dat') static byte[] resourceData;   // injected during BeforeAll
+    @Resource('/resource-02.txt') String someText;              // injected during BeforeEach
+
+    @Test void testing(@Resource(value="/person.xml", serdes=JacksonXmlSerdes.class) final Person person){
+        // testing with the instantiated person (from xml)
+    }
+}
+----
+
+The resource loading provided by this extension delegates to the `Resources` utility methods, which may be used directly - this extension provides a simplification framework for common use cases.
+
+NOTE: All injected fields will be cleared (set to null) during the appropriate "after" callback.
+
