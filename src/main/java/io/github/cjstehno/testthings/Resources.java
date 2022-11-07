@@ -98,6 +98,14 @@ public final class Resources {
         return Resources.class.getResource(path);
     }
 
+    public static Path resourcePath(final String path) throws URISyntaxException {
+        return Path.of(resourceUri(path));
+    }
+
+    public static File resourceFile(final String path) throws URISyntaxException {
+        return new File(resourceUri(path));
+    }
+
     /**
      * Loads the resource at the specified path as bytes and then deserializes it to the specified object type.
      *

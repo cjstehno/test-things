@@ -98,3 +98,7 @@ helpful when using shared-random for testing
 === SystemPropertiesExtension
 
 sometimes you need to chnage system props during testing
+
+=== Resource and ResourcePath
+
+add stuff here...
