@@ -99,6 +99,6 @@ helpful when using shared-random for testing
 
 sometimes you need to chnage system props during testing
 
-=== Resource and ResourcePath
+=== ResourceExtension
 
 add stuff here...

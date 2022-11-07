@@ -1,14 +1,16 @@
 package io.github.cjstehno.testthings.junit;
 
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.File;
+import java.io.*;
 import java.nio.file.Path;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ResourcesExtension.class)
 class ResourcesExtensionTest {
@@ -44,5 +46,23 @@ class ResourcesExtensionTest {
 
         assertThat(templateFile.toString(), endsWith("/test-things/build/resources/test/template.txt"));
         assertTrue(templateFile.exists());
+    }
+
+    @Test void resourceLoaders(
+        @Resource("/short-text-file.txt") byte[] fileBytes,
+        @Resource("/short-text-file.txt") String fileString,
+        @Resource("/short-text-file.txt") InputStream fileStream,
+        @Resource("/short-text-file.txt") Reader fileReader
+    ) throws IOException {
+        val text = "\"That fire have more nimbly is moon and long. That free have feet for beer. And, taste thunder that aunt have ghost\" anchors, for swan is.";
+
+        assertArrayEquals(text.getBytes(UTF_8), fileBytes);
+        assertEquals(text, fileString);
+        assertArrayEquals(text.getBytes(UTF_8), fileStream.readAllBytes());
+        assertEquals(text, ((BufferedReader)fileReader).readLine());
+    }
+
+    @Test void resourceDeserializers() throws Exception {
+
     }
 }
