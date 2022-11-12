@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.slf4j.cfg;
+package io.github.cjstehno.testthings.fixtures;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import org.hamcrest.Matcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
-public interface AppenderConfig {
+import static org.junit.jupiter.api.Assertions.*;
 
-    void logger(final Logger logger);
+class PhoneticAlphabetTest {
 
-    default void loggerNamed(final String loggerName) {
-        logger(LoggerFactory.getLogger(loggerName));
+    @Test void alphabet(){
+        assertEquals("Charlie", PhoneticAlphabet.CHARLIE.toString());
+        assertEquals("C", PhoneticAlphabet.CHARLIE.toLetter());
     }
-
-    default void loggedClass(final Class<?> loggedClass) {
-        logger(LoggerFactory.getLogger(loggedClass));
-    }
-
-    AppenderConfig filter(final Matcher<ILoggingEvent> filter);
 }

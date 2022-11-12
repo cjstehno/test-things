@@ -22,12 +22,21 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
+/**
+ * A Hamcrest matcher used to match criteria against a log event message.
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogMessageMatcher extends BaseMatcher<ILoggingEvent> {
 
     private final Matcher<String> messageMatcher;
 
-    public static LogMessageMatcher logMessage(final Matcher<String> matcher) {
+    /**
+     * Creates a log message matcher to match against the message string.
+     *
+     * @param matcher the message string matcher
+     * @return the log matcher
+     */
+    public static Matcher<ILoggingEvent> logMessage(final Matcher<String> matcher) {
         return new LogMessageMatcher(matcher);
     }
 
@@ -36,6 +45,7 @@ public class LogMessageMatcher extends BaseMatcher<ILoggingEvent> {
     }
 
     @Override public void describeTo(final Description description) {
-        // FIXME: impl
+        description.appendText("A log-event with message matching ");
+        messageMatcher.describeTo(description);
     }
 }

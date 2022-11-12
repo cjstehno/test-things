@@ -15,7 +15,6 @@
  */
 package io.github.cjstehno.testthings.serdes;
 
-import io.github.cjstehno.testthings.fixtures.BirthGender;
 import io.github.cjstehno.testthings.fixtures.Person;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -23,12 +22,27 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static io.github.cjstehno.testthings.fixtures.BirthGender.MALE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JavaObjectSerdesTest {
 
-    private static Person person(){
+    private static Person person() {
         return new Person("Fred", MALE, 44);
+    }
+
+    @Test void serializeNonSerializable() {
+        val thrown = assertThrows(UnsupportedOperationException.class, () -> {
+            new JavaObjectSerdes().serializeToBytes(new Object());
+        });
+        assertEquals("The object does not implement Serializable.", thrown.getMessage());
+    }
+
+    @Test void deserializeNonSerializable() {
+        val thrown = assertThrows(UnsupportedOperationException.class, () -> {
+            new JavaObjectSerdes().deserialize(new byte[0], Object.class);
+        });
+        assertEquals("The object does not implement Serializable.", thrown.getMessage());
     }
 
     @Test void serdes() throws IOException {

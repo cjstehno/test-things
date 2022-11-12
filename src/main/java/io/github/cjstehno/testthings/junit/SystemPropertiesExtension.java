@@ -46,15 +46,15 @@ import static org.junit.platform.commons.support.ReflectionSupport.findFields;
  * In order to provide the property values to be injected, you must provide either a <code>Properties</code> or
  * <code>Map&lt;String,String&gt;</code> object named "SYSTEM_PROPERTIES" on the test class as a static field.
  * <p>
+ * Alternately, you may specify the field name containing your properties using the {@link ApplyProperties} annotation
+ * on the test method.
+ * <p>
  * Before each test method is executed, the configured properties will be injected into the System properties; however,
  * the original values will be stored and replaced after the test method has finished.
- *
+ * <p>
  * <strong>NOTE:</strong> Due to the global nature of the System properties, the test methods under this extension
  * are locked so that only one should run at a time - that being said, if you run into odd issues, try executing these
  * tests in a single-threaded manner (and/or report a bug if you feel the functionality could be improved).
- * <p>
- * <p>
- * FIXME: update based on new config (annotation and layered check)
  */
 @Slf4j
 public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachCallback {

@@ -20,7 +20,9 @@ package io.github.cjstehno.testthings.rando;
  */
 public interface ObjectRandomizerConfig {
 
-    // FIXME: rename ObjectRandomizerConfig?
+    static ObjectRandomizerConfig configure(){
+        return new ObjectRandomizerConfigImpl();
+    }
 
     /**
      * fIXME: document

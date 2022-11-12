@@ -15,6 +15,9 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
 /**
  * An enumeration of the military phonetic alphabet.
  */
@@ -151,6 +154,10 @@ public enum PhoneticAlphabet {
     ZULU;
 
     public String toLetter() {
-        return String.valueOf(name().charAt(0)).toLowerCase();
+        return String.valueOf(name().charAt(0));
+    }
+
+    @Override public String toString() {
+        return capitalize(name().toLowerCase(ROOT));
     }
 }

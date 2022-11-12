@@ -19,9 +19,10 @@ import io.github.cjstehno.testthings.serdes.JacksonJsonSerdes;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import static io.github.cjstehno.testthings.Verifiers.verifySerdes;
+import static io.github.cjstehno.testthings.Verifiers.verifyEqualsAndHashCode;
 import static io.github.cjstehno.testthings.Verifiers.verifyToString;
 import static io.github.cjstehno.testthings.fixtures.BirthGender.MALE;
+import static io.github.cjstehno.testthings.serdes.SerdesVerifiers.verifySerdes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PersonTest {
@@ -47,5 +48,9 @@ class PersonTest {
 
     @Test void string() {
         verifyToString("Person(name=Chris, birthGender=MALE, age=50)", PersonTest::person);
+    }
+
+    @Test void equalsAndHash(){
+        verifyEqualsAndHashCode(PersonTest::person);
     }
 }

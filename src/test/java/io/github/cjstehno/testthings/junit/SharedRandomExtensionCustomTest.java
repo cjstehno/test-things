@@ -46,4 +46,12 @@ class SharedRandomExtensionCustomTest {
         assertEquals(-106137655, rand.nextInt());
         assertEquals(-235120566, rand.nextInt());
     }
+
+    @Test @ApplySeed(8675309L)
+    void testingJennysNumber() {
+        val rand = SharedRandom.current();
+
+        assertEquals(8675309L, ((SharedRandom) rand).getSeed());
+        assertEquals(-4523360879423753120L, rand.nextLong());
+    }
 }

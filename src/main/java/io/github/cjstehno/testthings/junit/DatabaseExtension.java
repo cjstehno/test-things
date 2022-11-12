@@ -17,139 +17,252 @@ package io.github.cjstehno.testthings.junit;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.Optional;
 
 import static io.github.cjstehno.testthings.Resources.resourceToString;
-import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isStatic;
 import static org.junit.platform.commons.support.ReflectionSupport.findFields;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethod;
 
 /**
- * A JUnit 5 extension used to setup and tear down a database using a <code>DataSource</code>. A <code>DataSource</code>
- * field will be located and used to open connections to the database.
- * <p>
- * Use the {@link PrepareDatabase} annotation on test methods to provide the setup and teardown SQL scripts (from text
- * files on the classpath).
- * <p>
- * The database will be setup before each test method and torn down after each test method.
+ * A JUnit 5 extension used to setup and tear down a database using a provided {@link DataSource}.
  *
- * <strong>Note:</strong> Often the {@link LifecycleExtension} is useful to aid in setting up the <code>DataSource</code>
- * instance before the extension executes.
+ * The {@link PrepareDatabase} annotation may be applied at the class or test method level to append or override the
+ * setup and teardown methods.
+ *
+ * If a test method is given a {@link DataSource} parameter, it will be populated with the current data source for that
+ * method for use in the test.
+ *
+ * See the User Guide for more details and examples.
  */
 @Slf4j
-public class DatabaseExtension implements BeforeEachCallback, AfterEachCallback {
+public class DatabaseExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
-    // FIXME: add a method lookup so you can provide a factory method for the dataSourc - how to tear down?
-    // - maybe just by name - if setupDataSource and tearDownDataSource exist, they are used
-    // - ma6ybe add to PrepareDatabase (init, destroy) for DS manage (or default to below, --> then configured
-    //  this would allow DS config per test method, which could be useful
-    // TEST - make sure that having PrepareDatabase is allowed on type - should apply to all test methods
-    /*
-        DataSource someName(){} - setup
+    private static final Namespace NAMESPACE = create("test-things", "database");
+    private static final String DATA_SOURCE = "data-source";
+    public static final String DEFAULT_CREATOR = "createDataSource";
+    public static final String DEFAULT_DESTROYER = "destroyDataSource";
 
-        void someName(DataSource){} - destroy
-     */
-
-    /**
-     * Before each test method annotated with the {@link PrepareDatabase} annotation it will run the "setup" scripts,
-     * in order.
-     *
-     * @param context the current extension context; never {@code null}
-     * @throws Exception if there is a problem
-     */
     @Override public void beforeEach(final ExtensionContext context) throws Exception {
-        findAnnotation(context.getRequiredTestMethod(), PrepareDatabase.class).ifPresent(anno -> {
-            executeScripts(context.getRequiredTestInstance(), anno.setup());
-        });
+        val dataSource = createDataSource(context).orElseThrow();
+
+        context.getStore(NAMESPACE).put(DATA_SOURCE, dataSource);
+
+        runSetupScripts(context, dataSource);
 
         log.info("The database is set-up.");
     }
 
-    /**
-     * A helper method to provide a connection on the DataSource, closing it after the operations.
-     *
-     * @param ds                   the data source
-     * @param connectionOperations the operations to be performed
-     * @throws SQLException if there is a problem
-     */
-    public static void withConnection(final DataSource ds, Consumer<Connection> connectionOperations) throws SQLException {
-        try (val conn = ds.getConnection()) {
-            connectionOperations.accept(conn);
-        }
-    }
-
-    /**
-     * A helper method to provide a connection and statement on the DataSource, closing it when done.
-     *
-     * @param ds                  the data source
-     * @param statementOperations the operations
-     * @param <R>                 the type of the return value
-     * @return an optional return value
-     * @throws SQLException if there is a problem
-     */
-    public static <R> R withStatement(final DataSource ds, Function<Statement, R> statementOperations) throws SQLException {
-        try (val conn = ds.getConnection()) {
-            try (val stmt = conn.createStatement()) {
-                return statementOperations.apply(stmt);
-            }
-        }
-    }
-
-    /**
-     * After each test method annotated with the {@link PrepareDatabase} annotation, it will run the scripts defined
-     * in the "teardown" property, in order.
-     *
-     * @param context the current extension context; never {@code null}
-     * @throws Exception if there is a problem
-     */
     @Override public void afterEach(final ExtensionContext context) throws Exception {
-        findAnnotation(context.getRequiredTestMethod(), PrepareDatabase.class).ifPresent(anno -> {
-            executeScripts(context.getRequiredTestInstance(), anno.teardown());
-        });
+        val dataSource = (DataSource) context.getStore(NAMESPACE).remove(DATA_SOURCE);
+
+        runTeardownScripts(context, dataSource);
+        destroyDataSource(context, dataSource);
 
         log.info("The database was torn-down.");
     }
 
-    private static void executeScripts(final Object testInstance, final String[] scripts) {
-        for (val script : scripts) {
-            executeScript(testInstance, script);
+    @Override
+    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) throws ParameterResolutionException {
+        return extensionContext.getRequiredTestMethod().isAnnotationPresent(Test.class)
+            && DataSource.class.isAssignableFrom(parameterContext.getParameter().getType());
+    }
+
+    @Override
+    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) throws ParameterResolutionException {
+        return extensionContext.getStore(NAMESPACE).get(DATA_SOURCE);
+    }
+
+    private static Optional<DataSource> invokeDataSourceCreator(final ExtensionContext context, final String methodName) {
+        val dataSourceMethod = findMethod(context.getRequiredTestClass(), methodName).orElseThrow();
+        val target = isStatic(dataSourceMethod) ? context.getRequiredTestClass() : context.getRequiredTestInstance();
+        try {
+            return Optional.ofNullable((DataSource) dataSourceMethod.invoke(target));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static void executeScript(final Object testInstance, final String script) {
-        try (val conn = findDataSource(testInstance).getConnection()) {
-            try (val stmt = conn.createStatement()) {
-                stmt.execute(resourceToString(script));
-                conn.commit();
-                log.info("Executed database script ({}).", script);
+    private static Optional<DataSource> createDataSource(final ExtensionContext context) {
+        // check test method annotation (on test method)
+        if (isTestMethodAnnotated(context)) {
+            val anno = getMethodAnnotation(context);
+            if (!anno.creator().isBlank()) {
+                return invokeDataSourceCreator(context, anno.creator());
             }
-        } catch (final Exception e) {
-            log.error("Unable to execute script ({}): {}", script, e.getMessage(), e);
         }
-    }
 
-    private static DataSource findDataSource(final Object testInstance) {
-        return findFields(
-            testInstance.getClass(),
-            f -> DataSource.class.isAssignableFrom(f.getType()),
-            TOP_DOWN
-        ).stream().findFirst().map(f -> {
+        // check class method annotation (on test class)
+        if (isTestClassAnnotated(context)) {
+            val anno = getClassAnnotation(context);
+            if (!anno.creator().isBlank()) {
+                return invokeDataSourceCreator(context, anno.creator());
+            }
+        }
+
+        // check defined provider method
+        if (findMethod(context.getRequiredTestClass(), DEFAULT_CREATOR).isPresent()) {
+            return invokeDataSourceCreator(context, DEFAULT_CREATOR);
+        }
+
+        // check field of DataSource type (static or not)
+        val dataSourceField = findFields(context.getRequiredTestClass(), f -> DataSource.class.isAssignableFrom(f.getType()), TOP_DOWN);
+        if (!dataSourceField.isEmpty()) {
+            val target = isStatic(dataSourceField.get(0)) ? context.getRequiredTestClass() : context.getRequiredTestInstance();
             try {
-                f.setAccessible(true);
-                return (DataSource) f.get(testInstance);
+                return Optional.ofNullable((DataSource) dataSourceField.get(0).get(target));
             } catch (IllegalAccessException e) {
-                log.error("Unable to find DataSource implementation field.");
-                return null;
+                throw new RuntimeException(e);
             }
-        }).orElseThrow();
+        }
+
+        return Optional.empty();
     }
+
+    private static void invokeDataSourceDestroyer(final ExtensionContext context, final String methodName, final DataSource dataSource) {
+        val dataSourceMethod = findMethod(context.getRequiredTestClass(), methodName, DataSource.class).orElseThrow();
+        val target = isStatic(dataSourceMethod) ? context.getRequiredTestClass() : context.getRequiredTestInstance();
+        try {
+            dataSourceMethod.invoke(target, dataSource);
+        } catch (Exception e) {
+            log.error("Unable to destroy DataSource using ({}): {}", methodName, e.getMessage(), e);
+        }
+    }
+
+    private static void destroyDataSource(final ExtensionContext context, final DataSource dataSource) {
+        log.info("Destroying data source.");
+
+        // check test method annotation (on test method)
+        if (isTestMethodAnnotated(context)) {
+            val anno = getMethodAnnotation(context);
+            if (!anno.destroyer().isBlank()) {
+                invokeDataSourceDestroyer(context, anno.destroyer(), dataSource);
+            }
+        }
+
+        // check class method annotation (on test class)
+        if (isTestClassAnnotated(context)) {
+            val anno = getClassAnnotation(context);
+            if (!anno.destroyer().isBlank()) {
+                invokeDataSourceDestroyer(context, anno.destroyer(), dataSource);
+            }
+        }
+
+        // check defined provider method
+        if (findMethod(context.getRequiredTestClass(), DEFAULT_DESTROYER, DataSource.class).isPresent()) {
+            invokeDataSourceDestroyer(context, DEFAULT_DESTROYER, dataSource);
+        }
+
+        // check field of DataSource type (static or not)
+        val dataSourceField = findFields(context.getRequiredTestClass(), f -> DataSource.class.isAssignableFrom(f.getType()), TOP_DOWN);
+        if (!dataSourceField.isEmpty()) {
+            val target = isStatic(dataSourceField.get(0)) ? context.getRequiredTestClass() : context.getRequiredTestInstance();
+            try {
+                dataSourceField.get(0).set(target, null);
+            } catch (IllegalAccessException e) {
+                log.error("Unable to destroy DataSource (field): {}", e.getMessage(), e);
+            }
+        }
+    }
+
+    private static void runSetupScripts(final ExtensionContext context, final DataSource dataSource) {
+        if (isTestMethodAnnotated(context)) {
+            val methodAnno = getMethodAnnotation(context);
+
+            if (methodAnno.additive()) {
+                // run any scripts from the class annotation
+                findClassPrepareDatabase(context).ifPresent(classAnno -> {
+                    runScripts(dataSource, classAnno.setup());
+                });
+            }
+
+            // run any scripts from the method annotation
+            runScripts(dataSource, methodAnno.setup());
+
+        } else {
+            findClassPrepareDatabase(context).ifPresent(classAnno -> {
+                runScripts(dataSource, classAnno.setup());
+            });
+        }
+    }
+
+    private static void runTeardownScripts(final ExtensionContext context, final DataSource dataSource) {
+        if (isTestMethodAnnotated(context)) {
+            val methodAnno = getMethodAnnotation(context);
+
+            if (methodAnno.additive()) {
+                // run any scripts from the class annotation
+                findClassPrepareDatabase(context).ifPresent(classAnno -> {
+                    runScripts(dataSource, classAnno.teardown());
+                });
+            }
+
+            // run any scripts from the method annotation
+            runScripts(dataSource, methodAnno.teardown());
+
+        } else {
+            findClassPrepareDatabase(context).ifPresent(classAnno -> {
+                runScripts(dataSource, classAnno.teardown());
+            });
+        }
+    }
+
+    private static Optional<PrepareDatabase> findClassPrepareDatabase(final ExtensionContext context) {
+        if (isTestClassAnnotated(context)) {
+            return Optional.of(getClassAnnotation(context));
+        }
+        return Optional.empty();
+    }
+
+    private static void runScripts(final DataSource dataSource, final String[] scripts) {
+        if (scripts != null) {
+            try (val conn = dataSource.getConnection()) {
+                for (val scriptPath : scripts) {
+                    runScript(conn, scriptPath);
+                }
+                log.info("Done running scripts.");
+
+            } catch (Exception ex) {
+                log.error("Connection problem while running scripts: {}", ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private static void runScript(final Connection conn, final String scriptPath) {
+        if (!scriptPath.isBlank()) {
+            try (val stmt = conn.createStatement()) {
+                stmt.execute(resourceToString(scriptPath));
+                conn.commit();
+                log.info("Executed database script ({}).", scriptPath);
+
+            } catch (Exception se) {
+                log.error("Problem executing database script ({}): {}", scriptPath, se.getMessage(), se);
+            }
+        }
+    }
+
+    private static PrepareDatabase getMethodAnnotation(final ExtensionContext context) {
+        return context.getRequiredTestMethod().getAnnotation(PrepareDatabase.class);
+    }
+
+    private static PrepareDatabase getClassAnnotation(final ExtensionContext context) {
+        return context.getRequiredTestClass().getAnnotation(PrepareDatabase.class);
+    }
+
+    private static boolean isTestMethodAnnotated(final ExtensionContext context) {
+        return context.getRequiredTestMethod().isAnnotationPresent(PrepareDatabase.class);
+    }
+
+    private static boolean isTestClassAnnotated(final ExtensionContext context) {
+        return context.getRequiredTestClass().isAnnotationPresent(PrepareDatabase.class);
+    }
+
 }

@@ -31,6 +31,8 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class CoreRandomizers {
 
+    // FIXME: give it a map with keys mapped to randomizers - gen random values for map
+
     /**
      * Defines a randomizer which will always return the same value... so not really random at all.
      *

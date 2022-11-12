@@ -22,6 +22,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * An interface to allow for different serialization/deserialization framework implementations to use the same
  * testing framework methods.
+ *
+ * An implementation MUST support the <code>serializeToBytes(Object)</code> and <code>deserialize(byte[],Class)</code>
+ * methods - the String-related methods are optional since some serialization formats do not support clean string
+ * representations.
  */
 public interface SerdesProvider {
 

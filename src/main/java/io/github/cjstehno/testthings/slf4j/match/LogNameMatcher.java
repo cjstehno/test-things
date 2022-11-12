@@ -22,12 +22,21 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
+/**
+ * A Hamcrest matcher used to match criteria on a logging event based on the logger name.
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogNameMatcher extends BaseMatcher<ILoggingEvent> {
 
     private final Matcher<String> nameMatcher;
 
-    public static LogNameMatcher loggerName(final Matcher<String> matcher) {
+    /**
+     * Creates a logging event matcher for matching the logger name.
+     *
+     * @param matcher the name string matcher
+     * @return the log event matcher
+     */
+    public static Matcher<ILoggingEvent> loggerName(final Matcher<String> matcher) {
         return new LogNameMatcher(matcher);
     }
 
@@ -36,6 +45,7 @@ public class LogNameMatcher extends BaseMatcher<ILoggingEvent> {
     }
 
     @Override public void describeTo(final Description description) {
-        // FIXME: impl
+        description.appendText("A log-event with logger name matching ");
+        nameMatcher.describeTo(description);
     }
 }

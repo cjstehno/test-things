@@ -23,6 +23,8 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
  */
 public enum UsState {
 
+    // TODO: add abbreviations
+
     /**
      * Alabama.
      */

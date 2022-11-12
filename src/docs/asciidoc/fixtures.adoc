@@ -1,22 +1,22 @@
 
 == Data Fixtures
 
-The library provides some collections of useful test fixtures:
+In testing, I often find myself just needing a handful of values for test fixtures. The test-things library provides a handful of useful sources for "grouped" fixture values:
 
-Birth Genders.
+*Color Names.* The `ColorName` `enum` has various color names.
 
-Color Names.
+*Female Names.* The `FelameName` `enum` contains the most common female names, per some list I found on the internet.
 
-Female Names.
+*Male Names.* The `MaleName` `enum` contains the most common male names, per some list I found online.
 
-Male Names.
+*Unisex Names.* The `UnisexName` `enum` contains the most common unisex names, again, found on some web site.
 
-Unisex Names.
+*Birth Genders.* The `BirthGenders` `enum` of the birth genders.
 
-Phonetic Alphabet.
+*Phonetic Alphabet.* The `PhoneticAlphabet` `enum` has the military phonetic alphabet - one of my go-tos.
 
-Planets.
+*Planets.* The `Planet` `enum` has the names of all nine planets... yes, Pluto I still love you.
 
-US States.
+*US States.* The `UsState` `enum` has the names of the fifty United States of America.
 
-Person.
+*Person.* The `Person` class is a generic simple person object that is also serializable.

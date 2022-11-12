@@ -15,6 +15,9 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
 /**
  * An enumeration of some color names.
  */
@@ -174,4 +177,8 @@ public enum ColorName {
      * Cyan.
      */
     CYAN;
+
+    @Override public String toString() {
+        return capitalize(name().toLowerCase(ROOT));
+    }
 }

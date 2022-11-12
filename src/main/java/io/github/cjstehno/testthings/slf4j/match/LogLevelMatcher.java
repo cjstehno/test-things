@@ -17,26 +17,69 @@ package io.github.cjstehno.testthings.slf4j.match;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class LogLevelMatcher extends BaseMatcher<ILoggingEvent> {
+import static lombok.AccessLevel.PRIVATE;
 
-    private final Level level;
+/**
+ * A Hamcrest matcher used to match log level criteria on a logging event.
+ */
+@RequiredArgsConstructor(access = PRIVATE)
+public abstract class LogLevelMatcher extends BaseMatcher<ILoggingEvent> {
 
-    public static LogLevelMatcher logLevel(final Level level) {
-        return new LogLevelMatcher(level);
+    @Getter private final Level level;
+
+    /**
+     * Creates a log level matcher matching the configured log level.
+     *
+     * @param level the target level
+     * @return the matcher
+     */
+    public static Matcher<ILoggingEvent> logLevelEqualTo(final Level level) {
+        return new IsLevelEqualToMatcher(level);
     }
 
-    @Override public boolean matches(final Object actual) {
-        // TODO: consider isGreaterOrEquals option
-        return ((ILoggingEvent) actual).getLevel().equals(level);
+    /**
+     * Creates a log level matcher matching the configured or higher log level.
+     *
+     * @param level the target level minimum
+     * @return the matcher
+     */
+    public static Matcher<ILoggingEvent> logLevelAtLeast(final Level level) {
+        return new IsLevelAtLeastMatcher(level);
     }
 
-    @Override public void describeTo(final Description description) {
-        // FIXME: imple
+    private static class IsLevelEqualToMatcher extends LogLevelMatcher {
+
+        private IsLevelEqualToMatcher(final Level level) {
+            super(level);
+        }
+
+        @Override public boolean matches(final Object actual) {
+            return ((ILoggingEvent) actual).getLevel().equals(getLevel());
+        }
+
+        @Override public void describeTo(final Description description) {
+            description.appendText("A logging-event with level equal to " + getLevel());
+        }
+    }
+
+    private static class IsLevelAtLeastMatcher extends LogLevelMatcher {
+
+        private IsLevelAtLeastMatcher(final Level level) {
+            super(level);
+        }
+
+        @Override public boolean matches(final Object actual) {
+            return ((ILoggingEvent) actual).getLevel().isGreaterOrEqual(getLevel());
+        }
+
+        @Override public void describeTo(final Description description) {
+            description.appendText("A logging-event with level equal to or greater than " + getLevel());
+        }
     }
 }

@@ -50,4 +50,8 @@ public class JacksonXmlSerdes implements SerdesProvider {
     @Override public <T> T deserialize(String string, Class<? extends T> type) throws IOException {
         return mapper.readValue(string, type);
     }
+
+    @Override public String toString() {
+        return getClass().getSimpleName();
+    }
 }

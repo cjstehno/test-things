@@ -5,6 +5,12 @@ You can quickly and easily add extensions to make your testing easier and more r
 
 The test-things library provides a handful of extensions to aid in test simplification.
 
+* The `LifecycleExtension` provides a means of getting some callbacks in before the extensions run.
+* The `DatabaseExtension` provides a `DataSource`-based testing environment.
+* The `SharedRandomExtension` provides a means of pinning the `SharedRandom` instances for repeatable testing.
+* The `ResourcesExtension` provides helpers for loading and working with classpath resources in tests.
+* The `LogAppenderExtension` provides a means of capturing logging events for test inspection.
+
 === LifecycleExtension
 
 The `LifecycleExtension` is an extension used to an occasional gap in the JUnit extension framework - specifically around how the before and after callbacks are applied.
@@ -88,16 +94,156 @@ TIP: If your lifecycle annotated methods are not being executed, be sure that yo
 
 The `DatabaseExtension` is provided as a framework-agnostic means of setting up and tearing down a database, using a provided `DataSource` instance.
 
-> #FIXME:# add the new setupDataSource, tearDownDataSource methods
+==== Before Each
 
+The `DataSource` used is created or resolved before each test based on the `@PrepareDatabase`. The `@PrepareDatabase` annotation defines a `creator` property, whose value is the name of a method used to create the `DataSource`. The method must return a `DataSource` instance. The method used to create the database is resolved in the following order:
+
+1. If the test method is annotated with the `@PrepareDatabase` annotation and it has a value set for the `creator` property, that value will be used as the name of the "creator" method, which will be executed to create the `DataSource`.
+2. If the test class is annotated with the `@PrepareDatabase` annotation and it has a value set for the `creator` property, that value will be used as the name of the "creator" method, and it will be executed to create the `DataSource`.
+3. If a method exists on the test class with the following signature: `DataSource createDataSource()`, it will be used to create the `DataSource'.
+4. Lastly, if a field exists with type `DataSource`, it will be used as the data source - this field must have a value associated with it before the extension before-each callback is run. Consider using the <<LifecycleExtension>> to ensure that it is ready when needed.
+
+Before the test method is run, the extension also allows for one or more setup scripts to be executed. The `@PrepareDatabase` annotation provides a `setup` property, taking one or more `String` values. These values will be used as classpath resource paths to load SQL script content. They are resolved in the following manner:
+
+1. If the test method is annotated with `@PrepareDatabase`:
+    - if the `additive` property is `true` (the default) and the `setup` property is defined:
+        * if the test class is annotated with `@PrepareDatabase` and it has a value for the `setup` property, it's scripts will be executed against the `DataSource`
+        * then, the scripts defined in the method annotation will be executed against the `DataSource`.
+    - if the `additive` property is `false` and the `setup` property is defined:
+        * each of the values in the `setup` property will be read and executed on the `DataSource`.
+2. If the test class is annotated `@PrepareDatabase` and it has a value for the `setup` property, those scripts will be executed on the `DataSource`.
+
+TIP: If you are using a database migration tool like liquibase or flyway, you can still use it to build your schema by running it in your "creator" method and then tearing it down in your "destroyer" method. The "setup" and "teardown" scripts could still be used to populate the database if needed.
+
+==== After Each
+
+After each test method is run, the extension allows for one or more tear-down scripts to be executed. The `@PrepareDatabase` annotation provides a `teardown` property, taking one or more `String` values. These values will be used as classpath resource paths to load SQL script content. The scripts are resolved in the following manner.
+
+1. If the test method is annotated with `@PrepareDatabase`:
+    - if the `additive` property is `true` (the default) and the `teardown` property is defined:
+        * if the test class is annotated with `@PrepareDatabase` and it has a value for the `teardown` property, it's scripts will be executed against the `DataSource`
+        * then, the scripts defined in the method annotation will be executed against the `DataSource`.
+    - if the `additive` property is `false` and the `teardown` property is defined:
+        * each of the values in the `teardown` property will be read and executed on the `DataSource`.
+2. If the test class is annotated `@PrepareDatabase` and it has a value for the `teardown` property, those scripts will be executed on the `DataSource`.
+
+The `DataSource` is "destroyed" using a "Destroyer Method" after each test is executed. Similar to the "Creator Method", the destroyer method is defined by the `destroyer` property of the `@PrepareDatabase` annotation. The method must accept a `DataSource` parameter and is responsible for performing any cleanup or shutdown operations required by the `DataSource`. It will be resolved in the following order:
+
+1. If the test method is annotated with the `@PrepareDatabase` annotation and it has a `destroyer` property defined, that value will be used as the destroyer method name. It will be executed with the `DataSource` passed into it.
+2. If the test class is annoated with the `@PrepareDatabase` annotation and it has a `destroyer` property defined, that value will be used as the destroyer method name, and it will be executed with the `DataSource` passed into it.
+3. Lastly, if a method exists on the test class with the following signature: `void destroyDataSource(DataSource)`, it will be executed to perform the destruction handling, giving the `DataSource` passed to it.
+
+==== `DataSource` Parameter
+
+If a test method is given a `DataSource` argument, it will be populated with the resolved `DataSource` for use in the test method.
+
+==== Example
+
+The following is an example with all the bells and whistles - see the unit tests for more scenarios.
+
+[source,java]
+----
+@ExtendWith(DatabaseExtension.class) @PrepareDatabase(
+    creator="createDs",
+    setup={"/db-create.sql", "/db-init-data.sql"},
+    teardown={"/db-destroy.sql"},
+    destroyer="destroyDs"
+)
+class SomeRepositoryTest {
+
+    DataSource createDs(){
+        // create your DS here...
+    }
+
+    void destroyDs(final DataSource ds){
+        // destroy your ds here...
+    }
+
+    @Test @PrepareDatabase(setup="/add-more-data.sql")
+    void testing(final DataSource ds){
+        // do your testing
+    }
+}
+----
+
+In this example, the `testing` method would use the "creator", "destroyer", and "teardown" values from the annotation on the class, while the "setup" scripts would come from both the class list and the one provided in the method annotation. The `DataSource` argument is populated by the parameter resolver.
 
 === SharedRandomExtension
 
-helpful when using shared-random for testing
+The `SharedRandomExtension` is used to test randomized scenarios in a way that removes the randomness for repeatable testing. It may seem odd to disable the randomness, but when you are trying to fix a failing test case, you will want to pin the "random" value so that you can fix the test and ensure that it succeeds.
+
+This extension will only work with classes that use the `SharedRandom` class to provide their randomization. This includes the `Randomizers` defined in this library, which is actually what it was created to test.
+
+The extension will set a known seed value on the random generator so that it is no longer random. By default, a shared
+known seed will be used (see `DEFAULT_KNOWN_SEED`); however, this may be overridden by a configured value in your test
+class or by the `@ApplySeed` annotation on your test method.
+
+You can specify your own seed value by adding a field to your class with the signature `private static final long KNOWN_SEED = <your-value>` to your test class. This provided value will be used instead of the default (it does not have to be `private`).
+
+Alternately, if your test method is annotated with the `@ApplySeed` annotation, its value will be used as the seed for that test method.
+
+The random generator is reset after each test by setting the seed to the current `nanoTime()` value (i.e. making it "random" again).
+
+A simple example of this extension in a test would be:
+
+[source,java]
+----
+@ExtendWith(SharedRandomExtension.class)
+class YourInterestingTest {
+
+    @Test @ApplySeed(8675309L)
+    void tester(){
+        val rand = SharedRandom.current();
+
+        assertEquals(8675309L, ((SharedRandom) rand).getSeed());
+        assertEquals(-4523360879423753120L, rand.nextLong());
+    }
+}
+----
+
+The specified seed, `8675309` will be used in the `SharedRandom`, allowing the "random" values to be predictable.
+
+NOTE: In case you are not aware, the seed-based random number generation is not really random - if you use the same seed, you get the same "random" values in the same order, which is the basis for this method of testing.
 
 === SystemPropertiesExtension
 
-sometimes you need to chnage system props during testing
+The `SystemPropertiesExtension` is used to update the System properties with a configured set of properties, resetting it back to the
+original values after each test.
+
+In order to provide the property values to be injected, you must provide either a `Properties` or `Map<String,String>` object named "SYSTEM_PROPERTIES" on the test class as a static field.
+
+Alternately, you may specify the field name containing your properties using the `@ApplyProperties` annotation on the test method.
+
+Before each test method is executed, the configured properties will be injected into the System properties; however, the original values will be stored and replaced after the test method has finished.
+
+[source,java]
+----
+@ExtendWith(SystemPropertiesExtension.class)
+class SystemPropertiesExtensionPropertiesTest {
+
+    @SuppressWarnings("unused")
+    static final Properties SYSTEM_PROPERTIES = asProperties(Map.of(
+        "first.name", "Bob"
+    ));
+    @SuppressWarnings("unused")
+    static final Properties OVERLAY = asProperties(Map.of(
+        "first.name", "Fred"
+    ));
+
+    @Test void checkValues() {
+        assertEquals("Bob", getProperty("first.name"));
+    }
+
+    @Test @ApplyProperties("OVERLAY")
+    void checkOverlayValues(){
+        assertEquals("Fred", getProperty("first.name"));
+    }
+}
+----
+
+NOTE: Due to the global nature of the System properties, the test methods under this extension
+are locked so that only one should run at a time - that being said, if you run into odd issues, try executing these
+tests in a single-threaded manner (and/or report a bug if you feel the functionality could be improved).
 
 === ResourcesExtension
 
@@ -126,7 +272,9 @@ class SomeTest {
     @Resource('/resource-01.dat') static byte[] resourceData;   // injected during BeforeAll
     @Resource('/resource-02.txt') String someText;              // injected during BeforeEach
 
-    @Test void testing(@Resource(value="/person.xml", serdes=JacksonXmlSerdes.class) final Person person){
+    @Test void testing(
+        @Resource(value="/person.xml", serdes=JacksonXmlSerdes.class) final Person person
+    ){
         // testing with the instantiated person (from xml)
     }
 }
@@ -136,3 +284,39 @@ The resource loading provided by this extension delegates to the `Resources` uti
 
 NOTE: All injected fields will be cleared (set to null) during the appropriate "after" callback.
 
+=== LogAppenderExtension
+
+The `LogAppenderExtension` provides a test configuration framework for the `InMemoryLogAppender`, which allows for test collection of log messages for test result verification.
+
+Before each test method, the extension will resolve the log appender configuration as one of the following:
+
+1. If the test method is annotated with the `@ApplyLogging` annotation, its value will be used as the name of a field of type `AppenderConfig`.
+2. Otherwise, a field of type `AppenderConfig` with the name `APPENDER_CONFIG` will be used.
+
+The `InMemoryLogAppender` is configured with the `AppenderConfig` and may be accessed by the test method by adding a parameter to the method of type `InMemoryLogAppender`.
+
+After each test method, the registered loggers will be detached as part of the cleanup.
+
+An example would look something like the following:
+
+[source,java]
+----
+@ExtendWith(LogAppenderExtension.class)
+class SomeServiceTest {
+    private static final AppenderConfig APPENDER_CONFIG = AppenderConfig.configure()
+        .loggedClass(SomeService.class);
+
+    private static final AppenderConfig OTHER_CONFIG = AppenderConfig.configure()
+        .loggedClass(SomeService.class)
+        .filter(evt -> evt.getLevel().isGreaterOrEqual(WARN));
+
+    @Test void testing(final InMemoryLogAppender appender){
+        // your testing with the APPENDER_CONFIG
+    }
+
+    @Test @ApplyLogging("OTHER_CONFIG")
+    void otherTesting(final InMemoryLogAppender appender){
+        // your testing with the OTHER_CONFIG
+    }
+}
+----

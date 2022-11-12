@@ -15,56 +15,101 @@
  */
 package io.github.cjstehno.testthings.junit;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.h2.jdbcx.JdbcConnectionPool;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.cjstehno.testthings.junit.DatabaseExtension.withStatement;
-import static io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint.AFTER_EACH;
+import static io.github.cjstehno.testthings.Verifiers.verifyAtomicInteger;
 import static io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint.BEFORE_EACH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith({LifecycleExtension.class, DatabaseExtension.class})
-class DatabaseExtensionTest {
+@PrepareDatabase(
+    creator = "create",
+    setup = {"/db-setup.sql", "/db-populate.sql"},
+    teardown = {"/db-truncate.sql", "/db-teardown.sql"},
+    destroyer = "destroy"
+)
+@Slf4j
+public class DatabaseExtensionTest {
 
-    private JdbcConnectionPool dataSource;
+    private AtomicInteger createCounter;
+    private AtomicInteger otherCreateCounter;
 
-    @Lifecycle(BEFORE_EACH) void before() {
-        dataSource = JdbcConnectionPool.create("jdbc:h2:mem:test", "sa", "sa");
+    @Lifecycle(BEFORE_EACH) void beforeEach() {
+        createCounter = new AtomicInteger(0);
+        otherCreateCounter = new AtomicInteger(0);
     }
 
-    @Test @PrepareDatabase(
-        setup = {"/db-setup.sql"},
-        teardown = {"/db-truncate.sql"}
+    DataSource create() {
+        val ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "sa", "sa");
+        createCounter.incrementAndGet();
+        log.info("Created DataSource.");
+        return ds;
+    }
+
+    void destroy(final DataSource dataSource) {
+        ((JdbcConnectionPool) dataSource).dispose();
+        log.info("Destroyed DataSource.");
+    }
+
+    DataSource createOther() {
+        val ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "sa", "sa");
+        otherCreateCounter.incrementAndGet();
+        log.info("Created other DataSource.");
+        return ds;
+    }
+
+    void destroyOther(final DataSource dataSource) {
+        ((JdbcConnectionPool) dataSource).dispose();
+        log.info("Destroyed other DataSource.");
+    }
+
+    @Test @DisplayName("All preparation in class annotation.")
+    void scenariosAandE(final DataSource ds) {
+        verifyAtomicInteger(1, createCounter);
+        verifyAtomicInteger(0, otherCreateCounter);
+        assertRecordCount(ds, 2);
+    }
+
+    @Test @DisplayName("Preparation in class annotation and method - not additive")
+    @PrepareDatabase(
+        creator = "createOther",
+        setup = {"/db-setup.sql", "/db-populate-2.sql"},
+        teardown = {"/db-truncate.sql", "/db-teardown.sql"},
+        destroyer = "destroyOther",
+        additive = false
     )
-    void emptyDatabase() throws SQLException {
-        assertEquals(0, recordsCount());
+    void scenariosDandG(final DataSource ds) {
+        verifyAtomicInteger(0, createCounter);
+        verifyAtomicInteger(1, otherCreateCounter);
+        assertRecordCount(ds, 3);
     }
 
-    @Test @PrepareDatabase(
-        setup = {"/db-setup.sql", "/db-populate.sql"},
-        teardown = {"/db-truncate.sql", "/db-teardown.sql"}
-    )
-    void preparedDatabase() throws SQLException {
-        assertEquals(2, recordsCount());
+    @Test @DisplayName("Preparation in class annotation and method - additive")
+    @PrepareDatabase(setup = {"/db-populate-2.sql"})
+    void scenariosCandG(final DataSource ds) {
+        verifyAtomicInteger(1, createCounter);
+        verifyAtomicInteger(0, otherCreateCounter);
+        assertRecordCount(ds, 5);
     }
 
-    public int recordsCount() throws SQLException {
-        return withStatement(dataSource, stmt -> {
-            try {
+    public static void assertRecordCount(final DataSource ds, final int expectedCount) {
+        try (val conn = ds.getConnection()) {
+            try (val stmt = conn.createStatement()) {
                 val rs = stmt.executeQuery("select count(*) from scores");
                 rs.next();
-                return rs.getInt(1);
-            } catch (Exception ex) {
-                return -1;
+                assertEquals(expectedCount, rs.getInt(1), "Record count mismatch");
             }
-        });
-    }
-
-    @Lifecycle(AFTER_EACH) void after() {
-        dataSource.dispose();
+        } catch (Exception ex) {
+            fail("Problem executing count statement: " + ex.getMessage());
+        }
     }
 }

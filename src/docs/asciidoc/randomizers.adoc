@@ -1,3 +1,37 @@
 == Randomizers
 
-Making stuff up on the fly...
+Testing with randomized values may sound like an odd concept, but it does have its uses. Consider a case where there are too many permutations of a scenario to adequately test all of them. You could create a randomized set of test values to run against and run your test multiple times - sure, you still don't hit them all, but you may stumble on a set that does fall into some hidden bug that your static tests would not have found.
+
+The test-things library provides a `Randomizer<T>` interface to define a means of randomly generating objects or values. It's primary method of interest is the `T one()` method, which generates one randomized object of the specific type.
+
+The library provides a handful of `Randomizer<T>` implementations, including the most useful one, the `ObjectRandomizer` which allows you to build more complex randomized objects using randomized values for the fields and properties.
+
+The `ObjectRandomizer` is configured with an `ObjectRandomizerConfig` object directly or via a `Consumer`:
+
+[source,java]
+----
+var rando = ObjectRandomizer.randomize(ComplexObject.class, cfg -> {
+    cfg.property("id", randomString(10));
+    cfg.property("shipmentSize", randomInt(0, 155));
+});
+----
+
+The above code would configure a randomizer (generally called a "rando") for `ComplexObject` instances with a random string "id" and random int "shipmentSize" value when generated. You can then generate one or more random instances as:
+
+[source,java]
+----
+var single = rando.one();
+val list = rando.many(7);
+----
+
+more details about the configuration of the object randomizer
+
+#person randomizer#
+
+
+
+TIP: You can "pin" the randomizers so that they will produce the same values - see the `SharedRandom` class for details. This allows you to reproduce failing test values.
+
+=== SharedRandom
+
+#talk about the shared random class#

@@ -44,14 +44,15 @@ import static org.junit.platform.commons.support.ReflectionSupport.findFields;
  * <code>private static final long KNOWN_SEED = &lt;your-value&gt;</code> to your test class. This provided value will
  * be used instead of the default (it does not have to be "private").
  * <p>
+ * Alternately, if your test method is annotated with the {@link ApplySeed} annotation, its value will be used as the
+ * seed for that test method.
+ * <p>
  * The random generator is reset after each test by setting the seed to the current <code>nanoTime()</code> value (i.e.
  * making it "random" again).
  *
  * <strong>Note:</strong> In case you are not aware, the seed-based random number generation is not really random - if
  * you use the same seed, you get the same "random" values in the same order, which is the basis for this method of
  * testing.
- *
- * FIXME: update with annotation docs
  */
 @Slf4j
 public class SharedRandomExtension implements BeforeEachCallback, AfterEachCallback {

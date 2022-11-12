@@ -15,7 +15,6 @@
  */
 package io.github.cjstehno.testthings.serdes;
 
-import io.github.cjstehno.testthings.fixtures.BirthGender;
 import io.github.cjstehno.testthings.fixtures.Person;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,14 +23,14 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static io.github.cjstehno.testthings.fixtures.BirthGender.FEMALE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JacksonJsonSerdesTest {
 
     private JacksonJsonSerdes serdes;
     private Person person;
 
-    @BeforeEach void beforeEach(){
+    @BeforeEach void beforeEach() {
         serdes = new JacksonJsonSerdes();
         person = new Person("Jessica", FEMALE, 33);
     }

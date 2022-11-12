@@ -32,13 +32,15 @@ import static lombok.AccessLevel.PRIVATE;
 
 /**
  * Randomizer used to generate randomized complex objects.
- *
+ * <p>
  * TODO: more details
  *
  * @param <T> the type of randomized object
  */
 @RequiredArgsConstructor(access = PRIVATE)
 public final class ObjectRandomizer<T> implements Randomizer<T> {
+
+    // FIXME: could create a simple extension for this similar to the logger
 
     private final Class<T> type;
     private final ObjectRandomizerConfigImpl randomizerConfig;
@@ -55,6 +57,10 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
         final ObjectRandomizerConfigImpl randomizerConfig = new ObjectRandomizerConfigImpl();
         config.accept(randomizerConfig);
         return new ObjectRandomizer<>(type, randomizerConfig);
+    }
+
+    public static <T> Randomizer<T> randomize(final Class<T> type, ObjectRandomizerConfig config) {
+        return new ObjectRandomizer<>(type, (ObjectRandomizerConfigImpl) config);
     }
 
     @Override public T one() {

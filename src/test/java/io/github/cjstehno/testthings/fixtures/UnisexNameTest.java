@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.serdes;
+package io.github.cjstehno.testthings.fixtures;
 
-import io.github.cjstehno.testthings.Verifiers;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-import static lombok.AccessLevel.PRIVATE;
+import static org.junit.jupiter.api.Assertions.*;
 
-@NoArgsConstructor(access = PRIVATE)
-public final class JavaObjectsSerdesVerifiers {
+class UnisexNameTest {
 
-    // FIXME: test
-
-    public static void verifySerialization(final Object object, final String expected) {
-        Verifiers.verifySerialization(new JavaObjectSerdes(), object, expected);
-    }
-
-    public static void verifySerdes(final Object object, final String json) {
-        Verifiers.verifySerdes(new JavaObjectSerdes(), object, json);
+    @Test void names(){
+        assertEquals("Elliott",UnisexName.ELLIOTT.toString());
     }
 }

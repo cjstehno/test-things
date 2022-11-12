@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2022 Christopher J. Stehno
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,6 @@
  */
 package io.github.cjstehno.testthings.match;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.hamcrest.BaseMatcher;
@@ -23,104 +22,173 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 import java.io.File;
-import java.util.function.Predicate;
+import java.io.IOException;
+import java.nio.file.Files;
 
+import static io.github.cjstehno.testthings.match.PredicateMatcher.matchesPredicate;
+import static java.lang.String.join;
+import static java.nio.file.Files.readAllLines;
+import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.CoreMatchers.equalTo;
-
-/// FIXME: similar one for Path?
 
 /**
  * Matchers useful for matching File information.
  */
 public abstract class FileMatcher extends BaseMatcher<File> {
 
-    // FIXME: test
-
     /**
-     * FIXME: document
+     * Creates a file matcher for matching the file name.
+     *
+     * @param nameMatcher the name string matcher
+     * @return the file matcher
      */
     public static Matcher<File> nameMatches(final Matcher<String> nameMatcher) {
         return new FileNameMatcher(nameMatcher);
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching the file name.
+     *
+     * @param name expected name
+     * @return the file matcher
      */
     public static Matcher<File> nameEqualTo(final String name) {
         return nameMatches(equalTo(name));
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching the file extension (not including the dot).
+     *
+     * @param extensionMatcher the extension string matcher
+     * @return the file matcher
      */
     public static Matcher<File> extensionMatches(final Matcher<String> extensionMatcher) {
         return new FileExtensionMatcher(extensionMatcher);
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching the file extension (not including the dot).
+     *
+     * @param extension the file extension
+     * @return the file matcher
      */
     public static Matcher<File> extensionEqualTo(final String extension) {
         return extensionMatches(equalTo(extension));
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching whether a file exists.
+     *
+     * @return the file matcher
      */
     public static Matcher<File> fileExists() {
-        return new FilePredicateMatcher(File::exists);
+        return matchesPredicate(File::exists, "a file that exists");
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching whether is readable.
+     *
+     * @return the file matcher
      */
     public static Matcher<File> isReadable() {
-        return new FilePredicateMatcher(File::canRead);
+        return matchesPredicate(File::canRead, "a file that is readable");
     }
 
     /**
-     * FIXME: document
+     * /**
+     * Creates a file matcher for matching whether a file is writable.
+     *
+     * @return the file matcher
      */
     public static Matcher<File> isWritable() {
-        return new FilePredicateMatcher(File::canWrite);
+        return matchesPredicate(File::canRead, "a file that is writable");
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching whether a file is a file (not a directory).
+     *
+     * @return the file matcher
      */
     public static Matcher<File> isFile() {
-        return new FilePredicateMatcher(File::isFile);
+        return matchesPredicate(File::isFile, "a file that is a normal file");
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching whether a file is a directory.
+     *
+     * @return the file matcher
      */
     public static Matcher<File> isDirectory() {
-        return new FilePredicateMatcher(File::isDirectory);
+        return matchesPredicate(File::isDirectory, "a file that is a directory");
     }
 
     /**
-     * FIXME: document
+     * Creates a file matcher for matching the content bytes.
+     *
+     * @param arrayMatcher the byte array matcher
+     * @return the file matcher
+     */
+    public static Matcher<File> fileBytesMatch(final Matcher<byte[]> arrayMatcher) {
+        return new FileBytesMatcher(arrayMatcher);
+    }
+
+    /**
+     * Creates a file matcher for matching the content as a string. Multiline content will be joined with line breaks
+     * (i.e. "\n").
+     *
+     * @param stringMatcher the string text matcher
+     * @return the file matcher
+     */
+    public static Matcher<File> fileTextMatches(final Matcher<String> stringMatcher) {
+        return new FileTextMatcher(stringMatcher);
+    }
+
+    /**
+     * Creates a file matcher for matching the size of a file.
+     *
+     * @return the file matcher
      */
     public static Matcher<File> fileSizeMatches(final Matcher<Long> sizeMatcher) {
         return new FileSizeMatcher(sizeMatcher);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static class FilePredicateMatcher extends FileMatcher {
-        private final Predicate<File> predicate;
+    @RequiredArgsConstructor(access = PRIVATE)
+    private static class FileBytesMatcher extends FileMatcher {
+        private final Matcher<byte[]> contentMatcher;
 
         @Override public boolean matches(final Object actual) {
-            val actualFile = (File) actual;
-            return predicate.test(actualFile);
+            try {
+                return contentMatcher.matches(Files.readAllBytes(((File) actual).toPath()));
+            } catch (final IOException e) {
+                return false;
+            }
         }
 
-        @Override public void describeTo(Description description) {
-            // FIXME: impl
+        @Override public void describeTo(final Description description) {
+            description.appendText("a file with content matching ");
+            contentMatcher.describeTo(description);
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = PRIVATE)
+    private static class FileTextMatcher extends FileMatcher {
+        private final Matcher<String> contentMatcher;
+
+        @Override public boolean matches(final Object actual) {
+            try {
+                return contentMatcher.matches(join("\n", readAllLines(((File) actual).toPath())));
+            } catch (final IOException e) {
+                return false;
+            }
+        }
+
+        @Override public void describeTo(final Description description) {
+            description.appendText("a file with content matching ");
+            contentMatcher.describeTo(description);
+        }
+    }
+
+    @RequiredArgsConstructor(access = PRIVATE)
     private static class FileNameMatcher extends FileMatcher {
         private final Matcher<String> nameMatcher;
 
@@ -128,37 +196,41 @@ public abstract class FileMatcher extends BaseMatcher<File> {
             return nameMatcher.matches(((File) actual).getName());
         }
 
-        @Override public void describeTo(Description description) {
-            // FIXME: impl
+        @Override public void describeTo(final Description description) {
+            description.appendText("A file with name matching ");
+            nameMatcher.describeTo(description);
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = PRIVATE)
     private static class FileSizeMatcher extends FileMatcher {
         private final Matcher<Long> sizeMatcher;
 
         @Override public boolean matches(final Object actual) {
             val actualFile = (File) actual;
+            System.out.println(actualFile.length());
             return sizeMatcher.matches(actualFile.length());
         }
 
-        @Override public void describeTo(Description description) {
-            // FIXME: impl
+        @Override public void describeTo(final Description description) {
+            description.appendText("a file with size matching ");
+            sizeMatcher.describeTo(description);
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = PRIVATE)
     private static class FileExtensionMatcher extends FileMatcher {
         private final Matcher<String> extensionMatcher;
 
         @Override public boolean matches(final Object actual) {
             val actualName = ((File) actual).getName();
-            val actualExt = actualName.substring(actualName.lastIndexOf('.'));
+            val actualExt = actualName.substring(actualName.lastIndexOf('.') + 1);
             return extensionMatcher.matches(actualExt);
         }
 
-        @Override public void describeTo(Description description) {
-            // FIXME: impl
+        @Override public void describeTo(final Description description) {
+            description.appendText("A file with extension matching ");
+            extensionMatcher.describeTo(description);
         }
     }
 }
