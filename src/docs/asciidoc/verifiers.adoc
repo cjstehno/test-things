@@ -1,3 +1,3 @@
-== Verifiers
+== Verifiers & Resources
 
-Some utilities to verify stuff.
+The library provides a `Resources` utility class which contains numerous methods for loading and working with classpath resources for testing. It also provides a `Verifiers` utility class (and other utilities with the suffix `Verifier`) to provide some useful common test verification methods.

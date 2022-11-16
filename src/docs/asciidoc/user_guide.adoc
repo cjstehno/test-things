@@ -20,8 +20,6 @@ include::matchers.adoc[]
 
 include::verifiers.adoc[]
 
-include::resources.adoc[]
-
 include::injectors.adoc[]
 
 include::randomizers.adoc[]
@@ -32,13 +30,15 @@ include::serdes.adoc[]
 
 == Other Useful Testing Libraries
 
-Ersatz
+*https://junit.org[JUnit 5].* The gold standard for Java unit testing frameworks - though if you are reading this, you probably already know that.
 
-Hamcrest
+*http://cjstehno.github.io/ersatz[Ersatz Server].* A useful framework for testing HTTP client code against a real server with pre-determined responses and expectations. A sister project to this library.
 
-Awaitility
+*http://hamcrest.org[Hamcrest].* An expressive framework for assertion matchers - the matchers in test-things are based on this framework.
 
-Mockito
+*http://www.awaitility.org/[Awaitility].* Library providing a means of testing asynchronous code in a stable and repeatable manor.
+
+*https://mockito.org[Mockito].* A powerful mocking and stubbing library.
 
 == Appendices
 

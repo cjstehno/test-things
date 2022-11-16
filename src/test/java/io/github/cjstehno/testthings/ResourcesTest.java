@@ -58,13 +58,13 @@ class ResourcesTest {
     @Test void asUrl() throws MalformedURLException {
         val url = resourceUrl(RESOURCE_PATH);
         assertThat(url.getProtocol(), equalTo("file"));
-        assertThat(url.getPath(), endsWith("/resources/test/short-text-file.txt"));
+        assertThat(url.getPath(), endsWith("/short-text-file.txt"));
     }
 
     @Test void asUri() throws URISyntaxException {
         val uri = resourceUri(RESOURCE_PATH);
         assertThat(uri.getScheme(), equalTo("file"));
-        assertThat(uri.getPath(), endsWith("/resources/test/short-text-file.txt"));
+        assertThat(uri.getPath(), endsWith("/short-text-file.txt"));
     }
 
     @Test void templating() throws IOException {

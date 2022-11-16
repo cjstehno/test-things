@@ -1,3 +1,85 @@
 == Injectors
 
-Putting data where you want it.
+Often during testing, especially with 3rd-party libraries, you need to get some data into or out of an object that does not provide a clean means of access. In this case, reflection is your friend, but it's an annoying friend that doesn't always do what you want without argument.
+
+The "injector" framework in test-things, provides a simpler means of injecting values into and extracting values out of objects with simple configuration. Also, it plays nicely with the "randomizer" framework also provided in this library.
+
+Consider the following contrived class example, maybe from some 3rd-party library you can't change:
+
+[source,java]
+----
+public class Structure {
+
+    private int code;
+
+    public Structure(final int code){
+        this.code = code * 42; // maybe it does some stuff with the code
+    }
+
+    public int getCode(){
+        return code;
+    }
+
+    // it does other stuff with the code field
+}
+----
+
+For a test case we are working on we want to modify the `code` value after construction, but it's only provided in the constructor. Using the `Injector` we can update the value as needed:
+
+[source,java]
+----
+var injected = Injector.inject(new Structure(1010), inj -> {
+    inj.set("code", 2020);
+});
+
+// the value of "code" is now 2020
+----
+
+In the test, the `set(String,Object)` method is used to inject the desired value into the instance. When the injection is performed, it is done on the same object instance, not a clone or copy - this is not mocking, it's just putting data into an existing field. If you inspect the object instance with the debugger you would see that the value of the `code` field is `2020` after the injection.
+
+So at this point, this is nothing all that earth-shattering, it's just reflection. The fun parts come with the flexibility of the configuration api.
+
+In the previous example, we used the `set` injector to directly inject a field value. There is also a version of this method which will first try to use a setter method. For example, if the field is named `foo` and there is a method `void setFoo(value)`, the injector will first try to use the setter, and if that is not present it will directly set the field value - this is an optional behavior.
+
+Another means of injection is the `update` injector. Consider our example above. Maybe we only wanted to double the current value of the `code` field rather than setting it specifically. We could do something like the following:
+
+[source,java]
+----
+var injected = Injector.inject(new Structure(1), inj -> {
+    inj.update("code", c -> c * 2);
+});
+
+// the value of "code" is now: 42 x 1 x 2 = 84
+----
+
+The `update` injector applies the provided function to the current value of the specified field - in this case the value of `code` is `42` multiplied by `2` which ends up being `84`. The value returned by the function replaces the current value.
+
+Another useful case is when you have a mutable object in a field that you need to modify. You can use the `modify` injector to act on the current value without replacing it, such as in the following:
+
+[source,java]
+----
+public class Something {
+
+    private final Map<String, Integer> counts = new HashMap<>();
+
+    // other code
+}
+----
+
+The `counts` field has a map that we want to update by changing its contents, not its value. We can use the `modify` injector to do that:
+
+[source,java]
+----
+var injected = Injector.inject(new Something(), inj -> {
+    inj.modify("counts", m -> {
+        m.put("alpha", 100);
+        m.put("bravo", 200);
+    });
+});
+----
+
+This updates the contents of the map without replacing it.
+
+There is no limit to the number of injections you can configure - each configuration consumer can apply multiple injectors as needed.
+
+Lastly, if the value to be injected is an instance of the `Randomizer` interface, the `one()` method will be called to generate a random value which will be used in the injection.

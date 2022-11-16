@@ -24,7 +24,8 @@ import java.util.function.Consumer;
 import static lombok.AccessLevel.PRIVATE;
 
 /**
- * FIXME: document
+ * The entry point for the injection framework, providing a simple configurable means of injecting values into an
+ * instance via reflection.
  */
 @RequiredArgsConstructor(access = PRIVATE)
 public final class Injector {
@@ -32,23 +33,36 @@ public final class Injector {
     private final InjectionsImpl injections;
 
     /**
-     * FIXME: document
+     * Creates an injector with the provided configured injections.
+     *
+     * @param config the configured injections
      */
-    public static Injector injector(final Consumer<Injections> prescription) {
+    public static Injector injector(final Consumer<Injections> config) {
         val injections = new InjectionsImpl();
-        prescription.accept(injections);
+        config.accept(injections);
         return new Injector(injections);
     }
 
+    // FIXME: static creator taking an Injections.create() instance
+
     /**
-     * FIXME: document
+     * Applies the configured injections on the object instance.
+     *
+     * @param instance the object instance
+     * @param config the configured injections
+     * @throws ReflectiveOperationException if there is a problem with the reflection operations
+     * @return the instance of the object populated with the injected values
      */
-    public static <T> T inject(final T instance, final Consumer<Injections> prescription) throws ReflectiveOperationException {
-        return injector(prescription).inject(instance);
+    public static <T> T inject(final T instance, final Consumer<Injections> config) throws ReflectiveOperationException {
+        return injector(config).inject(instance);
     }
 
     /**
-     * FIXME: document
+     * Injects the configured injections into the provided object instance.
+     *
+     * @param instance the object instance
+     * @return the instance of the object populated with the injected values
+     * @throws ReflectiveOperationException if there is a problem with the reflection operations
      */
     public <T> T inject(final T instance) throws ReflectiveOperationException {
         // TODO: better excepotion?

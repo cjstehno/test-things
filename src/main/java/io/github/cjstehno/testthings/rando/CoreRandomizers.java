@@ -17,9 +17,11 @@ package io.github.cjstehno.testthings.rando;
 
 
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import static io.github.cjstehno.testthings.rando.SharedRandom.current;
@@ -81,10 +83,19 @@ public final class CoreRandomizers {
      * @return the randomizer
      */
     public static <V> Randomizer<V> onceEachOf(final Collection<V> values) {
-        return () -> {
-            val items = new ArrayList<V>(values);
-            return items.isEmpty() ? null : items.remove(current().nextInt(items.size()));
-        };
+        return new OnceEachRandomizer<>(values);
+    }
+
+    private static class OnceEachRandomizer<V> implements Randomizer<V> {
+        private final List<V> values = new CopyOnWriteArrayList<>();
+
+        private OnceEachRandomizer(final Collection<V> values){
+            this.values.addAll(values);
+        }
+
+        @Override public V one() {
+            return values.isEmpty() ? null : values.remove(current().nextInt(values.size()));
+        }
     }
 
     /**

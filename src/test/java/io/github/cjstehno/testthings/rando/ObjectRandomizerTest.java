@@ -30,6 +30,7 @@ class ObjectRandomizerTest {
 
     // TODO: more complex things: maps, lists, arrays (these would just be randomizers)
     // FIXME: make sure super-class population is supported
+    // FIXME: extension for making randos (config multiple with param resolvers)
 
     @Test @DisplayName("General Usage")
     void general_usage() {

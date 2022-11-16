@@ -15,27 +15,10 @@
  */
 package io.github.cjstehno.testthings.serdes;
 
-import io.github.cjstehno.testthings.fixtures.Person;
-import io.github.cjstehno.testthings.junit.Resource;
-import io.github.cjstehno.testthings.junit.ResourcesExtension;
-import lombok.val;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatchers;
-import org.opentest4j.AssertionFailedError;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.stream.Stream;
-
-import static io.github.cjstehno.testthings.serdes.SerdesVerifiers.*;
+import static io.github.cjstehno.testthings.serdes.SerdesVerifiers.verifyDeserialization;
+import static io.github.cjstehno.testthings.serdes.SerdesVerifiers.verifySerdes;
+import static io.github.cjstehno.testthings.serdes.SerdesVerifiers.verifySerialization;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,6 +27,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.opentest4j.AssertionFailedError;
+
+import io.github.cjstehno.testthings.fixtures.Person;
+import io.github.cjstehno.testthings.junit.Resource;
+import io.github.cjstehno.testthings.junit.ResourcesExtension;
+import lombok.val;
 
 @ExtendWith(ResourcesExtension.class) @SuppressWarnings("unused")
 class SerdesVerifiersTest {
@@ -78,11 +76,6 @@ class SerdesVerifiersTest {
             verifySerdes(provider, person, equalTo(personJson));
         });
         assertEquals("Exception thrown during serdes verification: oops", thrown2.getMessage());
-    }
-
-    @Test void generateSampleObject() throws IOException {
-        val bytes = new JavaObjectSerdes().serializeToBytes(person);
-        Files.write(new File("/media/cjstehno/Storage/projects/test-things/src/test/resources/person-01.ser").toPath(), bytes, CREATE, WRITE);
     }
 
     @ParameterizedTest(name = "[{index}] with {0} expecting string")

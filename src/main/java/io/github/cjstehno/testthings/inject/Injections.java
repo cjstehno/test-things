@@ -20,15 +20,18 @@ import java.util.function.Function;
 
 /**
  * Defines some standard injection utilities.
+ *
+ * <strong>Random Value Objects.</strong> If the <code>value</code> object passed into the injection methods is an
+ * instance of a <code>Randomizer</code>, that randomizer will be used to randomly generate the value.
  */
 public interface Injections {
 
     // FIXME: collapse this?
 
     /**
-     * Injects a value into a setter or field. This version does not prefer the setter.
+     * Injects a value directly into an object field, if it exists, it not, an error is thrown.
      *
-     * @param name  the name of the property or field
+     * @param name  the name of the field to be injected
      * @param value the value (may be a Randomizer).
      * @return the configured Injections instance
      */
@@ -37,7 +40,9 @@ public interface Injections {
     }
 
     /**
-     * Injects a value into a setter or field.
+     * If <code>preferSetter</code> is <code>true</code>, an attempt will be made to inject the value using a setter
+     * method for the named property, otherwise the field itself will be injected. If the <code>preferSetter</code>
+     * value is <code>false</code> the field will be directly injected.
      *
      * @param name         the name of the property or field
      * @param value        the value (may be a Randomizer).
@@ -45,8 +50,6 @@ public interface Injections {
      * @return the configured Injections instance
      */
     Injections set(final String name, final Object value, final boolean preferSetter);
-
-    // sets a field based on a transformation of the current value
 
     /**
      * Updates a field value by applying given function to the current value.
@@ -62,7 +65,9 @@ public interface Injections {
     }
 
     /**
-     * Updates a field value by applying given function to the current value.
+     * Updates a field value by applying given function to the current value. If the <code>preferProps</code>
+     * parameter is <code>true</code>, the injector will first attempt to use the named property before
+     * defaulting update the field directly.
      * <p>
      * If the updater function returns a Randomizer, it will be used to generate the updated value.
      *
@@ -73,7 +78,8 @@ public interface Injections {
     Injections update(final String name, final Function<Object, Object> updater, boolean preferProps);
 
     /**
-     * FIXME: document
+     * Allows in-place modification of a value reference from the target instance. The target instance will be passed
+     * to the provided consumer for modification.
      *
      * @param name     the name
      * @param modifier the modifier

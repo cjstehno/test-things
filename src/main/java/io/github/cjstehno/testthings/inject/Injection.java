@@ -30,6 +30,7 @@ import static java.util.Locale.ROOT;
 public interface Injection {
 
     // FIXME: needs refactoring (and its impls)
+    // FIXME: consider droppign the "getter/setter" support and just going to fields - update guide
 
     /**
      * Performs the injection into the provided instance.

@@ -46,18 +46,18 @@ class ResourcesExtensionTest {
     @Resource("/short-text-file.txt") File shortTextFile;
 
     @Test void resourceStaticFields() {
-        assertThat(setupSqlPath.toString(), endsWith("/test-things/build/resources/test/db-setup.sql"));
+        assertThat(setupSqlPath.toString(), endsWith("/db-setup.sql"));
         assertTrue(setupSqlPath.toFile().exists());
 
-        assertThat(setupSqlFile.toString(), endsWith("/test-things/build/resources/test/db-setup.sql"));
+        assertThat(setupSqlFile.toString(), endsWith("/db-setup.sql"));
         assertTrue(setupSqlFile.exists());
     }
 
     @Test void resourceFields() {
-        assertThat(shortTextPath.toString(), endsWith("/test-things/build/resources/test/short-text-file.txt"));
+        assertThat(shortTextPath.toString(), endsWith("/short-text-file.txt"));
         assertTrue(shortTextPath.toFile().exists());
 
-        assertThat(shortTextFile.toString(), endsWith("/test-things/build/resources/test/short-text-file.txt"));
+        assertThat(shortTextFile.toString(), endsWith("/short-text-file.txt"));
         assertTrue(shortTextFile.exists());
     }
 
@@ -65,10 +65,10 @@ class ResourcesExtensionTest {
         @Resource("/template.txt") final Path templatePath,
         @Resource("/template.txt") final File templateFile
     ) {
-        assertThat(templatePath.toString(), endsWith("/test-things/build/resources/test/template.txt"));
+        assertThat(templatePath.toString(), endsWith("/template.txt"));
         assertTrue(templatePath.toFile().exists());
 
-        assertThat(templateFile.toString(), endsWith("/test-things/build/resources/test/template.txt"));
+        assertThat(templateFile.toString(), endsWith("/template.txt"));
         assertTrue(templateFile.exists());
     }
 

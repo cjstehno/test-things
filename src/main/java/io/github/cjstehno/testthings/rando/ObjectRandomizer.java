@@ -59,6 +59,14 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
         return new ObjectRandomizer<>(type, randomizerConfig);
     }
 
+    /**
+     * Used to configure a Randomizer which will produce random objects built using the specified `RandomizerConfig`.
+     *
+     * @param type   the type of object to be created and randomly populated.
+     * @param config the randomizer configuration
+     * @param <T>    the type of the randomized object
+     * @return the Randomizer which will produce random instances of the target class.
+     */
     public static <T> Randomizer<T> randomize(final Class<T> type, ObjectRandomizerConfig config) {
         return new ObjectRandomizer<>(type, (ObjectRandomizerConfigImpl) config);
     }
@@ -130,6 +138,8 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
     }
 
     private static List<Field> findFields(final Class<?> inClass) {
+        // FIXME: consider using ReflectionSupport - its in junit but its here
+
         final List<Field> fields = Arrays.stream(inClass.getDeclaredFields()).collect(toList());
 
         Class<?> superclass = inClass.getSuperclass();
