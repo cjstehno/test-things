@@ -132,7 +132,9 @@ public final class Resources {
      *
      * @param provider the serdes provider
      * @param path     the resource path
+     * @param <T> the type of the deserialized object
      * @param type     the object type
+     * @return the deserialized object loaded from the resource path
      */
     public static <T> T resourceDeserialized(final SerdesProvider provider, final String path, final Class<? extends T> type) {
         try {
@@ -147,6 +149,8 @@ public final class Resources {
      *
      * @param path the resource path
      * @param type the object type
+     * @param <T> the type of the deserialized object
+     * @return the deserialized object from the resource path content
      */
     public static <T> T resourceDeserialized(final String path, final Class<? extends T> type) {
         return resourceDeserialized(new JacksonJsonSerdes(), path, type);

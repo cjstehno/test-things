@@ -29,7 +29,25 @@ public @interface Lifecycle {
      * The test lifecycle extension point identifier.
      */
     enum LifecyclePoint {
-        BEFORE_ALL, BEFORE_EACH, AFTER_EACH, AFTER_ALL;
+        /**
+         * Denotes a static method that will be called before any of the tests are executed.
+         */
+        BEFORE_ALL,
+
+        /**
+         * Denotes a method that will be called before each of the test are executed.
+         */
+        BEFORE_EACH,
+
+        /**
+         * Denotes a method that will be called after each of the tests are executed.
+         */
+        AFTER_EACH,
+
+        /**
+         * Denotes a static method that will be called after all of the test methods are executed.
+         */
+        AFTER_ALL;
     }
 
     /**

@@ -28,6 +28,11 @@ import java.util.function.Predicate;
  */
 public interface AppenderConfig {
 
+    /**
+     * Creates an instance of {@link AppenderConfig} which may be used to populate the configuration options.
+     *
+     * @return an instance of AppenderConfig
+     */
     static AppenderConfig configure() {
         return new AppenderConfigImpl();
     }

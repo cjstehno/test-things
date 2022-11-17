@@ -17,7 +17,6 @@ package io.github.cjstehno.testthings.rando;
 
 
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 import java.util.*;
@@ -89,7 +88,7 @@ public final class CoreRandomizers {
     private static class OnceEachRandomizer<V> implements Randomizer<V> {
         private final List<V> values = new CopyOnWriteArrayList<>();
 
-        private OnceEachRandomizer(final Collection<V> values){
+        private OnceEachRandomizer(final Collection<V> values) {
             this.values.addAll(values);
         }
 
@@ -128,6 +127,7 @@ public final class CoreRandomizers {
      * @param countRando the randomizer used to determine the map size
      * @param keyRando   the randomizer used to determine the map keys
      * @param valueRando the randomizer used to determine the map values
+     * @param <K> the type of the key value
      * @param <V>        the type of the generated value
      * @return the randomizer
      */

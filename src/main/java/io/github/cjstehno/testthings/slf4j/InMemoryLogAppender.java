@@ -61,6 +61,11 @@ public class InMemoryLogAppender extends AppenderBase<ILoggingEvent> {
         }
     }
 
+    /**
+     * Creates a log appender with the provided configuration object.
+     *
+     * @param config the configuration object
+     */
     public InMemoryLogAppender(final AppenderConfig config) {
         this.config = (AppenderConfigImpl) config;
     }

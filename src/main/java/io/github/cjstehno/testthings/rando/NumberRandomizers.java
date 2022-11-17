@@ -52,10 +52,20 @@ public final class NumberRandomizers {
         return () -> current().nextLong(min, max);
     }
 
+    /**
+     * Builds a randomizer which will generate a random {@link BigInteger}.
+     *
+     * @return the randomizer
+     */
     public static Randomizer<BigInteger> aBigInteger() {
         return () -> BigInteger.valueOf(anInt().one());
     }
 
+    /**
+     * Builds a randomizer which will generate a random {@link BigDecimal}.
+     *
+     * @return the randomizer
+     */
     public static Randomizer<BigDecimal> aBigDecimal() {
         return () -> BigDecimal.valueOf(aDouble().one());
     }

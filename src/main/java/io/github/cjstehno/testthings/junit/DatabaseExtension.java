@@ -48,8 +48,8 @@ public class DatabaseExtension implements BeforeEachCallback, AfterEachCallback,
 
     private static final Namespace NAMESPACE = create("test-things", "database");
     private static final String DATA_SOURCE = "data-source";
-    public static final String DEFAULT_CREATOR = "createDataSource";
-    public static final String DEFAULT_DESTROYER = "destroyDataSource";
+    private static final String DEFAULT_CREATOR = "createDataSource";
+    private static final String DEFAULT_DESTROYER = "destroyDataSource";
 
     @Override public void beforeEach(final ExtensionContext context) throws Exception {
         val dataSource = createDataSource(context).orElseThrow();

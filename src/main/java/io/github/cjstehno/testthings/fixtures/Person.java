@@ -27,7 +27,18 @@ import java.io.Serializable;
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Person implements Serializable {
 
+    /**
+     * The name of the person.
+     */
     private String name;
+
+    /**
+     * The gender of the person at birth.
+     */
     private BirthGender birthGender;
+
+    /**
+     * The age of the person.
+     */
     private int age;
 }

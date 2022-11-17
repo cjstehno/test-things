@@ -153,6 +153,11 @@ public enum PhoneticAlphabet {
      */
     ZULU;
 
+    /**
+     * Retrieves the letter associated with the phonetic item.
+     *
+     * @return the associated letter.
+     */
     public String toLetter() {
         return String.valueOf(name().charAt(0));
     }

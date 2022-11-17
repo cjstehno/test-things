@@ -15,20 +15,16 @@
  */
 package io.github.cjstehno.testthings;
 
-import io.github.cjstehno.testthings.serdes.SerdesProvider;
 import lombok.NoArgsConstructor;
-import lombok.val;
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.Assertions;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Some utility methods useful for verifying common functionality of objects.
@@ -110,7 +106,13 @@ public final class Verifiers {
 
     // TODO: move to AtomicVerifiers?
 
-    public static void verifyAtomicInteger(final int expected, final AtomicInteger value){
+    /**
+     * Verifies that the value of the provided {@link AtomicInteger} matches the expected value.
+     *
+     * @param expected the expected int value
+     * @param value the actual value wrapped in the AtomicInteger
+     */
+    public static void verifyAtomicInteger(final int expected, final AtomicInteger value) {
         assertEquals(expected, value.get());
     }
 }

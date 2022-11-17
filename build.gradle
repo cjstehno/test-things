@@ -5,9 +5,12 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id 'org.asciidoctor.jvm.gems' version '3.3.2'
     id 'com.stehno.gradle.webpreview' version '0.3.0'
+    id 'maven-publish'
+    id 'com.github.ben-manes.versions' version '0.42.0'
+    id 'signing'
 }
 
-group = 'io.github.cjstehno.testthings'
+group = 'io.github.cjstehno'
 version = '0.0.1'
 
 sourceCompatibility = 17
@@ -136,3 +139,77 @@ task site(dependsOn: ['build', 'javadoc', 'jacocoTestReport', 'asciidoctor']) {
         }
     }
 }
+
+
+task sourcesJar(type: Jar) {
+    description = 'Creates sources jar.'
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+    description = 'Creates API documentation jar.'
+    archiveClassifier.set('javadoc')
+    from javadoc
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        ersatz(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.group
+            artifactId 'test-things'
+            version project.version
+            pom.withXml {
+                def root = asNode()
+
+                // remove test dependencies
+                root.dependencies.removeAll { dep -> dep.scope == 'test'}
+
+                root.appendNode('description', 'Utilities for unit testing.')
+                root.appendNode('name', 'test-things')
+                root.appendNode('url', 'https://cjstehno.github.io/test-things')
+
+                def licenseNode = root.appendNode('licenses').appendNode('license')
+                licenseNode.appendNode('name', 'The Apache Software License, Version 2.0')
+                licenseNode.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                licenseNode.appendNode('distribution', 'repo')
+
+                def developersNode = root.appendNode('developers').appendNode('developer')
+                developersNode.appendNode('id', 'cjstehno')
+                developersNode.appendNode('name', 'Christopher J Stehno')
+                developersNode.appendNode('email', 'chris.stehno@gmail.com')
+
+                def scmNode = root.appendNode('scm')
+                scmNode.appendNode('connection', 'scm:git:git@github.com:cjstehno/test-things.git')
+                scmNode.appendNode('developerConnection', 'scm:git:git@github.com:cjstehno/test-things.git')
+                scmNode.appendNode('url', 'https://github.com/cjstehno/test-things')
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'OSSRH'
+            setUrl('https://s01.oss.sonatype.org/service/local/staging/deploy/maven2')
+            credentials {
+                username = findProperty('ossrhUser') ?: ''
+                password = findProperty('ossrhPass') ?: ''
+            }
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.ersatz
+}
+
+

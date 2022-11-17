@@ -146,6 +146,7 @@ public abstract class FileMatcher extends BaseMatcher<File> {
     /**
      * Creates a file matcher for matching the size of a file.
      *
+     * @param sizeMatcher the matcher for the size of the file
      * @return the file matcher
      */
     public static Matcher<File> fileSizeMatches(final Matcher<Long> sizeMatcher) {
