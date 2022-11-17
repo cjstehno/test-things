@@ -15,9 +15,26 @@
 
 A collection of utilities, verifications, and fixtures useful for unit testing your code.
 
-TBD - more
+## Getting Started
 
+Project artifacts are available via the Maven Central repository. Below are the dependency coordinates for Gradle and Maven, more details are provided in the Getting Started section of the User Guide.
 
+Gradle
+
+```groovy
+testImplementation 'io.github.cjstehno:test-things:0.0.1'
+```
+
+Maven
+
+```xml
+<dependency>
+<groupId>io.github.cjstehno</groupId>
+<artifactId>test-things</artifactId>
+<version>0.0.1</version>
+<scope>test</scope>
+</dependency>
+```
 
 ## Build Instructions
 
@@ -54,7 +71,7 @@ to have the locally published artifacts signed.
 
 Before you publish a release, be sure to generate a release build (see signing section for details):
 
-    ./gradlew clean build signErsatzPublication -Psigning.gnupg.keyName=<key-id> -Psigning.gnupg.passphrase=<key-pass>
+    ./gradlew clean build signTestThingsPublication -Psigning.gnupg.keyName=<key-id> -Psigning.gnupg.passphrase=<key-pass>
 
 Then, to publish the artifacts to the Maven Central Repository, run
 
@@ -66,6 +83,8 @@ Once the artifacts have been published, sign-in to https://s01.oss.sonatype.org 
 and "Close" the published artifacts - this may take some time to appear. If there are errors, you can "Drop" it, fix them and publish again.
 
 After you have successfully "closed" the staging repository, you can release it by pressing the "Release" button.
+
+It may take from minutes to hours for your new artifacts to appear in the central repository.
 
 #### Signing
 

@@ -11,7 +11,7 @@ plugins {
 }
 
 group = 'io.github.cjstehno'
-version = '0.0.1'
+version = '0.0.2'
 
 sourceCompatibility = 17
 targetCompatibility = 17
@@ -161,7 +161,7 @@ artifacts {
 
 publishing {
     publications {
-        ersatz(MavenPublication) {
+        testThings(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
@@ -209,7 +209,7 @@ publishing {
 
 signing {
     useGpgCmd()
-    sign publishing.publications.ersatz
+    sign publishing.publications.testThings
 }
 
 
