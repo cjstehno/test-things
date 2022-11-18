@@ -25,6 +25,7 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalField;
+import java.util.Locale;
 
 import static java.time.DayOfWeek.*;
 import static java.time.temporal.ChronoField.*;
@@ -212,6 +213,7 @@ public class TemporalMatcher extends BaseMatcher<Temporal> {
     }
 
     @Override public void describeTo(final Description description) {
-        // FIXME: impl and test
+        description.appendText("a " + temporalField.getDisplayName(Locale.ROOT) + " matching ");
+        matcher.describeTo(description);
     }
 }

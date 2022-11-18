@@ -15,7 +15,6 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
-import io.github.cjstehno.testthings.serdes.JacksonJsonSerdes;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +39,6 @@ class PersonTest {
 
     @Test void serdes() {
         verifySerdes(
-            new JacksonJsonSerdes(), // TODO: add a shortcut for this
             person(),
             "{\"name\":\"Chris\",\"birthGender\":\"MALE\",\"age\":50}"
         );
@@ -50,7 +48,7 @@ class PersonTest {
         verifyToString("Person(name=Chris, birthGender=MALE, age=50)", PersonTest::person);
     }
 
-    @Test void equalsAndHash(){
+    @Test void equalsAndHash() {
         verifyEqualsAndHashCode(PersonTest::person);
     }
 }

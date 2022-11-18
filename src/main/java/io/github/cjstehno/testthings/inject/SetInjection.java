@@ -19,15 +19,18 @@ package io.github.cjstehno.testthings.inject;
 import io.github.cjstehno.testthings.rando.Randomizer;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.junit.platform.commons.support.ReflectionSupport;
 
 import static io.github.cjstehno.testthings.inject.Injection.findField;
-import static io.github.cjstehno.testthings.inject.Injection.findSetter;
+import static java.util.Locale.ROOT;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethod;
 
 /**
  * FIXME: document
  */
 @RequiredArgsConstructor
 public class SetInjection implements Injection {
+    // FIXME: package scope? others too
 
     private final String name;
     private final Object value;
@@ -48,7 +51,8 @@ public class SetInjection implements Injection {
 
         if (preferSetter) {
             // use the setter, if there is one
-            val setter = findSetter(instance.getClass(), name, valueType);
+            val setterName = "set" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
+            val setter = findMethod(instance.getClass(), setterName, valueType);
             if (setter.isPresent()) {
                 setter.get().invoke(instance, injectedValue);
             } else {

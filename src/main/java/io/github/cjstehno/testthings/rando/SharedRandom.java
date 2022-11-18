@@ -103,11 +103,15 @@ public class SharedRandom implements RandomGenerator {
 
     // if a seed is passed, use it, otherwise use configured if exists, then default to current time
     private static long resolveSeed(final Long value) {
-        // TODO: is a negative or 0 seed valid?
         if (value == null) {
             val seedProperty = getProperty(SEED_PROPERTY);
             return seedProperty != null && !seedProperty.isBlank() ? parseLong(seedProperty) : nanoTime();
         }
+
+        if (value < 1) {
+            throw new IllegalArgumentException("The seed value must be greater than 0.");
+        }
+
         return value;
     }
 }

@@ -29,10 +29,10 @@ Maven
 
 ```xml
 <dependency>
-<groupId>io.github.cjstehno</groupId>
-<artifactId>test-things</artifactId>
-<version>0.0.1</version>
-<scope>test</scope>
+    <groupId>io.github.cjstehno</groupId>
+    <artifactId>test-things</artifactId>
+    <version>0.0.1</version>
+    <scope>test</scope>
 </dependency>
 ```
 

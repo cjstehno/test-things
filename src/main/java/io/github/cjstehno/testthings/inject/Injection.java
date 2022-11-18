@@ -52,20 +52,6 @@ public interface Injection {
         }
     }
 
-    static Optional<Method> findSetter(final Class<?> inClass, final String propertyName, final Class<?> valueType) {
-        val methodName = "set" + propertyName.substring(0, 1).toUpperCase(ROOT) + propertyName.substring(1);
-
-        try {
-            val method = inClass.getDeclaredMethod(methodName, valueType);
-            method.setAccessible(true);
-            return Optional.of(method);
-        } catch (final NoSuchMethodException e) {
-            return inClass.getSuperclass() != Object.class
-                ? findSetter(inClass.getSuperclass(), propertyName, valueType)
-                : Optional.empty();
-        }
-    }
-
     static Optional<Method> findGetter(final Class<?> inClass, final String propertyName) {
         val methodName = "get" + propertyName.substring(0, 1).toUpperCase(ROOT) + propertyName.substring(1);
 

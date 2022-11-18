@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hamcrest.Matcher;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Supplier;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -104,7 +105,7 @@ public final class Verifiers {
         verifyToString(equalTo(expected), obj);
     }
 
-    // TODO: move to AtomicVerifiers?
+    // TODO: move to AtomicVerifiers? or create a matcher for atomics
 
     /**
      * Verifies that the value of the provided {@link AtomicInteger} matches the expected value.

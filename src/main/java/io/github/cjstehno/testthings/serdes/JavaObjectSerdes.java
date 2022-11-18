@@ -55,7 +55,6 @@ public final class JavaObjectSerdes implements SerdesProvider {
 
         try (val bytess = new ByteArrayInputStream(bytes)) {
             try (val input = new ObjectInputStream(bytess)) {
-                // TODO: check if the deser obj is of "type" (param)?
                 return (T) input.readObject();
             } catch (ClassNotFoundException e) {
                 throw new IOException("Unable to deserialize object: " + e.getMessage(), e);
