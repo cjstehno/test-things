@@ -15,6 +15,7 @@
  */
 package io.github.cjstehno.testthings.inject;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
@@ -23,8 +24,8 @@ import java.util.function.Consumer;
 /**
  * FIXME: document
  */
-@RequiredArgsConstructor
-public class ModifyInjection implements Injection {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+ class ModifyInjection implements Injection {
 
     private final String name;
     private final Consumer<Object> modifier;

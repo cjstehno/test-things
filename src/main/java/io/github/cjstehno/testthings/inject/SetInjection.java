@@ -17,20 +17,24 @@ package io.github.cjstehno.testthings.inject;
 
 
 import io.github.cjstehno.testthings.rando.Randomizer;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.junit.platform.commons.support.ReflectionSupport;
 
 import static io.github.cjstehno.testthings.inject.Injection.findField;
 import static java.util.Locale.ROOT;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isNotStatic;
 import static org.junit.platform.commons.support.ReflectionSupport.findMethod;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
 
 /**
- * FIXME: document
+ * Injection instance used to inject a value into a field, optionally using an existing setter method.
  */
-@RequiredArgsConstructor
-public class SetInjection implements Injection {
-    // FIXME: package scope? others too
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+class SetInjection implements Injection {
+
+    // TODO: could use some refactoring
 
     private final String name;
     private final Object value;
@@ -41,18 +45,12 @@ public class SetInjection implements Injection {
      */
     @Override
     public void injectInto(final Object instance) throws ReflectiveOperationException {
-        Class<?> valueType = value.getClass();
-        Object injectedValue = value;
-
-        if (value instanceof Randomizer<?> rando) {
-            injectedValue = rando.one();
-            valueType = rando.getClass();
-        }
+        val valueType = resolveValueType(instance.getClass());
+        val injectedValue = value instanceof Randomizer<?> rando ? rando.one() : value;
 
         if (preferSetter) {
             // use the setter, if there is one
-            val setterName = "set" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
-            val setter = findMethod(instance.getClass(), setterName, valueType);
+            val setter = findMethod(instance.getClass(), getSetterName(), valueType);
             if (setter.isPresent()) {
                 setter.get().invoke(instance, injectedValue);
             } else {
@@ -63,6 +61,32 @@ public class SetInjection implements Injection {
         } else {
             // use the direct field access
             injectDirectly(instance, injectedValue);
+        }
+    }
+
+    public String getSetterName() {
+        return "set" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
+    }
+
+    private Class<?> resolveValueType(final Class<?> instanceType) {
+        if (preferSetter) {
+            val methodName = getSetterName();
+            val methods = findMethods(
+                instanceType,
+                m -> m.getName().equals(methodName) && m.getParameterCount() == 1 && isNotStatic(m),
+                TOP_DOWN
+            );
+
+            if (!methods.isEmpty()) {
+                return methods.get(0).getParameterTypes()[0];
+            }
+        }
+
+        val field = findField(instanceType, name);
+        if (field.isPresent()) {
+            return field.get().getType();
+        } else {
+            throw new IllegalArgumentException("Unable to resolve the value type");
         }
     }
 

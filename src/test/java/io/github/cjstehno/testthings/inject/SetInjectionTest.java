@@ -15,46 +15,36 @@
  */
 package io.github.cjstehno.testthings.inject;
 
-import io.github.cjstehno.testthings.fixtures.BirthGender;
-import io.github.cjstehno.testthings.fixtures.Person;
-import io.github.cjstehno.testthings.fixtures.UnisexName;
-import lombok.Data;
+import io.github.cjstehno.testthings.junit.ResourcesExtension;
+import io.github.cjstehno.testthings.junit.SharedRandomExtension;
+import io.github.cjstehno.testthings.rando.CoreRandomizers;
+import io.github.cjstehno.testthings.rando.StringRandomizers;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.val;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Set;
 
-import static io.github.cjstehno.testthings.fixtures.BirthGender.MALE;
-import static io.github.cjstehno.testthings.fixtures.UnisexName.ASPEN;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.constant;
+import static io.github.cjstehno.testthings.rando.StringRandomizers.alphanumeric;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SharedRandomExtension.class)
 class SetInjectionTest {
 
-    @Test void setterInjection() throws Exception {
+    @ParameterizedTest @ValueSource(booleans = {true, false})
+    void setterInjection(final boolean useSetter) throws Exception {
         val target = new Target();
 
-        val value = "injected";
-        val injection = new SetInjection("name", value, true);
-
-        injection.injectInto(target);
+        new SetInjection("name", "injected", useSetter).injectInto(target);
 
         assertEquals("injected", target.getName());
-        assertTrue(target.isSetterCalled());
-    }
-
-    @Test void fieldInjection() throws Exception {
-        val target = new Target();
-
-        val value = "injected";
-        val injection = new SetInjection("name", value, false);
-
-        injection.injectInto(target);
-
-        assertEquals("injected", target.getName());
-        assertFalse(target.isSetterCalled());
+        assertEquals(useSetter, target.isSetterCalled());
     }
 
     @Test void setterInjectionWithoutSetter() throws Exception {
@@ -66,13 +56,38 @@ class SetInjectionTest {
         assertEquals(42, target.getId());
     }
 
-    private static class Target {
+    @ParameterizedTest @ValueSource(booleans = {true, false})
+    void injectingNull(final boolean useSetter) throws Exception {
+        val target = new Target("stuff");
+
+        new SetInjection("name", null, useSetter).injectInto(target);
+
+        assertNull(target.getName());
+        assertEquals(useSetter, target.isSetterCalled());
+    }
+
+    @ParameterizedTest @ValueSource(booleans = {true, false})
+    void injectingRando(final boolean useSetter) throws Exception {
+        val target = new Target();
+
+        new SetInjection("name", alphanumeric(constant(6)), useSetter).injectInto(target);
+
+        assertEquals("T4KAK8", target.getName());
+        assertEquals(useSetter, target.isSetterCalled());
+    }
+
+    @NoArgsConstructor
+    static class Target {
 
         @Getter private String name;
         @Getter private int id = 8675309;
         @Getter private boolean setterCalled;
 
-        public void setName(final String name){
+        Target(final String name) {
+            this.name = name == null || name.isBlank() ? null : name;
+        }
+
+        public void setName(final String name) {
             this.name = name;
             setterCalled = true;
         }

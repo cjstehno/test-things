@@ -16,6 +16,7 @@
 package io.github.cjstehno.testthings.inject;
 
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
@@ -27,20 +28,22 @@ import static io.github.cjstehno.testthings.inject.Injection.findField;
 import static io.github.cjstehno.testthings.inject.Injection.findGetter;
 
 /**
- * FIXME: document
+ * An Injection implementation which injects the value returned by a function, which is passed the current field
+ * value. Optionally, if a setter exists, it may be used to inject the resulting value.
  */
-@RequiredArgsConstructor
-public class UpdateInjection implements Injection {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+class UpdateInjection implements Injection {
 
     private final String name;
     private final Function<Object, Object> updater;
-    private final boolean preferProps;
+    private final boolean preferSetter;
 
     /**
      * FIXME: document
      */
     @Override
     public void injectInto(final Object instance) throws ReflectiveOperationException {
+        // TODO: replace findfield with the one from JUnit
         val field = findField(instance.getClass(), name);
 
         // get the current value
@@ -50,14 +53,14 @@ public class UpdateInjection implements Injection {
         final Object updatedValue = updater.apply(currentValue);
 
         // update the value
-        new SetInjection(name, updatedValue, preferProps).injectInto(instance);
+        new SetInjection(name, updatedValue, preferSetter).injectInto(instance);
     }
 
     private Object extractCurrentValue(final Object instance, final Optional<Field> field) throws ReflectiveOperationException {
         final Object currentValue;
 
         val getter = findGetter(instance.getClass(), name);
-        if (preferProps && getter.isPresent()) {
+        if (preferSetter && getter.isPresent()) {
             currentValue = getter.get().invoke(instance);
         } else {
             //  fetch direct
