@@ -1,3 +1,0 @@
-== Serdes Providers
-
-what it says on the box...
