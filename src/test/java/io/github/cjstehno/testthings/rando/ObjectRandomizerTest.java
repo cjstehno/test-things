@@ -29,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SharedRandomExtension.class)
 class ObjectRandomizerTest {
 
-    // fIXME: test with field injections
-
     @Test void complexObject() {
         val rando = randomized(new LowerLevel(), inj -> {
             inj.setProperty("alpha", alphanumeric(constant(6)));

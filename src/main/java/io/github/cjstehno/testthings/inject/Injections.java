@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2022 Christopher J. Stehno
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,17 +60,42 @@ public interface Injections {
         return set(name, value, true);
     }
 
-    // FIXME: document
+    /**
+     * Injects a value directly into all of the fields of the specified type.
+     *
+     * @param type the field type
+     * @param value the value to inject
+     * @return the configured injections instance
+     */
     default Injections setField(final Class<?> type, final Object value) {
         return set(type, value, false);
     }
 
-    // FIXME: document
+    /**
+     * Injects a value into the setters setting the specified type - if a setter does not exist, it will try to inject
+     * directly into a field of the type.
+     *
+     * If a setter and a field both match, it will only inject one of them, not both.
+     *
+     * @param type the field type
+     * @param value the value to inject
+     * @return the configured injections instance
+     */
     default Injections setProperty(final Class<?> type, final Object value) {
         return set(type, value, true);
     }
 
-    // FIXME: document
+    /**
+     * Injects a value into the setters setting the specified type - if a setter does not exist, it will try to inject
+     * directly into a field of the type.
+     *
+     * If a setter and a field both match, it will only inject one of them, not both.
+     *
+     * @param type the field type
+     * @param value the value to inject
+     * @param setter prefers using the setter if it exists
+     * @return the configured injections instance
+     */
     Injections set(final Class<?> type, final Object value, final boolean setter);
 
     /**

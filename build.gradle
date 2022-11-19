@@ -24,7 +24,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
-    implementation 'org.slf4j:slf4j-api:2.0.3' // TODO: provided?
+    implementation 'org.slf4j:slf4j-api:2.0.3'
     implementation 'ch.qos.logback:logback-classic:1.4.4'
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
@@ -172,7 +172,7 @@ publishing {
                 def root = asNode()
 
                 // remove test dependencies
-                root.dependencies.removeAll { dep -> dep.scope == 'test'}
+                root.dependencies.removeAll { dep -> dep.scope == 'test' }
 
                 root.appendNode('description', 'Utilities for unit testing.')
                 root.appendNode('name', 'test-things')
