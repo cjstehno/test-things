@@ -26,8 +26,6 @@ import java.util.function.Function;
  */
 public interface Injections {
 
-    // FIXME: consider adding an injector based on type - e.g set all setters/fields of type to value
-
     /**
      * Injects a value directly into an object field, if it exists, it not, an error is thrown.
      *
@@ -38,14 +36,6 @@ public interface Injections {
     default Injections setField(final String name, final Object value) {
         return set(name, value, false);
     }
-
-    // FIXME: setField(type, value)
-    // FIXME: setProperty(type, value)
-    // FIXME: set(type, value, setter)
-
-    // fIXME: updateField(type, function)
-    // FIXME: updateProperty(type, function)
-    // FIXME: update(type, function, getter)
 
     /**
      * If <code>preferSetter</code> is <code>true</code>, an attempt will be made to inject the value using a setter
@@ -69,6 +59,19 @@ public interface Injections {
     default Injections setProperty(final String name, final Object value) {
         return set(name, value, true);
     }
+
+    // FIXME: document
+    default Injections setField(final Class<?> type, final Object value) {
+        return set(type, value, false);
+    }
+
+    // FIXME: document
+    default Injections setProperty(final Class<?> type, final Object value) {
+        return set(type, value, true);
+    }
+
+    // FIXME: document
+    Injections set(final Class<?> type, final Object value, final boolean setter);
 
     /**
      * Updates a field value by applying given function to the current value.

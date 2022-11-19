@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SharedRandomExtension.class)
 class ObjectRandomizerTest {
 
-    // FIXME: test with type injections
     // fIXME: test with field injections
 
     @Test void complexObject() {
@@ -46,6 +45,21 @@ class ObjectRandomizerTest {
                 "T4KAK8", 1696540702,
                 "x184bG", -1114350914,
                 "Y9V1E1", 2048415859
+            ),
+            rando.one()
+        );
+    }
+
+    @Test void complexObjectByType() {
+        val rando = randomized(new LowerLevel(), inj -> {
+            inj.setProperty(String.class, alphanumeric(constant(6)));
+            inj.setProperty(Integer.TYPE, anInt());
+        });
+        assertEquals(
+            new LowerLevel(
+                "T4KAK8", 764810047,
+                "L22nj6", 2043171710,
+                "uY9V1E", 2048415859
             ),
             rando.one()
         );

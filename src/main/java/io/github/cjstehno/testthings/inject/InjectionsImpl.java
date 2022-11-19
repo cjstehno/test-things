@@ -35,6 +35,11 @@ public class InjectionsImpl implements Injections {
         return this;
     }
 
+    @Override public Injections set(final Class<?> type, final Object value, final boolean setter) {
+        injections.add(new TypeSetInjection(type, value, setter));
+        return this;
+    }
+
     @Override
     public Injections update(String name, Function<Object, Object> updater, final boolean preferSetter, final boolean preferGetter) {
         injections.add(new UpdateInjection(name, updater, preferSetter, preferGetter));
