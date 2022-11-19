@@ -15,134 +15,98 @@
  */
 package io.github.cjstehno.testthings.rando;
 
+import io.github.cjstehno.testthings.fixtures.UnisexName;
+import io.github.cjstehno.testthings.junit.SharedRandomExtension;
+import lombok.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static io.github.cjstehno.testthings.rando.ObjectRandomizer.randomize;
-import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
+import static io.github.cjstehno.testthings.fixtures.PhoneticAlphabet.CHARLIE;
 import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
-import static java.lang.String.format;
+import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
+import static io.github.cjstehno.testthings.rando.ObjectRandomizer.randomize;
+import static java.util.Arrays.stream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(SharedRandomExtension.class)
 class ObjectRandomizerTest {
 
     // TODO: more complex things: maps, lists, arrays (these would just be randomizers)
-    // FIXME: make sure super-class population is supported
     // FIXME: extension for making randos (config multiple with param resolvers)
+
+    private static final Randomizer<String> NAME_RANDO = oneOf(
+        stream(UnisexName.values())
+            .map(UnisexName::toString)
+            .toList()
+            .toArray(new String[0])
+    );
 
     @Test @DisplayName("General Usage")
     void general_usage() {
-        Randomizer<SomethingElse> rando = randomize(SomethingElse.class, config -> {
-            config.property("name", oneOf("alpha", "bravo", "charlie"));
+        val rando = randomize(SomethingElse.class, config -> {
+            config.property("name", NAME_RANDO);
             config.property("score", anIntBetween(10, 100));
             config.field("added", oneOf("one", "two"));
         });
 
-        rando.many(5).forEach(System.out::println);
+        assertEquals(new SomethingElse(CHARLIE.toString(), 91, "two"), rando.one());
     }
 
     @Test @DisplayName("Randomizing nested objects")
     void nested_objects() {
-        Randomizer<SomethingElse> randoThing = randomize(SomethingElse.class, config -> {
-            config.property("name", oneOf("alpha", "bravo", "charlie"));
-            config.property("score", anIntBetween(10, 100));
-            config.field("added", oneOf("one", "two"));
+        val rando = randomize(Holder.class, cfg -> {
+            cfg.property("thing", randomize(SomethingElse.class, config -> {
+                config.property("name", NAME_RANDO);
+                config.property("score", anIntBetween(10, 100));
+                config.field("added", oneOf("one", "two"));
+            }));
         });
 
-        Randomizer<Holder> rando = randomize(Holder.class, cfg -> {
-            cfg.property("thing", randoThing);
-        });
-
-        rando.many(5).forEach(System.out::println);
+        assertEquals(new Holder(
+            new SomethingElse(CHARLIE.toString(), 91, "two")
+        ), rando.one());
     }
 
     @Test @DisplayName("General Usage (with global types)")
     void general_usage_with_types() {
         Randomizer<SomethingElse> rando = randomize(SomethingElse.class, config -> {
-            config.propertyType(String.class, oneOf("alpha", "bravo", "charlie"));
+            config.propertyType(String.class, NAME_RANDO);
             config.property("name", oneOf("Bob", "Joe"));
             config.fieldType(int.class, anIntBetween(25, 50));
         });
 
-        rando.many(5).forEach(System.out::println);
+        assertEquals(new SomethingElse("Joe", 44, "setter-Charlie"), rando.one());
     }
 
+    @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode @ToString
     static class Something {
 
-        private String name;
-        private int score;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getScore() {
-            return score;
-        }
-
-        public void setScore(int score) {
-            this.score = score;
-        }
-
-        @Override public String toString() {
-            return format("Something{name='%s', score=%d}", name, score);
-        }
+        @Getter @Setter private String name;
+        @Getter @Setter private int score;
     }
 
+    @NoArgsConstructor @EqualsAndHashCode(callSuper = true) @ToString(callSuper = true)
     static class SomethingElse extends Something {
 
-        private String added;
+        @Getter private String added;
 
-        public String getAdded() {
-            return added;
+        SomethingElse(final String name, final int score, final String added) {
+            super(name, score);
+            this.added = added;
         }
 
         public void setAdded(String added) {
             this.added = "setter-" + added;
         }
-
-        @Override public String toString() {
-            return format("SomethingElse{name=%s, score=%d, added=%s}", getName(), getScore(), added);
-        }
     }
 
+    @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode @ToString
     static class Holder {
 
-        private SomethingElse thing;
-
-        public SomethingElse getThing() {
-            return thing;
-        }
-
-        public void setThing(SomethingElse thing) {
-            this.thing = thing;
-        }
-
-        @Override public String toString() {
-            return format("Holder{thing=%s}", thing);
-        }
-    }
-
-    static class Collector {
-
-        private List<String> strings = new LinkedList<>();
-
-        public List<String> getStrings() {
-            return strings;
-        }
-
-        public void setStrings(List<String> strings) {
-            this.strings = strings;
-        }
-
-        @Override public String toString() {
-            return "Collector{" + "strings=" + strings + '}';
-        }
+        @Getter @Setter private SomethingElse thing;
     }
 }

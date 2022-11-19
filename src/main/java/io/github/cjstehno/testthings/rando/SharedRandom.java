@@ -47,7 +47,7 @@ public class SharedRandom implements RandomGenerator {
     public static final String SEED_PROPERTY = "test-things.rando.seed";
 
     private static ThreadLocal<SharedRandom> SHARED = ThreadLocal.withInitial(() -> {
-        log.info("Creating a new random.");
+        log.debug("Creating a new random.");
         return new SharedRandom(null);
     });
 
@@ -79,7 +79,7 @@ public class SharedRandom implements RandomGenerator {
     public void reseed(final long newSeed) {
         seed = newSeed;
         random = new Random(newSeed);
-        log.info("Updating seed to {}", newSeed);
+        log.debug("Updating seed to {}", newSeed);
     }
 
     /**

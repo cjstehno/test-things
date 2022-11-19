@@ -32,7 +32,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class CoreRandomizers {
 
-    // FIXME: give it a map with keys mapped to randomizers - gen random values for map
+    //FIXME: date, localdate, localdatetime = TemporalRandomizers
 
     /**
      * Defines a randomizer which will always return the same value... so not really random at all.
@@ -142,6 +142,23 @@ public final class CoreRandomizers {
     }
 
     /**
+     * Given a map containing Randomizers mapped to keys, the generated randomizer will generate random values for the
+     * mapped keys, based on the configured randomizers.
+     *
+     * @param randomizers the map of keys to randomizers
+     * @return the randomizer
+     * @param <K> the key type
+     * @param <V> the value type
+     */
+    public static <K,V> Randomizer<Map<K,V>> mapOf(final Map<K, Randomizer<V>> randomizers){
+        return ()->{
+            val output = new LinkedHashMap<K,V>();
+            randomizers.forEach((key, rando) -> output.put(key, rando.one()));
+            return output;
+        };
+    }
+
+    /**
      * A randomizer which will generate an array of random values. The size of the generated array is also random.
      *
      * @param countRando the randomizer used to determine the array size
@@ -165,6 +182,4 @@ public final class CoreRandomizers {
     public static <V> Randomizer<Stream<V>> streamOf(final Randomizer<Integer> countRando, final Randomizer<V> valueRando) {
         return () -> valueRando.stream(countRando.one());
     }
-
-    // FIXME: date, localdate, localdatetime
 }

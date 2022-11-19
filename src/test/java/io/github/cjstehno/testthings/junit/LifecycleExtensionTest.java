@@ -26,8 +26,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.cjstehno.testthings.Verifiers.verifyAtomicInteger;
 import static io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint.*;
+import static io.github.cjstehno.testthings.match.AtomicMatcher.atomicIntIs;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.when;
 
@@ -61,10 +63,10 @@ class LifecycleExtensionTest {
         extension.afterEach(extensionContext);
         extension.afterAll(extensionContext);
 
-        verifyAtomicInteger(1, beforeAllCount);
-        verifyAtomicInteger(1, beforeEachCount);
-        verifyAtomicInteger(1, afterEachCount);
-        verifyAtomicInteger(1, afterAllCount);
+        assertThat(beforeAllCount, atomicIntIs(equalTo(1)));
+        assertThat(beforeEachCount, atomicIntIs(equalTo(1)));
+        assertThat(afterEachCount, atomicIntIs(equalTo(1)));
+        assertThat(afterAllCount, atomicIntIs(equalTo(1)));
     }
 
     // NOTE: these are for testing, they are not actual lifecycle methods

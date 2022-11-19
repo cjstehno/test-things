@@ -15,7 +15,8 @@
  */
 package io.github.cjstehno.testthings.inject;
 
-import io.github.cjstehno.testthings.inject.SetInjectionTest.Target;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.val;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -26,35 +27,64 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class UpdateInjectionTest {
 
     @ParameterizedTest @CsvSource({
-        ",true,-updated",
-        ",false,-updated",
-        "something,true,something-updated",
-        "something,false,something-updated",
+        ",true,true,-updated",
+        ",true,false,-updated",
+        ",false,true,-updated",
+        ",false,false,-updated",
+        "alpha,true,true,alpha-updated",
+        "bravo,true,false,bravo-updated",
+        "charlie,false,true,charlie-updated",
+        "delta,false,false,delta-updated",
     })
-    void updateValue(final String initial, final boolean useSetter, final String expected) throws ReflectiveOperationException {
-        val target = new Target(initial);
+    void updateValue(final String initial, final boolean useGetter, final boolean useSetter, final String expected) throws ReflectiveOperationException {
+        val target = new UpdateTarget(initial);
 
         new UpdateInjection(
-            "name",
+            "value",
             current -> (current != null ? current : "") + "-updated",
-            useSetter
+            useSetter,
+            useGetter
         ).injectInto(target);
 
-        assertEquals(expected, target.getName());
+        assertEquals(expected, target.value);
         assertEquals(useSetter, target.isSetterCalled());
+        assertEquals(useGetter, target.isGetterCalled());
     }
 
     @ParameterizedTest @CsvSource({"true", "false"})
-    void updateToNull(final boolean useSetter) throws ReflectiveOperationException {
-        val target = new Target("test!");
+    void updateToNull(final boolean useProps) throws ReflectiveOperationException {
+        val target = new UpdateTarget("test!");
 
         new UpdateInjection(
-            "name",
+            "value",
             current -> null,
-            useSetter
+            useProps, useProps
         ).injectInto(target);
 
-        assertNull(target.getName());
-        assertEquals(useSetter, target.isSetterCalled());
+        assertNull(target.value);
+        assertEquals(useProps, target.isSetterCalled());
+        assertEquals(useProps, target.isGetterCalled());
+    }
+
+    @NoArgsConstructor
+    static class UpdateTarget {
+
+        protected String value;
+        @Getter private boolean setterCalled;
+        @Getter private boolean getterCalled;
+
+        UpdateTarget(final String value) {
+            this.value = value == null || value.isBlank() ? null : value;
+        }
+
+        public void setValue(final String value) {
+            this.value = value;
+            setterCalled = true;
+        }
+
+        public String getValue() {
+            getterCalled = true;
+            return value;
+        }
     }
 }

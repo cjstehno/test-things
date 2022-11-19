@@ -17,21 +17,16 @@ package io.github.cjstehno.testthings.match;
 
 import io.github.cjstehno.testthings.junit.Resource;
 import io.github.cjstehno.testthings.junit.ResourcesExtension;
-import lombok.val;
-import org.hamcrest.Matcher;
-import org.hamcrest.StringDescription;
-import org.hamcrest.collection.ArrayMatching;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 
+import static io.github.cjstehno.testthings.TestVerifiers.assertMatcherDescription;
 import static io.github.cjstehno.testthings.match.ByteArrayMatcher.arrayEqualTo;
 import static io.github.cjstehno.testthings.match.FileMatcher.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.ArrayMatching.asEqualMatchers;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ResourcesExtension.class)
 class FileMatcherTest {
@@ -83,12 +78,5 @@ class FileMatcherTest {
         @Resource("/short-text-file.txt") final byte[] bytes
     ) {
         assertThat(textFile, fileBytesMatch(arrayEqualTo(bytes)));
-    }
-
-    // FIXME: move this to a shared util? public?
-    public static void assertMatcherDescription(final String expected, final Matcher<?> matcher) {
-        val desc = new StringDescription();
-        matcher.describeTo(desc);
-        assertEquals(expected, desc.toString());
     }
 }

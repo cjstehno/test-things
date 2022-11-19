@@ -21,6 +21,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static ch.qos.logback.classic.Level.*;
 import static io.github.cjstehno.testthings.slf4j.match.LogLevelMatcher.logLevelEqualTo;
 import static io.github.cjstehno.testthings.slf4j.match.LogMessageMatcher.logMessage;
@@ -57,6 +60,13 @@ class InMemoryLogAppenderTest {
         assertEquals(1, appender.count(logLevelEqualTo(WARN)));
         assertEquals(1, appender.count(logLevelEqualTo(INFO)));
         assertEquals(2, appender.count());
+
+        assertEquals(2, appender.getEvents().size());
+        assertEquals(2, appender.events().size());
+        assertEquals(1, appender.events(logLevelEqualTo(WARN)).size());
+
+        assertEquals(2, appender.stream().toList().size());
+        assertEquals(1, appender.stream(logLevelEqualTo(INFO)).toList().size());
 
         assertTrue(appender.hasEvent(allOf(
             loggerName(endsWith("Alpha")),

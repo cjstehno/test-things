@@ -57,7 +57,7 @@ public class PredicateMatcher<T> extends BaseMatcher<T> {
         return new PredicateMatcher<>(predicate, descr);
     }
 
-    @Override public boolean matches(final Object actual) {
+    @Override @SuppressWarnings("unchecked") public boolean matches(final Object actual) {
         try {
             return predicate.test((T) actual);
         } catch (ClassCastException cce) {

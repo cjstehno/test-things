@@ -53,7 +53,15 @@ public abstract class ByteArrayMatcher extends BaseMatcher<byte[]> {
         return new ArrayStartsWithMatcher(prefix);
     }
 
-    // TODO: contains, endsWith
+    /**
+     * Matches a sub-array of bytes in the provided byte array.
+     *
+     * @param sub the sub-array
+     * @return the matcher
+     */
+    public static Matcher<byte[]> arrayContains(final byte[] sub){
+        return new ArrayContainsBytes(sub);
+    }
 
     /**
      * Matches a byte array with the specified length.
@@ -63,6 +71,40 @@ public abstract class ByteArrayMatcher extends BaseMatcher<byte[]> {
      */
     public static Matcher<byte[]> arrayLengthIs(final int length) {
         return matchesPredicate(bs -> bs.length == length, "a byte array with length " + length);
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static class ArrayContainsBytes extends ByteArrayMatcher {
+        private final byte[] subarray;
+
+        @Override public boolean matches(final Object actual) {
+            return arrayContains((byte[])actual, subarray);
+        }
+
+        @Override public void describeTo(final Description description) {
+            description.appendText("an array of bytes containing the sub-array of bytes");
+        }
+
+        private static boolean arrayContains(final byte[] bytes, final byte[] sub) {
+            for (int b = 0; b < bytes.length; b++) {
+                if (bytes[b] == sub[0]) {
+                    val matches = checkSub(bytes, b, sub);
+                    if (matches) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static boolean checkSub(final byte[] array, final int starting, final byte[] sub) {
+            for (int s = 0; s < sub.length; s++) {
+                if (array[starting + s] != sub[s]) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

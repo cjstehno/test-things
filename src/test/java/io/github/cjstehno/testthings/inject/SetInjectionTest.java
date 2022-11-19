@@ -15,11 +15,7 @@
  */
 package io.github.cjstehno.testthings.inject;
 
-import io.github.cjstehno.testthings.junit.ResourcesExtension;
 import io.github.cjstehno.testthings.junit.SharedRandomExtension;
-import io.github.cjstehno.testthings.rando.CoreRandomizers;
-import io.github.cjstehno.testthings.rando.StringRandomizers;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -28,11 +24,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.Set;
-
 import static io.github.cjstehno.testthings.rando.CoreRandomizers.constant;
 import static io.github.cjstehno.testthings.rando.StringRandomizers.alphanumeric;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SharedRandomExtension.class)
 class SetInjectionTest {
@@ -79,7 +74,7 @@ class SetInjectionTest {
     @NoArgsConstructor
     static class Target {
 
-        @Getter private String name;
+        @Getter protected String name;
         @Getter private int id = 8675309;
         @Getter private boolean setterCalled;
 

@@ -25,8 +25,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.sql.DataSource;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.cjstehno.testthings.Verifiers.verifyAtomicInteger;
 import static io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint.BEFORE_EACH;
+import static io.github.cjstehno.testthings.match.AtomicMatcher.atomicIntIs;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -74,8 +76,8 @@ public class DatabaseExtensionTest {
 
     @Test @DisplayName("All preparation in class annotation.")
     void scenariosAandE(final DataSource ds) {
-        verifyAtomicInteger(1, createCounter);
-        verifyAtomicInteger(0, otherCreateCounter);
+        assertThat(createCounter, atomicIntIs(equalTo(1)));
+        assertThat(otherCreateCounter, atomicIntIs(equalTo(0)));
         assertRecordCount(ds, 2);
     }
 
@@ -88,16 +90,16 @@ public class DatabaseExtensionTest {
         additive = false
     )
     void scenariosDandG(final DataSource ds) {
-        verifyAtomicInteger(0, createCounter);
-        verifyAtomicInteger(1, otherCreateCounter);
+        assertThat(createCounter, atomicIntIs(equalTo(0)));
+        assertThat(otherCreateCounter, atomicIntIs(equalTo(1)));
         assertRecordCount(ds, 3);
     }
 
     @Test @DisplayName("Preparation in class annotation and method - additive")
     @PrepareDatabase(setup = {"/db-populate-2.sql"})
     void scenariosCandG(final DataSource ds) {
-        verifyAtomicInteger(1, createCounter);
-        verifyAtomicInteger(0, otherCreateCounter);
+        assertThat(createCounter, atomicIntIs(equalTo(1)));
+        assertThat(otherCreateCounter, atomicIntIs(equalTo(0)));
         assertRecordCount(ds, 5);
     }
 

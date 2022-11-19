@@ -29,7 +29,7 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
-    api 'org.hamcrest:hamcrest-library:2.2'
+    api 'org.hamcrest:hamcrest:2.2'
 
     // this is required for the test extension
     compileOnly "org.junit.jupiter:junit-jupiter-api:$junitVersion"

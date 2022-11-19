@@ -36,6 +36,7 @@ public final class Injector {
      * Creates an injector with the provided configured injections.
      *
      * @param config the configured injections
+     * @return the configured injector
      */
     public static Injector injector(final Consumer<Injections> config) {
         val injections = new InjectionsImpl();
@@ -43,13 +44,22 @@ public final class Injector {
         return new Injector(injections);
     }
 
-    // FIXME: static creator taking an Injections.create() instance
+    /**
+     * Creates a new Injector with the provided injections configured.
+     *
+     * @param injections the injections
+     * @return the injector
+     */
+    public static Injector injector(final Injections injections) {
+        return new Injector((InjectionsImpl) injections);
+    }
 
     /**
      * Applies the configured injections on the object instance.
      *
      * @param instance the object instance
      * @param config the configured injections
+     * @param <T> the type of target instance
      * @throws ReflectiveOperationException if there is a problem with the reflection operations
      * @return the instance of the object populated with the injected values
      */
@@ -61,6 +71,7 @@ public final class Injector {
      * Injects the configured injections into the provided object instance.
      *
      * @param instance the object instance
+     * @param <T> the type of the target instance
      * @return the instance of the object populated with the injected values
      * @throws ReflectiveOperationException if there is a problem with the reflection operations
      */

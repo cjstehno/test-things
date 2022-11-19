@@ -18,14 +18,11 @@ package io.github.cjstehno.testthings;
 import lombok.NoArgsConstructor;
 import org.hamcrest.Matcher;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Supplier;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Some utility methods useful for verifying common functionality of objects.
@@ -103,17 +100,5 @@ public final class Verifiers {
      */
     public static void verifyToString(final String expected, final Object obj) {
         verifyToString(equalTo(expected), obj);
-    }
-
-    // TODO: move to AtomicVerifiers? or create a matcher for atomics
-
-    /**
-     * Verifies that the value of the provided {@link AtomicInteger} matches the expected value.
-     *
-     * @param expected the expected int value
-     * @param value the actual value wrapped in the AtomicInteger
-     */
-    public static void verifyAtomicInteger(final int expected, final AtomicInteger value) {
-        assertEquals(expected, value.get());
     }
 }

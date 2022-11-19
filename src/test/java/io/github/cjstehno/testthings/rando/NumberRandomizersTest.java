@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.github.cjstehno.testthings.rando.NumberRandomizers.aBigDecimal;
@@ -37,8 +38,7 @@ import static io.github.cjstehno.testthings.rando.NumberRandomizers.aLongBetween
 import static io.github.cjstehno.testthings.rando.NumberRandomizers.aShort;
 import static io.github.cjstehno.testthings.rando.NumberRandomizers.anInt;
 import static io.github.cjstehno.testthings.rando.NumberRandomizers.byteArray;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SharedRandomExtension.class)
 public class NumberRandomizersTest {
@@ -99,11 +99,8 @@ public class NumberRandomizersTest {
         assertArrayEquals(new byte[]{-58,-121,122}, actuals.get(2));
     }
 
-    // FIXME: move to util
-    public static <V> void assertValues(final List<V> actual, final V... expected) {
+    private static <V> void assertValues(final List<V> actual, final V... expected) {
         assertEquals(expected.length, actual.size());
-        assertEquals(expected[0], actual.get(0));
-        assertEquals(expected[1], actual.get(1));
-        assertEquals(expected[2], actual.get(2));
+        assertTrue(actual.containsAll(Arrays.asList(expected)));
     }
 }

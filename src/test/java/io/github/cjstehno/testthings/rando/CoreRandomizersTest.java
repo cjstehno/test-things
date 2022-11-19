@@ -15,7 +15,6 @@
  */
 package io.github.cjstehno.testthings.rando;
 
-import io.github.cjstehno.testthings.fixtures.BirthGender;
 import io.github.cjstehno.testthings.fixtures.PhoneticAlphabet;
 import io.github.cjstehno.testthings.junit.SharedRandomExtension;
 import lombok.val;
@@ -23,37 +22,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static io.github.cjstehno.testthings.fixtures.BirthGender.FEMALE;
-import static io.github.cjstehno.testthings.fixtures.BirthGender.MALE;
 import static io.github.cjstehno.testthings.fixtures.PhoneticAlphabet.*;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.listOf;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.mapOf;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.onceEachOf;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.setOf;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.streamOf;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.*;
 import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.arrayOf;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.constant;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
-import static io.github.cjstehno.testthings.rando.NumberRandomizersTest.assertValues;
 import static io.github.cjstehno.testthings.rando.StringRandomizers.alphabetic;
 import static io.github.cjstehno.testthings.rando.StringRandomizers.number;
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SharedRandomExtension.class)
 class CoreRandomizersTest {
 
     // FIXME: test all
-    // TODO: change see change logging to DEBUG
 
     @Test @SuppressWarnings("RedundantArrayCreation")
     void oneOfArray() {
@@ -84,33 +67,33 @@ class CoreRandomizersTest {
         assertArrayEquals(new PhoneticAlphabet[]{ALPHA, XRAY}, rando.one());
     }
 
-    @Test void constantValue(){
+    @Test void constantValue() {
         assertValues(constant(42).many(3), 42, 42, 42);
     }
 
-    @Test void setOfValues(){
+    @Test void setOfValues() {
         assertValues(
-            setOf(constant(3), anIntBetween(1,100)).many(3),
+            setOf(constant(3), anIntBetween(1, 100)).many(3),
             Set.of(65, 37, 31), Set.of(54, 92, 31), Set.of(2, 10, 63)
         );
     }
 
-    @Test void listOfValues(){
+    @Test void listOfValues() {
         assertValues(
-            listOf(constant(3), anIntBetween(1,100)).many(3),
+            listOf(constant(3), anIntBetween(1, 100)).many(3),
             List.of(65, 37, 31), List.of(31, 92, 54), List.of(10, 63, 2)
         );
     }
 
-    @Test void streamOfValues(){
-        val streams = streamOf(constant(3), anIntBetween(1,100)).many(3);
+    @Test void streamOfValues() {
+        val streams = streamOf(constant(3), anIntBetween(1, 100)).many(3);
         assertEquals(3, streams.size());
         assertEquals(List.of(65, 37, 31), streams.get(0).toList());
         assertEquals(List.of(31, 92, 54), streams.get(1).toList());
         assertEquals(List.of(10, 63, 2), streams.get(2).toList());
     }
 
-    @Test void mapOfValues(){
+    @Test void mapOfValues() {
         assertValues(
             mapOf(constant(3), alphabetic(constant(5)), number()).many(3),
             Map.of(
@@ -131,11 +114,39 @@ class CoreRandomizersTest {
         );
     }
 
-    @Test void oneEachOfCollection(){
+    @Test void mapOfRandomizers(){
+        assertValues(
+            mapOf(Map.of(
+                "first", anIntBetween(1,100),
+                "second", anIntBetween(100,1000)
+            )).many(3),
+            Map.of(
+                "first", 65,
+                "second", 181
+            ),
+            Map.of(
+                "first", 31,
+                "second", 211
+            ),
+            Map.of(
+                "first", 92,
+                "second", 720
+            )
+        );
+    }
+    
+    @Test void oneEachOfCollection() {
         assertValues(onceEachOf(List.of("FIRST", "SECOND", "THIRD")).many(3), "SECOND", "THIRD", "FIRST");
     }
 
-    @Test void oneEachOfCollectionWithNotEnough(){
+    @Test void oneEachOfCollectionWithNotEnough() {
         assertValues(onceEachOf(List.of("FIRST", "SECOND")).many(3), "FIRST", "SECOND", null);
+    }
+
+    private static <V> void assertValues(final List<V> actual, final V... expected) {
+        assertEquals(expected.length, actual.size());
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], actual.get(i));
+        }
     }
 }

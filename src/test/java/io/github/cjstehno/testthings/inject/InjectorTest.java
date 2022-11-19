@@ -34,9 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InjectorTest {
 
-    // FIXME: test exceptions
-    // FIXME: test sub-class injecttion
-
     @Test @DisplayName("Injector - setting (direct)")
     void injectorSetters() throws Exception {
         val injector = injector(inj -> {
@@ -83,9 +80,11 @@ class InjectorTest {
     void injectSettersWithSetterOther() throws Exception {
         val injected = inject(new OtherObject(), inj -> {
             inj.set("text", "some text", true);
+            inj.set("label", "adjusted", true);
         });
 
         assertEquals("setter:some text", injected.getText());
+        assertEquals("adjusted", injected.label);
     }
 
     @Test void injectUpdate() throws Exception {

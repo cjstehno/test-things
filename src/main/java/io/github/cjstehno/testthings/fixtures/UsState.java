@@ -15,265 +15,270 @@
  */
 package io.github.cjstehno.testthings.fixtures;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import static java.util.Locale.ROOT;
+import static lombok.AccessLevel.PRIVATE;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 
 /**
  * An enumeration of US States.
  */
+@RequiredArgsConstructor(access = PRIVATE)
 public enum UsState {
-
-    // TODO: add abbreviations
 
     /**
      * Alabama.
      */
-    ALABAMA,
+    ALABAMA("AL"),
 
     /**
      * Alaska.
      */
-    ALASKA,
+    ALASKA("AK"),
 
     /**
      * Arizona.
      */
-    ARIZONA,
+    ARIZONA("AZ"),
 
     /**
      * Arkansas.
      */
-    ARKANSAS,
+    ARKANSAS("AR"),
 
     /**
      * California.
      */
-    CALIFORNIA,
+    CALIFORNIA("CA"),
 
     /**
      * Colorado.
      */
-    COLORADO,
+    COLORADO("CO"),
 
     /**
      * Connecticut.
      */
-    CONNECTICUT,
+    CONNECTICUT("CT"),
 
     /**
      * Delaware.
      */
-    DELAWARE,
+    DELAWARE("DE"),
 
     /**
      * Florida.
      */
-    FLORIDA,
+    FLORIDA("FL"),
 
     /**
      * Georgia.
      */
-    GEORGIA,
+    GEORGIA("GA"),
 
     /**
      * Hawaii.
      */
-    HAWAII,
+    HAWAII("HI"),
 
     /**
      * Idaho.
      */
-    IDAHO,
+    IDAHO("ID"),
 
     /**
      * Illinois.
      */
-    ILLINOIS,
+    ILLINOIS("IL"),
 
     /**
      * Indiana.
      */
-    INDIANA,
+    INDIANA("IN"),
 
     /**
      * Iowa.
      */
-    IOWA,
+    IOWA("IO"),
 
     /**
      * Kansas.
      */
-    KANSAS,
+    KANSAS("KA"),
 
     /**
      * Kentucky.
      */
-    KENTUCKY,
+    KENTUCKY("KT"),
 
     /**
      * Louisiana.
      */
-    LOUISIANA,
+    LOUISIANA("LA"),
 
     /**
      * Maine.
      */
-    MAINE,
+    MAINE("ME"),
 
     /**
      * Maryland.
      */
-    MARYLAND,
+    MARYLAND("MD"),
 
     /**
      * Massachusetts.
      */
-    MASSACHUSETTS,
+    MASSACHUSETTS("MA"),
 
     /**
      * Michigan.
      */
-    MICHIGAN,
+    MICHIGAN("MI"),
 
     /**
      * Minnesota.
      */
-    MINNESOTA,
+    MINNESOTA("MN"),
 
     /**
      * Mississippi.
      */
-    MISSISSIPPI,
+    MISSISSIPPI("MS"),
 
     /**
      * Missouri.
      */
-    MISSOURI,
+    MISSOURI("MO"),
 
     /**
      * Montana.
      */
-    MONTANA,
+    MONTANA("MT"),
 
     /**
      * Nebraska.
      */
-    NEBRASKA,
+    NEBRASKA("NE"),
 
     /**
      * Nevada.
      */
-    NEVADA,
+    NEVADA("NV"),
 
     /**
      * New Hampshire.
      */
-    NEW_HAMPSHIRE,
+    NEW_HAMPSHIRE("NH"),
 
     /**
      * New Jersey.
      */
-    NEW_JERSEY,
+    NEW_JERSEY("NJ"),
 
     /**
      * New Mexico.
      */
-    NEW_MEXICO,
+    NEW_MEXICO("NM"),
 
     /**
      * New York.
      */
-    NEW_YORK,
+    NEW_YORK("NY"),
 
     /**
      * North Carolina.
      */
-    NORTH_CAROLINA,
+    NORTH_CAROLINA("NC"),
 
     /**
      * North Dakota.
      */
-    NORTH_DAKOTA,
+    NORTH_DAKOTA("ND"),
 
     /**
      * Ohio.
      */
-    OHIO,
+    OHIO("OH"),
 
     /**
      * Oklahoma.
      */
-    OKLAHOMA,
+    OKLAHOMA("OK"),
 
     /**
      * Oregon.
      */
-    OREGON,
+    OREGON("OR"),
 
     /**
      * Pennsylvania.
      */
-    PENNSYLVANIA,
+    PENNSYLVANIA("PE"),
 
     /**
      * Rhode Island.
      */
-    RHODE_ISLAND,
+    RHODE_ISLAND("RI"),
 
     /**
      * South Carolina.
      */
-    SOUTH_CAROLINA,
+    SOUTH_CAROLINA("SC"),
 
     /**
      * South Dakota.
      */
-    SOUTH_DAKOTA,
+    SOUTH_DAKOTA("SD"),
 
     /**
      * Tennessee.
      */
-    TENNESSEE,
+    TENNESSEE("TN"),
 
     /**
      * Texas.
      */
-    TEXAS,
+    TEXAS("TX"),
 
     /**
      * Utah.
      */
-    UTAH,
+    UTAH("UT"),
 
     /**
      * Vermont.
      */
-    VERMONT,
+    VERMONT("VT"),
 
     /**
      * Virginia.
      */
-    VIRGINIA,
+    VIRGINIA("VA"),
 
     /**
      * Washington.
      */
-    WASHINGTON,
+    WASHINGTON("WA"),
 
     /**
      * West Virginia.
      */
-    WEST_VIRGINIA,
+    WEST_VIRGINIA("WV"),
 
     /**
      * Wisconsin.
      */
-    WISCONSIN,
+    WISCONSIN("WI"),
 
     /**
      * Wyoming.
      */
-    WYOMING;
+    WYOMING("WY");
+
+    @Getter private final String abbreviation;
 
     @Override public String toString() {
         return capitalize(name().toLowerCase(ROOT));

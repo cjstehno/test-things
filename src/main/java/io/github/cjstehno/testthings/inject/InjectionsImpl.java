@@ -35,16 +35,25 @@ public class InjectionsImpl implements Injections {
         return this;
     }
 
-    @Override public Injections update(String name, Function<Object,Object> updater, boolean preferProps) {
-        injections.add(new UpdateInjection(name, updater, preferProps));
+    @Override
+    public Injections update(String name, Function<Object, Object> updater, final boolean preferSetter, final boolean preferGetter) {
+        injections.add(new UpdateInjection(name, updater, preferSetter, preferGetter));
         return this;
     }
 
-    @Override public Injections modify(final String name, final Consumer<Object> modifier) {
-        injections.add(new ModifyInjection(name, modifier));
+    @Override public Injections modify(final String name, final Consumer<Object> modifier, final boolean preferGetter) {
+        injections.add(new ModifyInjection(name, modifier, true));
         return this;
     }
 
+    /**
+     * Applies the configured injections to the given instance.
+     *
+     * @param instance the target instance
+     * @return the updated instance (reference to the incoming instance)
+     * @param <T> the type of the target instance
+     * @throws ReflectiveOperationException if there is a problem injecting
+     */
     public <T> T apply(final T instance) throws ReflectiveOperationException {
         for (val injection : injections) {
             injection.injectInto(instance);

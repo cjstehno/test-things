@@ -77,6 +77,8 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
             ctor.setAccessible(true);
             val instance = ctor.newInstance();
 
+            // FIXME: consider the interplay of setters and fields?
+
             for (val setter : findSetters(type)) {
                 final String propName = propertyName(setter);
 
@@ -105,9 +107,8 @@ public final class ObjectRandomizer<T> implements Randomizer<T> {
 
             return instance;
 
-        } catch (Exception e) {
-            e.printStackTrace(); // FIXME: remove
-            throw new IllegalArgumentException(e.getMessage());
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

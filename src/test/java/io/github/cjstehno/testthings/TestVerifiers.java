@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.cjstehno.testthings.inject;
+package io.github.cjstehno.testthings;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.val;
+import org.hamcrest.Matcher;
+import org.hamcrest.StringDescription;
 
-/**
- * Defines an injection of an Object into another Object.
- */
-public interface Injection {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    /**
-     * Performs the injection into the provided instance.
-     *
-     * @param instance the instance where things should be injected.
-     * @throws ReflectiveOperationException if there is a problem
-     */
-    void injectInto(final Object instance) throws ReflectiveOperationException;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class TestVerifiers {
+
+    public static void assertMatcherDescription(final String expected, final Matcher<?> matcher) {
+        val desc = new StringDescription();
+        matcher.describeTo(desc);
+        assertEquals(expected, desc.toString());
+    }
 }

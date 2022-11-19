@@ -15,33 +15,31 @@
  */
 package io.github.cjstehno.testthings.inject;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 
 import java.util.function.Consumer;
 
+import static io.github.cjstehno.testthings.inject.UpdateInjection.resolveCurrentValue;
+import static lombok.AccessLevel.PACKAGE;
+
 /**
- * FIXME: document
+ * An Injection that allows the modification of an existing mutable object value. The actual object cannot be changed
+ * by this injection.
  */
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
- class ModifyInjection implements Injection {
+@RequiredArgsConstructor(access = PACKAGE)
+class ModifyInjection implements Injection {
 
     private final String name;
     private final Consumer<Object> modifier;
+    private final boolean preferGetter;
 
     /**
-     * FIXME: document
+     * Performs the modification of the existing object content.
+     *
+     * @param instance the target instance
+     * @throws ReflectiveOperationException if there is a problem
      */
-    @Override public void injectInto(Object instance) throws ReflectiveOperationException {
-        val field = Injection.findField(instance.getClass(), name);
-        if (field.isPresent()) {
-            val currentValue = field.get().get(instance);
-            modifier.accept(currentValue);
-
-        } else {
-            // FIXME: error
-            throw new IllegalArgumentException();
-        }
+    @Override public void injectInto(final Object instance) throws ReflectiveOperationException {
+        modifier.accept(resolveCurrentValue(instance, name, preferGetter));
     }
 }

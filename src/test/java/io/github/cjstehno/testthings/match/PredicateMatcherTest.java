@@ -18,7 +18,7 @@ package io.github.cjstehno.testthings.match;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
-import static io.github.cjstehno.testthings.match.FileMatcherTest.assertMatcherDescription;
+import static io.github.cjstehno.testthings.TestVerifiers.assertMatcherDescription;
 import static io.github.cjstehno.testthings.match.PredicateMatcher.matchesPredicate;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;

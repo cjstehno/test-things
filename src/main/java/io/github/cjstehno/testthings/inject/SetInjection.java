@@ -21,11 +21,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import static io.github.cjstehno.testthings.inject.Injection.findField;
 import static java.util.Locale.ROOT;
 import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
 import static org.junit.platform.commons.support.ModifierSupport.isNotStatic;
-import static org.junit.platform.commons.support.ReflectionSupport.findMethod;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
 import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
 
 /**
@@ -34,69 +33,45 @@ import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class SetInjection implements Injection {
 
-    // TODO: could use some refactoring
-
     private final String name;
     private final Object value;
     private final boolean preferSetter;
 
     /**
-     * FIXME: document
+     * Injects the configured value into the given instance.
+     *
+     * @param instance the instance the value is being injected into
+     * @throws ReflectiveOperationException if there is a problem injecting the value
      */
     @Override
     public void injectInto(final Object instance) throws ReflectiveOperationException {
-        val valueType = resolveValueType(instance.getClass());
-        val injectedValue = value instanceof Randomizer<?> rando ? rando.one() : value;
-
-        if (preferSetter) {
-            // use the setter, if there is one
-            val setter = findMethod(instance.getClass(), getSetterName(), valueType);
-            if (setter.isPresent()) {
-                setter.get().invoke(instance, injectedValue);
-            } else {
-                // fallback to direct access
-                injectDirectly(instance, injectedValue);
-            }
-
-        } else {
-            // use the direct field access
-            injectDirectly(instance, injectedValue);
-        }
+        injectValue(
+            instance,
+            value instanceof Randomizer<?> rando ? rando.one() : value
+        );
     }
 
-    public String getSetterName() {
-        return "set" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
-    }
-
-    private Class<?> resolveValueType(final Class<?> instanceType) {
+    private void injectValue(final Object instance, final Object injectedValue) throws ReflectiveOperationException {
         if (preferSetter) {
-            val methodName = getSetterName();
+            // try to use the setter method (if exists)
+            val methodName = "set" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
             val methods = findMethods(
-                instanceType,
+                instance.getClass(),
                 m -> m.getName().equals(methodName) && m.getParameterCount() == 1 && isNotStatic(m),
                 TOP_DOWN
             );
 
             if (!methods.isEmpty()) {
-                return methods.get(0).getParameterTypes()[0];
+                methods.get(0).invoke(instance, injectedValue);
+                return;
             }
         }
 
-        val field = findField(instanceType, name);
-        if (field.isPresent()) {
-            return field.get().getType();
-        } else {
-            throw new IllegalArgumentException("Unable to resolve the value type");
-        }
-    }
-
-    private void injectDirectly(final Object instance, final Object injectedValue) throws ReflectiveOperationException {
-        val field = findField(instance.getClass(), name);
-        if (field.isPresent()) {
-            field.get().set(instance, injectedValue);
-        } else {
-            // FIXME: error - no setter or field
-            throw new IllegalArgumentException();
-        }
+        // try to use the field if it exists
+        findFields(instance.getClass(), f -> f.getName().equals(name) && isNotStatic(f), TOP_DOWN).stream()
+            .peek(f -> f.setAccessible(true))
+            .findAny()
+            .orElseThrow(() -> new IllegalArgumentException("Unable to inject value for '" + name + "'"))
+            .set(instance, injectedValue);
     }
 }

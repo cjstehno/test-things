@@ -16,57 +16,67 @@
 package io.github.cjstehno.testthings.inject;
 
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.lang.reflect.Field;
-import java.util.Optional;
 import java.util.function.Function;
 
-import static io.github.cjstehno.testthings.inject.Injection.findField;
-import static io.github.cjstehno.testthings.inject.Injection.findGetter;
+import static java.util.Locale.ROOT;
+import static lombok.AccessLevel.PACKAGE;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isNotStatic;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
 
 /**
  * An Injection implementation which injects the value returned by a function, which is passed the current field
- * value. Optionally, if a setter exists, it may be used to inject the resulting value.
+ * value. Optionally, the setter and getter methods may be used rather than the direct field access.
  */
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = PACKAGE)
 class UpdateInjection implements Injection {
 
     private final String name;
     private final Function<Object, Object> updater;
     private final boolean preferSetter;
+    private final boolean preferGetter;
 
     /**
-     * FIXME: document
+     * Injects the configured value into the given instance.
+     *
+     * @param instance the instance the value is being injected into
+     * @throws ReflectiveOperationException if there is a problem injecting the value
      */
     @Override
     public void injectInto(final Object instance) throws ReflectiveOperationException {
-        // TODO: replace findfield with the one from JUnit
-        val field = findField(instance.getClass(), name);
-
-        // get the current value
-        val currentValue = extractCurrentValue(instance, field);
+        val currentValue = resolveCurrentValue(instance, name, preferGetter);
 
         // transform the value
-        final Object updatedValue = updater.apply(currentValue);
+        val updatedValue = updater.apply(currentValue);
 
         // update the value
         new SetInjection(name, updatedValue, preferSetter).injectInto(instance);
     }
 
-    private Object extractCurrentValue(final Object instance, final Optional<Field> field) throws ReflectiveOperationException {
-        final Object currentValue;
+    protected final static Object resolveCurrentValue(final Object instance, final String name, final boolean preferGetter) throws ReflectiveOperationException {
+        if (preferGetter) {
+            // try to use the getter (if it exists)
+            val methodName = "get" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
+            val methods = findMethods(
+                instance.getClass(),
+                m -> m.getName().equals(methodName) && m.getParameterCount() == 0 && isNotStatic(m),
+                TOP_DOWN
+            );
 
-        val getter = findGetter(instance.getClass(), name);
-        if (preferSetter && getter.isPresent()) {
-            currentValue = getter.get().invoke(instance);
-        } else {
-            //  fetch direct
-            currentValue = field.get().get(instance);
+            if (!methods.isEmpty()) {
+                return methods.get(0).invoke(instance);
+            }
         }
 
-        return currentValue;
+        // try to use the field
+        return findFields(instance.getClass(), f -> f.getName().equals(name) && isNotStatic(f), TOP_DOWN).stream()
+            .peek(f -> f.setAccessible(true))
+            .findAny()
+            .orElseThrow(() -> new IllegalArgumentException("Unable to resolve current value for '" + name + "'"))
+            .get(instance);
     }
 }

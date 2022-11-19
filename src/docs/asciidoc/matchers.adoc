@@ -2,6 +2,8 @@
 
 The test-things library provides a collection of useful https://hamcrest.org/JavaHamcrest/[Hamcrest] matchers to aid in testing.
 
+NOTE: Below are some of the provided matchers - see that Java Docs for a comprehensive list.
+
 *Files.* The `FileMatcher` provides matchers for many commonly-used file-related properties.
 
 [source,java]
@@ -42,4 +44,11 @@ assertThat(something, PredicateMatcher.matchesPredicate(v -> v > 100));
 [source,java]
 ----
 assertThat(bytes, ByteArrayMatcher.arrayStartsWith(someBytes));
+----
+
+*Atomics.* The `AtomicMatcher` provides some matchers for matching "atomic" objects.
+
+[source,java]
+----
+assertThat(counter, AtomicMatcher.atomicIntIs(equalTo(42)));
 ----

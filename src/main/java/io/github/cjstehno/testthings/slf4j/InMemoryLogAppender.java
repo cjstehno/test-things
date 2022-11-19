@@ -43,8 +43,6 @@ import static org.hamcrest.CoreMatchers.any;
  */
 public class InMemoryLogAppender extends AppenderBase<ILoggingEvent> {
 
-    // FIXME: support configuring this in the logging config file
-
     @Getter private final List<ILoggingEvent> events = new CopyOnWriteArrayList<>();
     private final AppenderConfigImpl config;
 

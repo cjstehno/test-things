@@ -15,12 +15,16 @@
  */
 package io.github.cjstehno.testthings.match;
 
+import io.github.cjstehno.testthings.TestVerifiers;
 import lombok.val;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import static io.github.cjstehno.testthings.TestVerifiers.assertMatcherDescription;
 import static io.github.cjstehno.testthings.match.ByteArrayMatcher.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ByteArrayMatcherTest {
 
@@ -30,23 +34,37 @@ class ByteArrayMatcherTest {
         val matcher = arrayEqualTo(bytes);
         assertTrue(matcher.matches("These are bytes!".getBytes()));
         assertFalse(matcher.matches("These not bytes.".getBytes()));
+
+        assertMatcherDescription("an array of bytes equal to another array of bytes", matcher);
     }
 
     @Test void startsWith() {
         val matcher = arrayStartsWith("These are".getBytes());
         assertTrue(matcher.matches(bytes));
         assertFalse(matcher.matches("Other bytes".getBytes()));
-    }
 
-//    @Test void endsWith() {
-//        val matcher = arrayEndsWith("bytes!".getBytes());
-//        assertTrue(matcher.matches(bytes));
-//        assertFalse(matcher.matches("These are string!".getBytes()));
-//    }
+        assertMatcherDescription("an array of bytes starting with the prefix bytes", matcher);
+    }
 
     @Test void length() {
         val matcher = arrayLengthIs(bytes.length);
         assertTrue(matcher.matches(bytes));
         assertFalse(matcher.matches("These are strings!".getBytes()));
+
+        assertMatcherDescription("matches a byte array with length 16", matcher);
     }
+
+    @ParameterizedTest @CsvSource({
+        "are,true",
+        "es,true",
+        "blah,false",
+        "s!,true"
+    })
+    void contains(final String subString, final boolean expected) {
+        val matcher = arrayContains(subString.getBytes());
+        assertEquals(expected, matcher.matches(bytes));
+
+        assertMatcherDescription("an array of bytes containing the sub-array of bytes", matcher);
+    }
+
 }
