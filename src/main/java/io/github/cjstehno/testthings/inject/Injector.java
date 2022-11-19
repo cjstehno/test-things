@@ -76,7 +76,6 @@ public final class Injector {
      * @throws ReflectiveOperationException if there is a problem with the reflection operations
      */
     public <T> T inject(final T instance) throws ReflectiveOperationException {
-        // TODO: better excepotion?
         return injections.apply(instance);
     }
 }

@@ -26,6 +26,8 @@ import java.util.function.Function;
  */
 public interface Injections {
 
+    // FIXME: consider adding an injector based on type - e.g set all setters/fields of type to value
+
     /**
      * Injects a value directly into an object field, if it exists, it not, an error is thrown.
      *
@@ -33,9 +35,17 @@ public interface Injections {
      * @param value the value (may be a Randomizer).
      * @return the configured Injections instance
      */
-    default Injections set(final String name, final Object value) {
+    default Injections setField(final String name, final Object value) {
         return set(name, value, false);
     }
+
+    // FIXME: setField(type, value)
+    // FIXME: setProperty(type, value)
+    // FIXME: set(type, value, setter)
+
+    // fIXME: updateField(type, function)
+    // FIXME: updateProperty(type, function)
+    // FIXME: update(type, function, getter)
 
     /**
      * If <code>preferSetter</code> is <code>true</code>, an attempt will be made to inject the value using a setter
@@ -50,6 +60,17 @@ public interface Injections {
     Injections set(final String name, final Object value, final boolean preferSetter);
 
     /**
+     * Trys to inject the value using a setter, if it exists, otherwise direct field injection is performed.
+     *
+     * @param name the property name
+     * @param value the value
+     * @return the configured injections instance
+     */
+    default Injections setProperty(final String name, final Object value) {
+        return set(name, value, true);
+    }
+
+    /**
      * Updates a field value by applying given function to the current value.
      * <p>
      * If the updater function returns a Randomizer, it will be used to generate the updated value.
@@ -58,8 +79,22 @@ public interface Injections {
      * @param updater the updater function
      * @return the instance to the Injections implementation
      */
-    default Injections update(final String name, final Function<Object, Object> updater) {
+    default Injections updateField(final String name, final Function<Object, Object> updater) {
         return update(name, updater, false);
+    }
+
+    /**
+     * Updates a field value by applying given function to the current value of the field. The getter and setter method
+     * will be used, if they exist.
+     * <p>
+     * If the updater function returns a Randomizer, it will be used to generate the updated value.
+     *
+     * @param name    the property or field name
+     * @param updater the updater function
+     * @return the instance to the Injections implementation
+     */
+    default Injections updateProperty(final String name, final Function<Object, Object> updater) {
+        return update(name, updater, true);
     }
 
     /**
@@ -101,7 +136,19 @@ public interface Injections {
      * @param modifier the modifier
      * @return the instance of the Injections implementation
      */
-    default Injections modify(final String name, final Consumer<Object> modifier) {
+    default Injections modifyField(final String name, final Consumer<Object> modifier) {
+        return modify(name, modifier, false);
+    }
+
+    /**
+     * Allows in-place modification of a value reference from the target instance. The target instance will be passed
+     * to the provided consumer for modification. The getter will be used, if it exists.
+     *
+     * @param name     the name
+     * @param modifier the modifier
+     * @return the instance of the Injections implementation
+     */
+    default Injections modifyProperty(final String name, final Consumer<Object> modifier) {
         return modify(name, modifier, true);
     }
 

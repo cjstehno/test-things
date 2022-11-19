@@ -62,6 +62,7 @@ class SetInjection implements Injection {
             );
 
             if (!methods.isEmpty()) {
+                methods.get(0).setAccessible(true);
                 methods.get(0).invoke(instance, injectedValue);
                 return;
             }

@@ -15,98 +15,69 @@
  */
 package io.github.cjstehno.testthings.rando;
 
-import io.github.cjstehno.testthings.fixtures.UnisexName;
 import io.github.cjstehno.testthings.junit.SharedRandomExtension;
 import lombok.*;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import static io.github.cjstehno.testthings.fixtures.PhoneticAlphabet.CHARLIE;
-import static io.github.cjstehno.testthings.rando.CoreRandomizers.oneOf;
-import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
-import static io.github.cjstehno.testthings.rando.ObjectRandomizer.randomize;
-import static java.util.Arrays.stream;
+import static io.github.cjstehno.testthings.rando.CoreRandomizers.constant;
+import static io.github.cjstehno.testthings.rando.NumberRandomizers.anInt;
+import static io.github.cjstehno.testthings.rando.ObjectRandomizers.randomized;
+import static io.github.cjstehno.testthings.rando.StringRandomizers.alphanumeric;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SharedRandomExtension.class)
 class ObjectRandomizerTest {
 
-    // TODO: more complex things: maps, lists, arrays (these would just be randomizers)
-    // FIXME: extension for making randos (config multiple with param resolvers)
+    // FIXME: test with type injections
+    // fIXME: test with field injections
 
-    private static final Randomizer<String> NAME_RANDO = oneOf(
-        stream(UnisexName.values())
-            .map(UnisexName::toString)
-            .toList()
-            .toArray(new String[0])
-    );
-
-    @Test @DisplayName("General Usage")
-    void general_usage() {
-        val rando = randomize(SomethingElse.class, config -> {
-            config.property("name", NAME_RANDO);
-            config.property("score", anIntBetween(10, 100));
-            config.field("added", oneOf("one", "two"));
+    @Test void complexObject() {
+        val rando = randomized(new LowerLevel(), inj -> {
+            inj.setProperty("alpha", alphanumeric(constant(6)));
+            inj.setProperty("bravo", anInt());
+            inj.setProperty("charlie", alphanumeric(constant(6)));
+            inj.setProperty("delta", anInt());
+            inj.setProperty("echo", alphanumeric(constant(6)));
+            inj.setProperty("foxtrot", anInt());
         });
-
-        assertEquals(new SomethingElse(CHARLIE.toString(), 91, "two"), rando.one());
+        assertEquals(
+            new LowerLevel(
+                "T4KAK8", 1696540702,
+                "x184bG", -1114350914,
+                "Y9V1E1", 2048415859
+            ),
+            rando.one()
+        );
     }
 
-    @Test @DisplayName("Randomizing nested objects")
-    void nested_objects() {
-        val rando = randomize(Holder.class, cfg -> {
-            cfg.property("thing", randomize(SomethingElse.class, config -> {
-                config.property("name", NAME_RANDO);
-                config.property("score", anIntBetween(10, 100));
-                config.field("added", oneOf("one", "two"));
-            }));
-        });
-
-        assertEquals(new Holder(
-            new SomethingElse(CHARLIE.toString(), 91, "two")
-        ), rando.one());
+    @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode @ToString @Getter @Setter
+    private static class TopLevel {
+        private String alpha;
+        private int bravo;
     }
 
-    @Test @DisplayName("General Usage (with global types)")
-    void general_usage_with_types() {
-        Randomizer<SomethingElse> rando = randomize(SomethingElse.class, config -> {
-            config.propertyType(String.class, NAME_RANDO);
-            config.property("name", oneOf("Bob", "Joe"));
-            config.fieldType(int.class, anIntBetween(25, 50));
-        });
+    @NoArgsConstructor @EqualsAndHashCode(callSuper = true) @ToString(callSuper = true) @Getter @Setter
+    private static class MidLevel extends TopLevel {
+        private String charlie;
+        private int delta;
 
-        assertEquals(new SomethingElse("Joe", 44, "setter-Charlie"), rando.one());
-    }
-
-    @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode @ToString
-    static class Something {
-
-        @Getter @Setter private String name;
-        @Getter @Setter private int score;
-    }
-
-    @NoArgsConstructor @EqualsAndHashCode(callSuper = true) @ToString(callSuper = true)
-    static class SomethingElse extends Something {
-
-        @Getter private String added;
-
-        SomethingElse(final String name, final int score, final String added) {
-            super(name, score);
-            this.added = added;
-        }
-
-        public void setAdded(String added) {
-            this.added = "setter-" + added;
+        public MidLevel(String alpha, int bravo, String charlie, int delta) {
+            super(alpha, bravo);
+            this.charlie = charlie;
+            this.delta = delta;
         }
     }
 
-    @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode @ToString
-    static class Holder {
+    @NoArgsConstructor @EqualsAndHashCode(callSuper = true) @ToString(callSuper = true) @Getter @Setter
+    private static class LowerLevel extends MidLevel {
+        private String echo;
+        private int foxtrot;
 
-        @Getter @Setter private SomethingElse thing;
+        public LowerLevel(String alpha, int bravo, String charlie, int delta, String echo, int foxtrot) {
+            super(alpha, bravo, charlie, delta);
+            this.echo = echo;
+            this.foxtrot = foxtrot;
+        }
     }
 }

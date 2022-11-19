@@ -21,7 +21,6 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +30,11 @@ import static io.github.cjstehno.testthings.rando.CoreRandomizers.*;
 import static io.github.cjstehno.testthings.rando.NumberRandomizers.anIntBetween;
 import static io.github.cjstehno.testthings.rando.StringRandomizers.alphabetic;
 import static io.github.cjstehno.testthings.rando.StringRandomizers.number;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SharedRandomExtension.class)
 class CoreRandomizersTest {
-
-    // FIXME: test all
 
     @Test @SuppressWarnings("RedundantArrayCreation")
     void oneOfArray() {
@@ -114,11 +112,11 @@ class CoreRandomizersTest {
         );
     }
 
-    @Test void mapOfRandomizers(){
+    @Test void mapOfRandomizers() {
         assertValues(
             mapOf(Map.of(
-                "first", anIntBetween(1,100),
-                "second", anIntBetween(100,1000)
+                "first", anIntBetween(1, 100),
+                "second", anIntBetween(100, 1000)
             )).many(3),
             Map.of(
                 "first", 65,
@@ -134,7 +132,7 @@ class CoreRandomizersTest {
             )
         );
     }
-    
+
     @Test void oneEachOfCollection() {
         assertValues(onceEachOf(List.of("FIRST", "SECOND", "THIRD")).many(3), "SECOND", "THIRD", "FIRST");
     }

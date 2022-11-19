@@ -37,9 +37,9 @@ class InjectorTest {
     @Test @DisplayName("Injector - setting (direct)")
     void injectorSetters() throws Exception {
         val injector = injector(inj -> {
-            inj.set("text", "some text");
-            inj.set("label", "a label");
-            inj.set("attrs", Map.of("alpha", "one"));
+            inj.setField("text", "some text");
+            inj.setField("label", "a label");
+            inj.setField("attrs", Map.of("alpha", "one"));
         });
 
         val injected = injector.inject(new OtherObject());
@@ -51,8 +51,8 @@ class InjectorTest {
     @Test @DisplayName("Inject - setting (direct)")
     void injectSetters() throws Exception {
         val injected = inject(new OtherObject(), inj -> {
-            inj.set("text", "some text");
-            inj.set("attrs", Map.of("alpha", "one"));
+            inj.setField("text", "some text");
+            inj.setField("attrs", Map.of("alpha", "one"));
         });
 
         assertEquals("some text", injected.getText());
@@ -61,7 +61,7 @@ class InjectorTest {
 
     @Test void injectSettersRando() throws Exception {
         val injected = inject(new OtherObject(), inj -> {
-            inj.set("text", oneOf("able", "baker"));
+            inj.setField("text", oneOf("able", "baker"));
         });
 
         assertTrue(injected.getText().equals("able") || injected.getText().equals("baker"));
@@ -89,11 +89,11 @@ class InjectorTest {
 
     @Test void injectUpdate() throws Exception {
         val obj = inject(new OtherObject(), inj -> {
-            inj.set("text", "alpha");
+            inj.setField("text", "alpha");
         });
 
         val injected = inject(obj, inj -> {
-            inj.update("text", txt -> txt + "-updated");
+            inj.updateField("text", txt -> txt + "-updated");
         });
 
         assertEquals("alpha-updated", injected.getText());
@@ -101,7 +101,7 @@ class InjectorTest {
 
     @Test @SuppressWarnings("unchecked") void modification() throws Exception {
         val injected = inject(new OtherObject(), inj -> {
-            inj.modify("attrs", x -> {
+            inj.modifyField("attrs", x -> {
                 val map = (Map<String, String>) x;
                 map.put("one", "1");
             });

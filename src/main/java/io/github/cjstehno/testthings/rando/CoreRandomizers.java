@@ -32,8 +32,6 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class CoreRandomizers {
 
-    //FIXME: date, localdate, localdatetime = TemporalRandomizers
-
     /**
      * Defines a randomizer which will always return the same value... so not really random at all.
      *
