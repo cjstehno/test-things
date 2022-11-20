@@ -37,12 +37,6 @@ public class LastDatabaseExtensionTest {
         log.info("Created DataSource field.");
     }
 
-    @Lifecycle(AFTER_EACH) void afterEach() {
-        ((JdbcConnectionPool) dataSource).dispose();
-        dataSource = null;
-        log.info("Destroyed DataSource field.");
-    }
-
     @Test @DisplayName("Preparation in method")
     @PrepareDatabase(
         setup = {"/db-setup.sql", "/db-populate-2.sql"},

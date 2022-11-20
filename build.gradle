@@ -67,7 +67,7 @@ license {
 
     ext.year = Calendar.instance.get(Calendar.YEAR)
 
-    excludes(['**/*.txt', '**/*.dtd', '**/*.xml', '**/*.ent', '**/*.jks', '**/*.jpg', '**/*.json'])
+    excludes(['**/*.txt', '**/*.dtd', '**/*.xml', '**/*.ent', '**/*.jks', '**/*.jpg', '**/*.json', '**/*.ser'])
 }
 
 asciidoctor {

@@ -21,6 +21,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,11 +114,12 @@ class CoreRandomizersTest {
     }
 
     @Test void mapOfRandomizers() {
+        val spec = new LinkedHashMap<String, Randomizer<Integer>>();
+        spec.put("first", anIntBetween(1, 100));
+        spec.put("second", anIntBetween(100, 1000));
+
         assertValues(
-            mapOf(Map.of(
-                "first", anIntBetween(1, 100),
-                "second", anIntBetween(100, 1000)
-            )).many(3),
+            mapOf(spec).many(3),
             Map.of(
                 "first", 65,
                 "second", 181

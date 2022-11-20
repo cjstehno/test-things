@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static io.github.cjstehno.testthings.rando.SharedRandom.current;
+import static io.github.cjstehno.testthings.util.Reflections.extractValue;
 import static java.lang.System.nanoTime;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
@@ -78,15 +79,8 @@ public class SharedRandomExtension implements BeforeEachCallback, AfterEachCallb
         var seed = findAnnotation(testMethod, ApplySeed.class).map(ApplySeed::value);
 
         if (seed.isEmpty()) {
-            seed = firstField(testClass, KNOWN_SEED, Long.TYPE).map(f -> {
-                try {
-                    f.setAccessible(true);
-                    return (long) f.get(testClass);
-                } catch (final IllegalAccessException e) {
-                    log.warn("Unable to access field ({}) - using default: {}", f.getName(), e.getMessage(), e);
-                    return DEFAULT_KNOWN_SEED;
-                }
-            });
+            seed = firstField(testClass, KNOWN_SEED, Long.TYPE)
+                .map(f -> extractValue(testClass, f, Long.TYPE));
         }
 
         return seed.orElse(DEFAULT_KNOWN_SEED);

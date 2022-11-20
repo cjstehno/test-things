@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
+import static io.github.cjstehno.testthings.util.Reflections.extractValue;
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
 import static org.junit.platform.commons.support.ReflectionSupport.findFields;
@@ -84,15 +85,7 @@ public class LogAppenderExtension implements BeforeEachCallback, AfterEachCallba
             TOP_DOWN
         ).stream()
             .findFirst()
-            .map(f -> {
-                try {
-                    f.setAccessible(true);
-                    return (AppenderConfig) f.get(context.getRequiredTestInstance());
-                } catch (IllegalAccessException e) {
-                    log.error("Unable to access field ({}): {}", f.getName(), e.getMessage(), e);
-                    return null;
-                }
-            })
+            .map(f -> extractValue(context.getRequiredTestInstance(), f, AppenderConfig.class))
             .orElseThrow();
     }
 }

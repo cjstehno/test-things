@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.ModifierSupport;
 
 import static io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint.*;
+import static io.github.cjstehno.testthings.util.Reflections.invokeMethod;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedMethods;
 import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
 
@@ -70,13 +71,7 @@ public class LifecycleExtension implements BeforeAllCallback, BeforeEachCallback
         findAnnotatedMethods(testInstance.getClass(), Lifecycle.class, TOP_DOWN).stream()
             .filter(m -> m.getAnnotationsByType(Lifecycle.class)[0].value() == point)
             .findAny()
-            .ifPresent(m -> {
-                try {
-                    m.invoke(testInstance);
-                } catch (Exception ex) {
-                    log.error("Unable to invoke {} method ({}): {}", point, m.getName(), ex.getMessage(), ex);
-                }
-            });
+            .ifPresent(m -> invokeMethod(testInstance, m));
     }
 
     private static void invokeMatchingStaticMethods(final Class<?> testClass, final LifecyclePoint point) {
@@ -84,12 +79,6 @@ public class LifecycleExtension implements BeforeAllCallback, BeforeEachCallback
             .filter(ModifierSupport::isStatic)
             .filter(m -> m.getAnnotationsByType(Lifecycle.class)[0].value() == point)
             .findAny()
-            .ifPresent(m -> {
-                try {
-                    m.invoke(testClass);
-                } catch (Exception ex) {
-                    log.error("Unable to invoke {} method ({}): {}", point, m.getName(), ex.getMessage(), ex);
-                }
-            });
+            .ifPresent(m -> invokeMethod(testClass, m));
     }
 }

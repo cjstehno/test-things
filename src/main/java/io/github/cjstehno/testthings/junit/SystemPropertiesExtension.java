@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +30,7 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static io.github.cjstehno.testthings.util.Reflections.extractValue;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
@@ -126,40 +126,28 @@ public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachC
             val fieldName = applyPropertiesAnno.get().value();
             val props = resolvePropertiesField(testClass, fieldName);
             return props.isEmpty() ? resolveMapField(testClass, fieldName) : props;
-
         } else {
             return Optional.empty();
         }
     }
 
     private static Optional<Properties> resolvePropertiesField(final Class<?> testClass, final String fieldName) {
-        return firstField(testClass, fieldName, Properties.class).map(f -> {
-            try {
-                return (Properties) f.get(testClass);
-            } catch (IllegalAccessException e) {
-                log.error("Unable to extract Properties from field ({}): {}", f.getName(), e.getMessage(), e);
-                return new Properties();
-            }
-        });
+        return resolveField(testClass, fieldName, Properties.class);
     }
 
     @SuppressWarnings("unchecked")
     private static Optional<Properties> resolveMapField(final Class<?> testClass, final String fieldName) {
-        return firstField(testClass, fieldName, Map.class).map(f -> {
-            try {
-                return asProperties((Map<String, String>) f.get(testClass));
-            } catch (IllegalAccessException e) {
-                log.error("Unable to extract Map<String,String> from field ({}): {}", f.getName(), e.getMessage(), e);
-                return new Properties();
-            }
-        });
+        return resolveField(testClass, fieldName, Map.class).map(m -> asProperties((Map<String, String>) m));
     }
 
-    private static Optional<Field> firstField(final Class<?> testClass, final String fieldName, final Class<?> fieldType) {
+    private static <F> Optional<F> resolveField(final Class<?> testClass, final String fieldName, final Class<? extends F> fieldType) {
         return findFields(
             testClass,
-            f -> isStatic(f) && f.getType().equals(fieldType) && f.getName().equals(fieldName),
+            f1 -> isStatic(f1) && f1.getType().equals(fieldType) && f1.getName().equals(fieldName),
             TOP_DOWN
-        ).stream().findFirst();
+        ).stream()
+            .findFirst()
+            .map(f -> extractValue(testClass, f, fieldType));
     }
+
 }

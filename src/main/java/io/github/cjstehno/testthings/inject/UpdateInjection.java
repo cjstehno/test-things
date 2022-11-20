@@ -57,7 +57,7 @@ class UpdateInjection implements Injection {
         new SetInjection(name, updatedValue, preferSetter).injectInto(instance);
     }
 
-    protected final static Object resolveCurrentValue(final Object instance, final String name, final boolean preferGetter) throws ReflectiveOperationException {
+    protected static Object resolveCurrentValue(final Object instance, final String name, final boolean preferGetter) throws ReflectiveOperationException {
         if (preferGetter) {
             // try to use the getter (if it exists)
             val methodName = "get" + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);
@@ -68,7 +68,9 @@ class UpdateInjection implements Injection {
             );
 
             if (!methods.isEmpty()) {
-                return methods.get(0).invoke(instance);
+                val method = methods.get(0);
+                method.setAccessible(true);
+                return method.invoke(instance);
             }
         }
 
