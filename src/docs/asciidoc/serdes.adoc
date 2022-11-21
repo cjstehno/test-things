@@ -1,3 +1,12 @@
 == Serdes Providers
 
-what it says on the box...
+Some of the resource and verification method require serialization operations to load or verify content based on serialized or deserialized values. In order to keep things as generic as possible, Test-Things provides a `SerdesProvider` interface to abstract the actual "Ser"ialization and "Des"erialization operations (SerDes).
+
+Currently, there are three provided implementations:
+
+* `JacksonJsonSerdes` - JSON-based serdes using the Jackson JSON `ObjectMapper`
+* `JacksonXmlSerdes` - XML-based serdes using the Jackson XML `XmlMapper`
+* `JavaObjectSerdes` - standard Java object binary serdes using the `ObjectInputStream` and `ObjectOutputStream`
+
+
+NOTE: Some of the serdes-based resource and verification methods are provided without a `SerdesProvider` parameter, which generally means they are using the `JacksonJsonSerdes` provider - a sensible default.

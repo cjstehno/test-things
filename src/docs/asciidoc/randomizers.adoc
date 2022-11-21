@@ -2,38 +2,48 @@
 
 Testing with randomized values may sound like an odd concept, but it does have its uses. Consider a case where there are too many permutations of a scenario to adequately test all of them. You could create a randomized set of test values to run against and run your test multiple times - sure, you still don't hit them all, but you may stumble on a set that does fall into some hidden bug that your static tests would not have found.
 
-The test-things library provides a `Randomizer<T>` interface to define a means of randomly generating objects or values. It's primary method of interest is the `T one()` method, which generates one randomized object of the specific type.
+The Test-Things library provides a `Randomizer<T>` interface to define a means of randomly generating objects or values. It's primary method of interest is the `T one()` method, which generates one randomized object of the specific type, though you can generate multiple random instances using the `List<T> many(int)` method as well.
 
-The library provides a handful of `Randomizer<T>` implementations, including the most useful one, the `ObjectRandomizer` which allows you to build more complex randomized objects using randomized values for the fields and properties.
+The library provides a handful of `Randomizer<T>` implementations, including the `ObjectRandomizers` which allow you to build more complex randomized objects using randomized values for the fields and properties of a given object - combining injectors with randomizers.
 
-The `ObjectRandomizer` is configured with an `ObjectRandomizerConfig` object directly or via a `Consumer`:
-
->> this is obsolete just use injector - document
+Given some class for which to generate random instances, such as:
 
 [source,java]
 ----
-var rando = ObjectRandomizer.randomize(ComplexObject.class, cfg -> {
-    cfg.property("id", randomString(10));
-    cfg.property("shipmentSize", randomInt(0, 155));
+public class Thing {
+    ThingType type;
+    int count;
+    private String name;
+
+    public void setName(final String name){
+        this.name = name;
+    }
+
+    public String getName(){
+        return name;
+    }
+}
+----
+
+You can generate random instances of `Thing` using:
+
+[source,java]
+----
+val rando = ObjectRandomizers.randomized(new Thing(), inj -> {
+    inj.setField("type", CoreRandomizers.oneOf(ThingType.class));
+    inj.setField("count", NumberRandomizers.anIntBetween(0,1000));
+    inj.setProperty("name", StringRandomizers.alphabetic(CoreRandomizers.constant(6)));
 });
 ----
 
-The above code would configure a randomizer (generally called a "rando") for `ComplexObject` instances with a random string "id" and random int "shipmentSize" value when generated. You can then generate one or more random instances as:
+Which would generate a random `Thing` by directly injecting the `type` and `count` fields using values from the provided randomizers, while also injecting the random value for the `name` field by first trying to use the "setter" for the property.
 
-[source,java]
-----
-var single = rando.one();
-val list = rando.many(7);
-----
-
-more details about the configuration of the object randomizer
-
-#person randomizer#
-
-
+With this framework, you can generate complex random instances as simply as you can generate random primitive values.
 
 TIP: You can "pin" the randomizers so that they will produce the same values - see the `SharedRandom` class for details. This allows you to reproduce failing test values.
 
 === SharedRandom
 
-#talk about the shared random class#
+All of the `Randomizer<T>` implementations provided in this toolkit use the `SharedRandom` class to provide the random values. This class is based on the standard `ThreadLocalRandom` class, but it provides a means of easily overriding the seed value, which is useful for "pinning" the random values for testing.
+
+The seed value may be overridden directly in the instance, or a system property `test-things.rando.seed` may be set to configure the JVM-wide seed value to be used.

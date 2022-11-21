@@ -22,7 +22,7 @@ Project artifacts are available via the Maven Central repository. Below are the 
 Gradle
 
 ```groovy
-testImplementation 'io.github.cjstehno:test-things:0.0.1'
+testImplementation 'io.github.cjstehno:test-things:0.1.0'
 ```
 
 Maven
@@ -31,7 +31,7 @@ Maven
 <dependency>
     <groupId>io.github.cjstehno</groupId>
     <artifactId>test-things</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.0</version>
     <scope>test</scope>
 </dependency>
 ```

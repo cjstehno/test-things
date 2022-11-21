@@ -12,6 +12,29 @@ attempt to formalize these tools into a cohesive codebase and provide them for o
 *Test Things?* Is it a statement, as in "things for testing", or is it a command, telling you to "go forth and test"? It's
 up to you.
 
+WARNING: This is project is considered a BETA release at this point. I don't foresee any breaking changes at this point, but keep in mind that until a 1.0.0 release things are subject to change.
+
+== Getting Started
+
+The Test-Things artifacts are available via the Maven Central repository. Below are the dependency coordinates for Gradle and Maven.
+
+For Gradle:
+
+----
+testImplementation 'io.github.cjstehno:test-things:0.1.0'
+----
+
+For Maven:
+
+----
+<dependency>
+    <groupId>io.github.cjstehno</groupId>
+    <artifactId>test-things</artifactId>
+    <version>0.1.0</version>
+    <scope>test</scope>
+</dependency>
+----
+
 include::fixtures.adoc[]
 
 include::junit_extensions.adoc[]
