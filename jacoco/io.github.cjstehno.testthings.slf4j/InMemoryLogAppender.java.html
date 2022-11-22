@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InMemoryLogAppender.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.slf4j</a> &gt; <span class="el_source">InMemoryLogAppender.java</span></div><h1>InMemoryLogAppender.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.slf4j;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
+import lombok.Getter;
+import org.hamcrest.Matcher;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import static org.hamcrest.CoreMatchers.any;
+
+/**
+ * An {@link ch.qos.logback.core.Appender} for the SLF4J logging library (with logback backend) that allows for verifying
+ * results that may only appear in log messages.
+ * &lt;p&gt;
+ * To use this appender you register the classes to be monitored using the &lt;code&gt;loggedClass(Class)&lt;/code&gt; configuration
+ * method and then call the &lt;code&gt;attach()&lt;/code&gt; method on the appender to hook it into the logging system.
+ * &lt;p&gt;
+ * You should ensure that the &lt;code&gt;detach()&lt;/code&gt; method is also called when you are done testing so that the test code
+ * is not left in the logger configuration.
+ * &lt;p&gt;
+ * Various methods are provided to read through and filter the captured log messages.
+ * &lt;p&gt;
+ * See also the {@link io.github.cjstehno.testthings.junit.LogAppenderExtension} for a simple means of using this in tests.
+ */
+public class InMemoryLogAppender extends AppenderBase&lt;ILoggingEvent&gt; {
+
+<span class="fc" id="L46">    @Getter private final List&lt;ILoggingEvent&gt; events = new CopyOnWriteArrayList&lt;&gt;();</span>
+    private final AppenderConfigImpl config;
+
+    /**
+     * Creates an in-memory Logback {@link ch.qos.logback.core.Appender} for testing with the provided configuration.
+     *
+     * @param consumer the configuration
+     */
+    public InMemoryLogAppender(final Consumer&lt;AppenderConfig&gt; consumer) {
+<span class="fc" id="L55">        this(new AppenderConfigImpl());</span>
+
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (consumer != null) {</span>
+<span class="fc" id="L58">            consumer.accept(config);</span>
+        }
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Creates a log appender with the provided configuration object.
+     *
+     * @param config the configuration object
+     */
+<span class="fc" id="L67">    public InMemoryLogAppender(final AppenderConfig config) {</span>
+<span class="fc" id="L68">        this.config = (AppenderConfigImpl) config;</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Must be called to initiate the log event recording - to register the log appender with the logger.
+     */
+    public void attach() {
+<span class="fc" id="L75">        start();</span>
+<span class="fc" id="L76">        config.forEachLogger(lgr -&gt; lgr.addAppender(this));</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Should be called when done using the appender to clean up resources.
+     */
+    public void detach() {
+<span class="fc" id="L83">        config.forEachLogger(lgr -&gt; lgr.detachAppender(this));</span>
+<span class="fc" id="L84">        stop();</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Called when a logging event is to be added to the appender.
+     *
+     * @param event the logging event
+     */
+    @Override protected void append(final ILoggingEvent event) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (config.matches(event)) {</span>
+<span class="fc" id="L94">            events.add(event);</span>
+        }
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * Counts the number of captured events matching the provided matcher.
+     *
+     * @param matcher the event matcher
+     * @return the count of matching events
+     */
+    public int count(final Matcher&lt;ILoggingEvent&gt; matcher) {
+<span class="fc" id="L105">        return (int) events.stream().filter(matcher::matches).count();</span>
+    }
+
+    /**
+     * Counts all captured logging events.
+     *
+     * @return the count
+     */
+    public int count() {
+<span class="fc" id="L114">        return count(any(ILoggingEvent.class));</span>
+    }
+
+    /**
+     * Retrieves all captured logging events matching the provided matcher.
+     *
+     * @param matcher the matcher
+     * @return the list of matching events
+     */
+    public List&lt;ILoggingEvent&gt; events(final Matcher&lt;ILoggingEvent&gt; matcher) {
+<span class="fc" id="L124">        return events.stream().filter(matcher::matches).toList();</span>
+    }
+
+    /**
+     * Retrieves all captured logging events.
+     *
+     * @return all captured logging events
+     */
+    public List&lt;ILoggingEvent&gt; events() {
+<span class="fc" id="L133">        return events(any(ILoggingEvent.class));</span>
+    }
+
+    /**
+     * Returns &lt;code&gt;true&lt;/code&gt; if there is at least one captured logging event matching the provided matcher.
+     *
+     * @param matcher the matcher
+     * @return true if there is a matching event
+     */
+    public boolean hasEvent(final Matcher&lt;ILoggingEvent&gt; matcher) {
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        return count(matcher) &gt; 0;</span>
+    }
+
+    /**
+     * Retrieves the captured logging events matching the provided matcher, as a Stream.
+     *
+     * @param matcher the matcher
+     * @return the stream of matching events
+     */
+    public Stream&lt;ILoggingEvent&gt; stream(final Matcher&lt;ILoggingEvent&gt; matcher) {
+<span class="fc" id="L153">        return events.stream().filter(matcher::matches);</span>
+    }
+
+    /**
+     * Retrieves the captured logging events as a Stream.
+     *
+     * @return the stream of events
+     */
+    public Stream&lt;ILoggingEvent&gt; stream() {
+<span class="fc" id="L162">        return stream(any(ILoggingEvent.class));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

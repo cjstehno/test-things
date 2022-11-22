@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - DatabaseExtensionTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>DatabaseExtensionTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/io.github.cjstehno.testthings.junit.html">io.github.cjstehno.testthings.junit</a> &gt; DatabaseExtensionTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">3</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">5.381s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">All preparation in class annotation.</td>
+<td class="success">scenariosAandE(DataSource)</td>
+<td class="success">5.157s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">Preparation in class annotation and method - additive</td>
+<td class="success">scenariosCandG(DataSource)</td>
+<td class="success">0.128s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">Preparation in class annotation and method - not additive</td>
+<td class="success">scenariosDandG(DataSource)</td>
+<td class="success">0.096s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>05:21:59.189 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Created DataSource.
+05:22:03.598 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-setup.sql).
+05:22:03.643 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-populate.sql).
+05:22:03.644 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:03.646 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - The database is set-up.
+05:22:03.945 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-truncate.sql).
+05:22:03.953 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-teardown.sql).
+05:22:03.954 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:03.954 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Destroying data source.
+05:22:03.958 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Destroyed DataSource.
+05:22:03.960 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - The database was torn-down.
+05:22:03.979 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Created DataSource.
+05:22:03.998 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-setup.sql).
+05:22:04.029 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-populate.sql).
+05:22:04.031 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:04.039 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-populate-2.sql).
+05:22:04.047 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:04.057 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - The database is set-up.
+05:22:04.082 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-truncate.sql).
+05:22:04.098 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-teardown.sql).
+05:22:04.100 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:04.101 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:04.102 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Destroying data source.
+05:22:04.103 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Destroyed DataSource.
+05:22:04.104 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - The database was torn-down.
+05:22:04.110 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Created other DataSource.
+05:22:04.159 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-setup.sql).
+05:22:04.171 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-populate-2.sql).
+05:22:04.171 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:04.172 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - The database is set-up.
+05:22:04.176 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-truncate.sql).
+05:22:04.201 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Executed database script (/db-teardown.sql).
+05:22:04.202 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Done running scripts.
+05:22:04.202 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - Destroying data source.
+05:22:04.202 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Destroyed other DataSource.
+05:22:04.203 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtensionTest - Destroyed DataSource.
+05:22:04.203 [Test worker] INFO io.github.cjstehno.testthings.junit.DatabaseExtension - The database was torn-down.
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 7.5.1</a> at Nov 22, 2022, 5:22:10 AM</p>
+</div>
+</div>
+</body>
+</html>

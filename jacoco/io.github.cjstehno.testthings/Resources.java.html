@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Resources.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings</a> &gt; <span class="el_source">Resources.java</span></div><h1>Resources.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings;
+
+import io.github.cjstehno.testthings.serdes.JacksonJsonSerdes;
+import io.github.cjstehno.testthings.serdes.SerdesProvider;
+import lombok.NoArgsConstructor;
+import lombok.val;
+
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.WRITE;
+import static lombok.AccessLevel.PRIVATE;
+
+/**
+ * Some useful utilities for working with classpath resources.
+ *
+ * @see io.github.cjstehno.testthings.junit.ResourcesExtension
+ */
+@NoArgsConstructor(access = PRIVATE)
+public final class Resources {
+
+    /**
+     * Loads the specified resource path as a String with the specified charset.
+     *
+     * @param path    the classpath resource path
+     * @param charset the charset to be used
+     * @return the string version of the resource
+     */
+    public static String resourceToString(final String path, final Charset charset) {
+<span class="fc" id="L53">        return new String(resourceToBytes(path), charset);</span>
+    }
+
+    /**
+     * Loads the specified resource path as a UTF-8 string.
+     *
+     * @param path the classpath resource path
+     * @return the string version of the resource
+     */
+    public static String resourceToString(final String path) {
+<span class="fc" id="L63">        return resourceToString(path, UTF_8);</span>
+    }
+
+    /**
+     * Loads the specified classpath resource as a byte array.
+     *
+     * @param path the resource path
+     * @return a byte array containing the resource data
+     */
+    public static byte[] resourceToBytes(final String path) {
+<span class="fc" id="L73">        try (val rs = resourceStream(path)) {</span>
+<span class="fc" id="L74">            return rs.readAllBytes();</span>
+<span class="nc" id="L75">        } catch (IOException ioe) {</span>
+<span class="nc" id="L76">            throw new RuntimeException(ioe);</span>
+        }
+    }
+
+    /**
+     * Loads the specified classpath resource as an InputStream.
+     *
+     * @param path the resource path
+     * @return an InputStream containing the resource data
+     */
+    public static InputStream resourceStream(final String path) {
+<span class="fc" id="L87">        return Resources.class.getResourceAsStream(path);</span>
+    }
+
+    /**
+     * Loads the specified classpath resource as a {@link Reader}, specifically a {@link BufferedReader}.
+     *
+     * @param path the resource path
+     * @return a Reader containing the resource data
+     */
+    public static Reader resourceReader(final String path) {
+<span class="fc" id="L97">        return new BufferedReader(new InputStreamReader(resourceStream(path)));</span>
+    }
+
+    /**
+     * Retrieves the URL for the specified resource.
+     *
+     * @param path the resource path
+     * @return the resource URL
+     */
+    public static URL resourceUrl(final String path) {
+<span class="fc" id="L107">        return Resources.class.getResource(path);</span>
+    }
+
+    /**
+     * Retrieves the {@link Path} reference to the classpath resource.
+     *
+     * @param path the resource path
+     * @return the Path reference to the classpath resource
+     */
+    public static Path resourcePath(final String path) {
+<span class="fc" id="L117">        return Path.of(resourceUri(path));</span>
+    }
+
+    /**
+     * Retrieves the {@link File} reference to the classpath resource.
+     *
+     * @param path the resource path
+     * @return the File reference to the classpath resource
+     */
+    public static File resourceFile(final String path) {
+<span class="fc" id="L127">        return new File(resourceUri(path));</span>
+    }
+
+    /**
+     * Loads the resource at the specified path as bytes and then deserializes it to the specified object type.
+     *
+     * @param provider the serdes provider
+     * @param path     the resource path
+     * @param &lt;T&gt; the type of the deserialized object
+     * @param type     the object type
+     * @return the deserialized object loaded from the resource path
+     */
+    public static &lt;T&gt; T resourceDeserialized(final SerdesProvider provider, final String path, final Class&lt;? extends T&gt; type) {
+        try {
+<span class="fc" id="L141">            return provider.deserialize(resourceToBytes(path), type);</span>
+<span class="nc" id="L142">        } catch (IOException e) {</span>
+<span class="nc" id="L143">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /**
+     * Loads the resource at the specified path as bytes and then deserializes as JSON it to the specified object type.
+     *
+     * @param path the resource path
+     * @param type the object type
+     * @param &lt;T&gt; the type of the deserialized object
+     * @return the deserialized object from the resource path content
+     */
+    public static &lt;T&gt; T resourceDeserialized(final String path, final Class&lt;? extends T&gt; type) {
+<span class="nc" id="L156">        return resourceDeserialized(new JacksonJsonSerdes(), path, type);</span>
+    }
+
+    /**
+     * Retrieves the URI for the specified resource.
+     *
+     * @param path the resource path
+     * @return the resource URI
+     */
+    public static URI resourceUri(final String path) {
+        try {
+<span class="fc" id="L167">            return resourceUrl(path).toURI();</span>
+<span class="nc" id="L168">        } catch (URISyntaxException e) {</span>
+<span class="nc" id="L169">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /**
+     * Copies the classpath resource at the specified path to the provided destination path.
+     *
+     * @param resourcePath the classpath resource path
+     * @param path         the destination path
+     */
+    public static void copyResourceTo(final String resourcePath, final Path path) {
+        try {
+<span class="fc" id="L181">            Files.write(path, resourceToBytes(resourcePath), WRITE, CREATE_NEW);</span>
+<span class="nc" id="L182">        } catch (IOException e) {</span>
+<span class="nc" id="L183">            throw new RuntimeException(e);</span>
+<span class="fc" id="L184">        }</span>
+<span class="fc" id="L185">    }</span>
+
+    /**
+     * Copies the classpath resource at the specified path to the provided destination file.
+     *
+     * @param resourcePath the classpath resource path
+     * @param file         the destination file
+     */
+    public static void copyResourceTo(final String resourcePath, final File file) {
+<span class="fc" id="L194">        copyResourceTo(resourcePath, file.toPath());</span>
+<span class="fc" id="L195">    }</span>
+
+    /**
+     * Loads the content at the specified classpath location as a string template. The replacement values are surrounded
+     * by curly braces, as &lt;code&gt;{tag}&lt;/code&gt;. The provided map defines the replacement values.
+     *
+     * @param path         the resource path
+     * @param replacements the replacement values
+     * @return the template with all defined values replaced
+     */
+    public static String template(final String path, final Map&lt;String, Object&gt; replacements) {
+<span class="fc" id="L206">        var temp = resourceToString(path);</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (val entry : replacements.entrySet()) {</span>
+<span class="fc" id="L208">            temp = temp.replaceAll(&quot;\\{%s\\}&quot;.formatted(entry.getKey()), entry.getValue().toString());</span>
+<span class="fc" id="L209">        }</span>
+<span class="fc" id="L210">        return temp;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reflections.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.util</a> &gt; <span class="el_source">Reflections.java</span></div><h1>Reflections.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.util;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+/**
+ * Some utility methods for working with reflection. These are mostly meant for internal use.
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Reflections {
+
+    /**
+     * Extracts the value from the field of the specified instance or class with the given type. Any exception is wrapped
+     * in a {@link RuntimeException}.
+     *
+     * @param classOrInstance the class or instance where the field is defined
+     * @param field the field
+     * @param valueType the value type of the field
+     * @return the extracted field value
+     * @param &lt;R&gt; the value type of the field
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static &lt;R&gt; R extractValue(final Object classOrInstance, final Field field, final Class&lt;? extends R&gt; valueType) {
+        try {
+<span class="fc" id="L43">            field.setAccessible(true);</span>
+<span class="fc" id="L44">            return (R) field.get(classOrInstance);</span>
+
+<span class="nc" id="L46">        } catch (Exception e) {</span>
+<span class="nc" id="L47">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /**
+     * Invokes a non-returning method on the specified class or instance. Any exception is wrapped in a {@link RuntimeException}.
+     *
+     * @param classOrInstance the class or instance where the method is defined
+     * @param method the method
+     */
+    public static void invokeMethod(final Object classOrInstance, final Method method) {
+        try {
+<span class="fc" id="L59">            method.setAccessible(true);</span>
+<span class="fc" id="L60">            method.invoke(classOrInstance);</span>
+<span class="nc" id="L61">        } catch (Exception ex) {</span>
+<span class="nc" id="L62">            throw new RuntimeException(ex);</span>
+<span class="fc" id="L63">        }</span>
+<span class="fc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

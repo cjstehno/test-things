@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TypeSetInjection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.inject</a> &gt; <span class="el_source">TypeSetInjection.java</span></div><h1>TypeSetInjection.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.inject;
+
+import io.github.cjstehno.testthings.rando.Randomizer;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+
+import java.util.HashSet;
+
+import static java.util.Locale.ROOT;
+import static lombok.AccessLevel.PACKAGE;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isNotStatic;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
+
+/**
+ * Provides injection of values based on the field/property type rather than the name.
+ */
+<span class="fc" id="L34">@RequiredArgsConstructor(access = PACKAGE)</span>
+public class TypeSetInjection implements Injection {
+    private final Class&lt;?&gt; type;
+    private final Object value;
+    private final boolean preferSetter;
+
+    /**
+     * Injects the value into all properties/fields of the configured type.
+     *
+     * @param instance the instance where things should be injected.
+     * @throws ReflectiveOperationException if there is a problem
+     */
+    @Override public void injectInto(final Object instance) throws ReflectiveOperationException {
+<span class="fc" id="L47">        val injectedNames = new HashSet&lt;String&gt;();</span>
+
+        // inject via setter if requested
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (preferSetter) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            for (val setter : findMethods(</span>
+<span class="fc" id="L52">                instance.getClass(),</span>
+<span class="pc bpc" id="L53" title="2 of 8 branches missed.">                m -&gt; isNotStatic(m) &amp;&amp; m.getParameterCount() == 1 &amp;&amp; type.isAssignableFrom(m.getParameterTypes()[0]) &amp;&amp; m.getName().startsWith(&quot;set&quot;),</span>
+                TOP_DOWN
+            )) {
+<span class="fc" id="L56">                setter.setAccessible(true);</span>
+<span class="fc" id="L57">                setter.invoke(instance, injectedValue());</span>
+
+                // make sure we don't inject twice
+<span class="fc" id="L60">                injectedNames.add(setter.getName().substring(3).toLowerCase(ROOT));</span>
+<span class="fc" id="L61">            }</span>
+        }
+
+        // inject via field otherwise
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (val field : findFields(</span>
+<span class="fc" id="L66">            instance.getClass(),</span>
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">            f -&gt; isNotStatic(f) &amp;&amp; type.isAssignableFrom(f.getType()),</span>
+            TOP_DOWN
+        )) {
+<span class="fc" id="L70">            val name = field.getName().toLowerCase(ROOT);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">            if (!injectedNames.contains(name)) {</span>
+<span class="nc" id="L72">                field.setAccessible(true);</span>
+<span class="nc" id="L73">                field.set(instance, injectedValue());</span>
+            }
+<span class="fc" id="L75">        }</span>
+<span class="fc" id="L76">    }</span>
+
+    private Object injectedValue() {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        return value instanceof Randomizer&lt;?&gt; rando ? rando.one() : value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

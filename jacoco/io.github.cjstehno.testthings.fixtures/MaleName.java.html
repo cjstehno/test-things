@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MaleName.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.fixtures</a> &gt; <span class="el_source">MaleName.java</span></div><h1>MaleName.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.fixtures;
+
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
+/**
+ * An enumeration of some male names.
+ */
+<span class="fc" id="L24">public enum MaleName {</span>
+
+    /**
+     * Liam.
+     */
+<span class="fc" id="L29">    LIAM,</span>
+
+    /**
+     * Noah.
+     */
+<span class="fc" id="L34">    NOAH,</span>
+
+    /**
+     * Oliver.
+     */
+<span class="fc" id="L39">    OLIVER,</span>
+
+    /**
+     * Elijah.
+     */
+<span class="fc" id="L44">    ELIJAH,</span>
+
+    /**
+     * James.
+     */
+<span class="fc" id="L49">    JAMES,</span>
+
+    /**
+     * William.
+     */
+<span class="fc" id="L54">    WILLIAM,</span>
+
+    /**
+     * Benjamin.
+     */
+<span class="fc" id="L59">    BENJAMIN,</span>
+
+    /**
+     * Lucas.
+     */
+<span class="fc" id="L64">    LUCAS,</span>
+
+    /**
+     * Henry.
+     */
+<span class="fc" id="L69">    HENRY,</span>
+
+    /**
+     * Theodore.
+     */
+<span class="fc" id="L74">    THEODORE,</span>
+
+    /**
+     * Jack.
+     */
+<span class="fc" id="L79">    JACK,</span>
+
+    /**
+     * Levi.
+     */
+<span class="fc" id="L84">    LEVI,</span>
+
+    /**
+     * Alexander.
+     */
+<span class="fc" id="L89">    ALEXANDER,</span>
+
+    /**
+     * Jackson.
+     */
+<span class="fc" id="L94">    JACKSON,</span>
+
+    /**
+     * Mateo.
+     */
+<span class="fc" id="L99">    MATEO,</span>
+
+    /**
+     * Daniel.
+     */
+<span class="fc" id="L104">    DANIEL,</span>
+
+    /**
+     * Michael.
+     */
+<span class="fc" id="L109">    MICHAEL,</span>
+
+    /**
+     * Mason.
+     */
+<span class="fc" id="L114">    MASON,</span>
+
+    /**
+     * Sebastian.
+     */
+<span class="fc" id="L119">    SEBASTIAN,</span>
+
+    /**
+     * Ethan.
+     */
+<span class="fc" id="L124">    ETHAN,</span>
+
+    /**
+     * Logan.
+     */
+<span class="fc" id="L129">    LOGAN,</span>
+
+    /**
+     * Owen.
+     */
+<span class="fc" id="L134">    OWEN,</span>
+
+    /**
+     * Samuel.
+     */
+<span class="fc" id="L139">    SAMUEL,</span>
+
+    /**
+     * Jacom.
+     */
+<span class="fc" id="L144">    JACOB,</span>
+
+    /**
+     * Asher.
+     */
+<span class="fc" id="L149">    ASHER,</span>
+
+    /**
+     * Aiden.
+     */
+<span class="fc" id="L154">    AIDEN,</span>
+
+    /**
+     * John.
+     */
+<span class="fc" id="L159">    JOHN,</span>
+
+    /**
+     * Joseph.
+     */
+<span class="fc" id="L164">    JOSEPH,</span>
+
+    /**
+     * Wyatt.
+     */
+<span class="fc" id="L169">    WYATT,</span>
+
+    /**
+     * David.
+     */
+<span class="fc" id="L174">    DAVID,</span>
+
+    /**
+     * Leo.
+     */
+<span class="fc" id="L179">    LEO,</span>
+
+    /**
+     * Luke, I am NOT your father.
+     */
+<span class="fc" id="L184">    LUKE,</span>
+
+    /**
+     * Julian.
+     */
+<span class="fc" id="L189">    JULIAN,</span>
+
+    /**
+     * Hudson.
+     */
+<span class="fc" id="L194">    HUDSON,</span>
+
+    /**
+     * Grayson.
+     */
+<span class="fc" id="L199">    GRAYSON,</span>
+
+    /**
+     * Matthew.
+     */
+<span class="fc" id="L204">    MATTHEW,</span>
+
+    /**
+     * Ezra.
+     */
+<span class="fc" id="L209">    EZRA,</span>
+
+    /**
+     * Gabriel.
+     */
+<span class="fc" id="L214">    GABRIEL,</span>
+
+    /**
+     * Carter.
+     */
+<span class="fc" id="L219">    CARTER,</span>
+
+    /**
+     * Isaac.
+     */
+<span class="fc" id="L224">    ISAAC,</span>
+
+    /**
+     * Jayden.
+     */
+<span class="fc" id="L229">    JAYDEN,</span>
+
+    /**
+     * Luca. Do you live on the second floor?
+     */
+<span class="fc" id="L234">    LUCA,</span>
+
+    /**
+     * Anthony.
+     */
+<span class="fc" id="L239">    ANTHONY,</span>
+
+    /**
+     * Dylan.
+     */
+<span class="fc" id="L244">    DYLAN,</span>
+
+    /**
+     * Lincoln.
+     */
+<span class="fc" id="L249">    LINCOLN,</span>
+
+    /**
+     * Thomas.
+     */
+<span class="fc" id="L254">    THOMAS,</span>
+
+    /**
+     * Maverick.
+     */
+<span class="fc" id="L259">    MAVERICK,</span>
+
+    /**
+     * Elias.
+     */
+<span class="fc" id="L264">    ELIAS,</span>
+
+    /**
+     * Josiah.
+     */
+<span class="fc" id="L269">    JOSIAH,</span>
+
+    /**
+     * CHARLES.
+     */
+<span class="fc" id="L274">    CHARLES;</span>
+
+    @Override public String toString() {
+<span class="fc" id="L277">        return capitalize(name().toLowerCase(ROOT));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

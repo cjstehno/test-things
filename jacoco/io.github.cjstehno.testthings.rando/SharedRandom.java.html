@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SharedRandom.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.rando</a> &gt; <span class="el_source">SharedRandom.java</span></div><h1>SharedRandom.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.rando;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+
+import java.util.Random;
+import java.util.random.RandomGenerator;
+
+import static java.lang.Long.parseLong;
+import static java.lang.System.getProperty;
+import static java.lang.System.nanoTime;
+
+/**
+ * A thread-safe &quot;random&quot; number generated similar to the {@link java.util.concurrent.ThreadLocalRandom}, but with the
+ * ability to have its seed changed after construction.
+ *
+ * The ability to know and change the seed at runtime is very useful in allowing for repeatable testing of &quot;random&quot;-based
+ * utilities. If you use the same seed, the same values will be generated in the same order.
+ *
+ * The seed may be injected programmatically, or a system property may be set (&quot;test-tings.rando.seed&quot;) which will
+ * specify the seed for the whole JVM.
+ *
+ * &lt;strong&gt;NOTE:&lt;/strong&gt; Setting the seed to a known value should ONLY be used for development and testing purposes.
+ */
+<span class="fc" id="L41">@Slf4j</span>
+public class SharedRandom implements RandomGenerator {
+
+    /**
+     * The System property which may be used to specify a custom seed value (e.g &quot;test-things.rando.seed&quot;).
+     */
+    public static final String SEED_PROPERTY = &quot;test-things.rando.seed&quot;;
+
+<span class="fc" id="L49">    private static ThreadLocal&lt;SharedRandom&gt; SHARED = ThreadLocal.withInitial(() -&gt; {</span>
+<span class="fc" id="L50">        log.debug(&quot;Creating a new random.&quot;);</span>
+<span class="fc" id="L51">        return new SharedRandom(null);</span>
+    });
+
+<span class="fc" id="L54">    @Getter private long seed;</span>
+    private Random random;
+
+<span class="fc" id="L57">    private SharedRandom(final Long seed) {</span>
+<span class="fc" id="L58">        reseed(resolveSeed(seed));</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Retrieves the singleton instance of the RandomGenerator for the current thread.
+     *
+     * @return the random generator instance
+     */
+    public static RandomGenerator current() {
+<span class="fc" id="L67">        return SHARED.get();</span>
+    }
+
+    @Override public long nextLong() {
+<span class="fc" id="L71">        return random.nextLong();</span>
+    }
+
+    /**
+     * Updates the seed value and rebuilds the internal random generator.
+     *
+     * @param newSeed the new seed value
+     */
+    public void reseed(final long newSeed) {
+<span class="fc" id="L80">        seed = newSeed;</span>
+<span class="fc" id="L81">        random = new Random(newSeed);</span>
+<span class="fc" id="L82">        log.debug(&quot;Updating seed to {}&quot;, newSeed);</span>
+<span class="fc" id="L83">    }</span>
+
+    /**
+     * Builds a SharedRandom with the specified seed.
+     *
+     * @param seed the seed
+     * @return the SharedRandom instance
+     */
+    public static SharedRandom generator(final Long seed) {
+<span class="fc" id="L92">        return new SharedRandom(seed);</span>
+    }
+
+    /**
+     * Builds a SharedRandom with the default seed.
+     *
+     * @return the SharedRandom instance
+     */
+    public static SharedRandom generator() {
+<span class="fc" id="L101">        return generator(null);</span>
+    }
+
+    // if a seed is passed, use it, otherwise use configured if exists, then default to current time
+    private static long resolveSeed(final Long value) {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (value == null) {</span>
+<span class="fc" id="L107">            val seedProperty = getProperty(SEED_PROPERTY);</span>
+<span class="pc bpc" id="L108" title="1 of 4 branches missed.">            return seedProperty != null &amp;&amp; !seedProperty.isBlank() ? parseLong(seedProperty) : nanoTime();</span>
+        }
+
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (value &lt; 1) {</span>
+<span class="nc" id="L112">            throw new IllegalArgumentException(&quot;The seed value must be greater than 0.&quot;);</span>
+        }
+
+<span class="fc" id="L115">        return value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

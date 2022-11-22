@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogAppenderExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.junit</a> &gt; <span class="el_source">LogAppenderExtension.java</span></div><h1>LogAppenderExtension.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.junit;
+
+import io.github.cjstehno.testthings.slf4j.AppenderConfig;
+import io.github.cjstehno.testthings.slf4j.InMemoryLogAppender;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+
+import static io.github.cjstehno.testthings.util.Reflections.extractValue;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
+
+/**
+ * JUnit 5 extension used to provide and manage the {@link InMemoryLogAppender} for testing. It will setup and tear down
+ * the logging configuration, based on a default {@link AppenderConfig} field, or one specified by an {@link ApplyLogging}
+ * annotation on the test method.
+ * &lt;p&gt;
+ * If a test method has a parameter of type {@link InMemoryLogAppender} it will be populated with the instance of the
+ * appender for use in the test (for verification purposes).
+ */
+<span class="fc" id="L39">@Slf4j</span>
+<span class="fc" id="L40">public class LogAppenderExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {</span>
+
+    private static final String APPENDER_CONFIG_NAME = &quot;APPENDER_CONFIG&quot;;
+    private static final String APPENDER = &quot;appender&quot;;
+<span class="fc" id="L44">    private static final Namespace NAMESPACE = create(&quot;test-things&quot;, &quot;log-appender&quot;);</span>
+
+    @Override public void beforeEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L47">        val appenderConfig = resolveAppenderConfig(context);</span>
+<span class="fc" id="L48">        val appender = new InMemoryLogAppender(appenderConfig);</span>
+
+<span class="fc" id="L50">        context.getStore(NAMESPACE).put(APPENDER, appender);</span>
+
+<span class="fc" id="L52">        appender.attach();</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override public void afterEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L56">        ((InMemoryLogAppender) context.getStore(NAMESPACE).remove(APPENDER)).detach();</span>
+<span class="fc" id="L57">    }</span>
+
+    @Override
+    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) throws ParameterResolutionException {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        return extensionContext.getRequiredTestMethod().isAnnotationPresent(Test.class)</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">            &amp;&amp; parameterContext.getParameter().getType().equals(InMemoryLogAppender.class);</span>
+    }
+
+    @Override
+    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) throws ParameterResolutionException {
+<span class="fc" id="L67">        return extensionContext.getStore(NAMESPACE).get(APPENDER);</span>
+    }
+
+    private static AppenderConfig resolveAppenderConfig(final ExtensionContext context) throws Exception {
+        // use the method annotation value if present
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (context.getRequiredTestMethod().isAnnotationPresent(ApplyLogging.class)) {</span>
+<span class="fc" id="L73">            val anno = context.getRequiredTestMethod().getAnnotation(ApplyLogging.class);</span>
+<span class="fc" id="L74">            return extractConfigValue(context, anno.value());</span>
+        }
+
+        // resolve the default configuration
+<span class="fc" id="L78">        return extractConfigValue(context, APPENDER_CONFIG_NAME);</span>
+    }
+
+    private static AppenderConfig extractConfigValue(final ExtensionContext context, final String fieldName) {
+<span class="fc" id="L82">        return findFields(</span>
+<span class="fc" id="L83">            context.getRequiredTestClass(),</span>
+<span class="pc bpc" id="L84" title="1 of 4 branches missed.">            f -&gt; AppenderConfig.class.isAssignableFrom(f.getType()) &amp;&amp; f.getName().equals(fieldName),</span>
+            TOP_DOWN
+<span class="fc" id="L86">        ).stream()</span>
+<span class="fc" id="L87">            .findFirst()</span>
+<span class="fc" id="L88">            .map(f -&gt; extractValue(context.getRequiredTestInstance(), f, AppenderConfig.class))</span>
+<span class="fc" id="L89">            .orElseThrow();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

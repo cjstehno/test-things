@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetInjection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.inject</a> &gt; <span class="el_source">SetInjection.java</span></div><h1>SetInjection.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.inject;
+
+
+import io.github.cjstehno.testthings.rando.Randomizer;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+
+import static java.util.Locale.ROOT;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isNotStatic;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
+import static org.junit.platform.commons.support.ReflectionSupport.findMethods;
+
+/**
+ * Injection instance used to inject a value into a field, optionally using an existing setter method.
+ */
+<span class="fc" id="L33">@RequiredArgsConstructor(access = AccessLevel.PACKAGE)</span>
+class SetInjection implements Injection {
+
+    private final String name;
+    private final Object value;
+    private final boolean preferSetter;
+
+    /**
+     * Injects the configured value into the given instance.
+     *
+     * @param instance the instance the value is being injected into
+     * @throws ReflectiveOperationException if there is a problem injecting the value
+     */
+    @Override
+    public void injectInto(final Object instance) throws ReflectiveOperationException {
+<span class="fc" id="L48">        injectValue(</span>
+            instance,
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            value instanceof Randomizer&lt;?&gt; rando ? rando.one() : value</span>
+        );
+<span class="fc" id="L52">    }</span>
+
+    private void injectValue(final Object instance, final Object injectedValue) throws ReflectiveOperationException {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (preferSetter) {</span>
+            // try to use the setter method (if exists)
+<span class="fc" id="L57">            val methodName = &quot;set&quot; + name.substring(0, 1).toUpperCase(ROOT) + name.substring(1);</span>
+<span class="fc" id="L58">            val methods = findMethods(</span>
+<span class="fc" id="L59">                instance.getClass(),</span>
+<span class="pc bpc" id="L60" title="2 of 6 branches missed.">                m -&gt; m.getName().equals(methodName) &amp;&amp; m.getParameterCount() == 1 &amp;&amp; isNotStatic(m),</span>
+                TOP_DOWN
+            );
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            if (!methods.isEmpty()) {</span>
+<span class="fc" id="L65">                methods.get(0).setAccessible(true);</span>
+<span class="fc" id="L66">                methods.get(0).invoke(instance, injectedValue);</span>
+<span class="fc" id="L67">                return;</span>
+            }
+        }
+
+        // try to use the field if it exists
+<span class="pc bpc" id="L72" title="1 of 4 branches missed.">        findFields(instance.getClass(), f -&gt; f.getName().equals(name) &amp;&amp; isNotStatic(f), TOP_DOWN).stream()</span>
+<span class="fc" id="L73">            .peek(f -&gt; f.setAccessible(true))</span>
+<span class="fc" id="L74">            .findAny()</span>
+<span class="pc" id="L75">            .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Unable to inject value for '&quot; + name + &quot;'&quot;))</span>
+<span class="fc" id="L76">            .set(instance, injectedValue);</span>
+<span class="fc" id="L77">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

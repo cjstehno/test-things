@@ -1,0 +1,10 @@
+io.github.cjstehno.testthings
+io.github.cjstehno.testthings.fixtures
+io.github.cjstehno.testthings.inject
+io.github.cjstehno.testthings.junit
+io.github.cjstehno.testthings.match
+io.github.cjstehno.testthings.rando
+io.github.cjstehno.testthings.serdes
+io.github.cjstehno.testthings.slf4j
+io.github.cjstehno.testthings.slf4j.match
+io.github.cjstehno.testthings.util

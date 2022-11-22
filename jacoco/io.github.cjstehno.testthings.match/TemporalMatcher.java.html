@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TemporalMatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.match</a> &gt; <span class="el_source">TemporalMatcher.java</span></div><h1>TemporalMatcher.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.match;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+
+import java.time.DayOfWeek;
+import java.time.Month;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalField;
+import java.util.Locale;
+
+import static java.time.DayOfWeek.*;
+import static java.time.temporal.ChronoField.*;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.*;
+
+/**
+ * Matchers used to match temporal-based criteria.
+ */
+<span class="fc" id="L39">@RequiredArgsConstructor(access = AccessLevel.PRIVATE)</span>
+public class TemporalMatcher extends BaseMatcher&lt;Temporal&gt; {
+
+    private final TemporalField temporalField;
+    private final Matcher&lt;Integer&gt; matcher;
+
+    /**
+     * Matches a temporal field that is equal to the specified value.
+     *
+     * @param field the temporal field
+     * @param value the target value
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; fieldIsEqualTo(final TemporalField field, int value) {
+<span class="fc" id="L53">        return new TemporalMatcher(field, equalTo(value));</span>
+    }
+
+    /**
+     * Matches a temporal field that is greater than the specified value.
+     *
+     * @param field the temporal field
+     * @param value the target value
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; fieldIsGreaterThan(final TemporalField field, int value) {
+<span class="nc" id="L64">        return new TemporalMatcher(field, greaterThan(value));</span>
+    }
+
+    /**
+     * Matches a temporal field that is greater than or equal to the specified value.
+     *
+     * @param field the temporal field
+     * @param value the target value
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; fieldIsGreaterThanOrEqualTo(final TemporalField field, int value) {
+<span class="fc" id="L75">        return new TemporalMatcher(field, greaterThanOrEqualTo(value));</span>
+    }
+
+    /**
+     * Matches a temporal field that is less than the specified value.
+     *
+     * @param field the temporal field
+     * @param value the target value
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; fieldIsLessThan(final TemporalField field, int value) {
+<span class="fc" id="L86">        return new TemporalMatcher(field, lessThan(value));</span>
+    }
+
+    /**
+     * Matches a temporal field that is less than or equal to the specified value.
+     *
+     * @param field the temporal field
+     * @param value the target value
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; fieldIsLessThanOrEqualTo(final TemporalField field, int value) {
+<span class="nc" id="L97">        return new TemporalMatcher(field, lessThanOrEqualTo(value));</span>
+    }
+
+    /**
+     * Matches a YEAR value with the specified value.
+     *
+     * @param year the year
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isInYear(final int year) {
+<span class="fc" id="L107">        return fieldIsEqualTo(YEAR, year);</span>
+    }
+
+    /**
+     * Matches a MONTH_OF_YEAR value with the specified value.
+     *
+     * @param month the month of the year
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isInMonth(final Month month) {
+<span class="fc" id="L117">        return fieldIsEqualTo(MONTH_OF_YEAR, month.getValue());</span>
+    }
+
+    /**
+     * Matches a MONTH_OF_YEAR value with the specified value.
+     *
+     * @param month the month of the year
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isInMonth(final int month) {
+<span class="fc" id="L127">        return isInMonth(Month.of(month));</span>
+    }
+
+    /**
+     * Matches a HOUR_OF_DAY value with the specified value.
+     *
+     * @param hour the hour of the day
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isInHourOfDay(final int hour) {
+<span class="fc" id="L137">        return fieldIsEqualTo(HOUR_OF_DAY, hour);</span>
+    }
+
+    /**
+     * Matches an HOUR_OF_DAY value after midnight and before noon.
+     *
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isInMorning() {
+<span class="fc" id="L146">        return allOf(</span>
+<span class="fc" id="L147">            fieldIsGreaterThanOrEqualTo(HOUR_OF_DAY, 0),</span>
+<span class="fc" id="L148">            fieldIsLessThan(HOUR_OF_DAY, 12)</span>
+        );
+    }
+
+    /**
+     * Matches an HOUR_OF_DAY value of noon or later, but before midnight.
+     *
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isInAfternoon() {
+<span class="fc" id="L158">        return allOf(</span>
+<span class="fc" id="L159">            fieldIsGreaterThanOrEqualTo(HOUR_OF_DAY, 12),</span>
+<span class="fc" id="L160">            fieldIsLessThan(HOUR_OF_DAY, 24)</span>
+        );
+    }
+
+    /**
+     * Matches a DAY_OF_WEEK value with the specified value.
+     *
+     * @param dow day of the week
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isDayOfWeek(final DayOfWeek dow) {
+<span class="fc" id="L171">        return fieldIsEqualTo(DAY_OF_WEEK, dow.getValue());</span>
+    }
+
+    /**
+     * Matches a DAY_OF_WEEK value with the specified value.
+     *
+     * @param dow day of the week
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isDayOfWeek(final int dow) {
+<span class="fc" id="L181">        return isDayOfWeek(DayOfWeek.of(dow));</span>
+    }
+
+    /**
+     * Matches a DAY_OF_WEEK value for a weekday (i.e. MONDAY through FRIDAY inclusive).
+     *
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isWeekday() {
+<span class="fc" id="L190">        return anyOf(</span>
+<span class="fc" id="L191">            isDayOfWeek(MONDAY),</span>
+<span class="fc" id="L192">            isDayOfWeek(TUESDAY),</span>
+<span class="fc" id="L193">            isDayOfWeek(WEDNESDAY),</span>
+<span class="fc" id="L194">            isDayOfWeek(THURSDAY),</span>
+<span class="fc" id="L195">            isDayOfWeek(FRIDAY)</span>
+        );
+    }
+
+    /**
+     * Matches a DAY_OF_WEEK value for a weekend (i.e. SATURDAY or SUNDAY).
+     *
+     * @return the matcher
+     */
+    public static Matcher&lt;Temporal&gt; isWeekend() {
+<span class="fc" id="L205">        return anyOf(</span>
+<span class="fc" id="L206">            isDayOfWeek(SATURDAY),</span>
+<span class="fc" id="L207">            isDayOfWeek(SUNDAY)</span>
+        );
+    }
+
+    @Override public boolean matches(final Object actual) {
+<span class="fc" id="L212">        return matcher.matches(((Temporal) actual).get(temporalField));</span>
+    }
+
+    @Override public void describeTo(final Description description) {
+<span class="nc" id="L216">        description.appendText(&quot;a &quot; + temporalField.getDisplayName(Locale.ROOT) + &quot; matching &quot;);</span>
+<span class="nc" id="L217">        matcher.describeTo(description);</span>
+<span class="nc" id="L218">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResourcesExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.junit</a> &gt; <span class="el_source">ResourcesExtension.java</span></div><h1>ResourcesExtension.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.junit;
+
+import io.github.cjstehno.testthings.Resources;
+import io.github.cjstehno.testthings.serdes.JacksonJsonSerdes;
+import io.github.cjstehno.testthings.serdes.SerdesProvider;
+import lombok.val;
+import org.junit.jupiter.api.extension.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.Reader;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.function.Function;
+
+import static io.github.cjstehno.testthings.Resources.resourceDeserialized;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedFields;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isStatic;
+
+/**
+ * A JUnit 5 extension that provides injection of classpath resources based on object type annotated with the {@link Resource}
+ * annotation - the supported types are as follows:
+ * &lt;p&gt;
+ * &lt;strong&gt;Path.&lt;/strong&gt; A {@link Path} will be populated with the path representation of the provided classpath value.
+ * &lt;p&gt;
+ * &lt;strong&gt;File.&lt;/strong&gt; A {@link File} will be populated with the file representation of the provided classpath value.
+ * &lt;p&gt;
+ * &lt;strong&gt;String.&lt;/strong&gt; A {@link String} will be populated with the contents of the file at the classpath location,
+ * as a String.
+ * &lt;p&gt;
+ * &lt;strong&gt;InputStream.&lt;/strong&gt; An {@link InputStream} will be populated with the content of the file at the classpath
+ * location, as an InputStream.
+ * &lt;p&gt;
+ * &lt;strong&gt;Reader.&lt;/strong&gt; A {@link Reader} will be populated with the content of the file at the classpath location,
+ * as a Reader.
+ * &lt;p&gt;
+ * &lt;strong&gt;byte[].&lt;/strong&gt; A byte array will be populated with the content of the file at the classpath location, as a
+ * array of bytes.
+ * &lt;p&gt;
+ * &lt;strong&gt;Everything else.&lt;/strong&gt; Any other object type will attempt to deserialize the contents of the file at the
+ * classpath location using the configured &quot;serdes&quot; value of the annotation (defaulting to {@link JacksonJsonSerdes} if
+ * none is specified.
+ * &lt;p&gt;
+ * The annotated types may be on:
+ * &lt;p&gt;
+ * &lt;strong&gt;Static Fields.&lt;/strong&gt; A &quot;static&quot; field annotated with the {@link Resource} annotation will be populated
+ * during the &quot;BeforeAll&quot; callback.
+ * &lt;p&gt;
+ * &lt;strong&gt;Non-Static Fields.&lt;/strong&gt; A non-static field annotated with the {@link Resource} annotation will be populated
+ * during the &quot;BeforeEach&quot; callback.
+ * &lt;p&gt;
+ * &lt;strong&gt;Callback or Test Method Parameters.&lt;/strong&gt; A lifecycle callback or test method parameter annotated with the
+ * {@link Resource} annotation will be populated when that method is called by the test framework.
+ * &lt;p&gt;
+ * Note: All injected fields will be cleared (set to null) during the appropriate &quot;after&quot; callback.
+ */
+<span class="fc" id="L73">public class ResourcesExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, ParameterResolver {</span>
+
+<span class="fc" id="L75">    private static final Map&lt;Class&lt;?&gt;, Function&lt;String, Object&gt;&gt; RESOLVERS = Map.of(Path.class, Resources::resourcePath, File.class, Resources::resourceFile, String.class, Resources::resourceToString, InputStream.class, Resources::resourceStream, Reader.class, Resources::resourceReader, byte[].class, Resources::resourceToBytes);</span>
+
+    @Override public void beforeAll(final ExtensionContext context) throws Exception {
+<span class="fc" id="L78">        val testClass = context.getRequiredTestClass();</span>
+<span class="fc" id="L79">        updateAnnotatedFields(testClass, testClass, true);</span>
+<span class="fc" id="L80">    }</span>
+
+    @Override public void beforeEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L83">        updateAnnotatedFields(context.getRequiredTestClass(), context.getRequiredTestInstance(), false);</span>
+<span class="fc" id="L84">    }</span>
+
+    @Override public void afterEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L87">        clearAnnotatedFields(context.getRequiredTestClass(), context.getRequiredTestInstance(), false);</span>
+<span class="fc" id="L88">    }</span>
+
+    @Override public void afterAll(final ExtensionContext context) throws Exception {
+<span class="fc" id="L91">        val testClass = context.getRequiredTestClass();</span>
+<span class="fc" id="L92">        clearAnnotatedFields(testClass, testClass, true);</span>
+<span class="fc" id="L93">    }</span>
+
+    @Override
+    public boolean supportsParameter(final ParameterContext paramContext, final ExtensionContext extContext) throws ParameterResolutionException {
+<span class="fc" id="L97">        val paramType = paramContext.getParameter().getType();</span>
+<span class="fc" id="L98">        return paramContext.isAnnotated(Resource.class); // &amp;&amp; RESOURCE_TYPES.contains(paramType);</span>
+    }
+
+    @Override
+    public Object resolveParameter(final ParameterContext paramContext, final ExtensionContext extContext) throws ParameterResolutionException {
+<span class="fc" id="L103">        val paramType = paramContext.getParameter().getType();</span>
+<span class="fc" id="L104">        val anno = paramContext.getParameter().getAnnotation(Resource.class);</span>
+
+        try {
+<span class="fc" id="L107">            return resolveResource(anno, paramType);</span>
+
+<span class="nc" id="L109">        } catch (final Exception ex) {</span>
+<span class="nc" id="L110">            throw new ParameterResolutionException(&quot;Unable to resolve parameter (%s): %s&quot;.formatted(paramContext.getParameter().getName(), ex.getMessage()), ex);</span>
+        }
+    }
+
+    private static void updateAnnotatedFields(final Class&lt;?&gt; testClass, final Object invokeOn, final boolean isStatic) throws Exception {
+<span class="fc bfc" id="L115" title="All 4 branches covered.">        for (val field : findAnnotatedFields(testClass, Resource.class, f -&gt; isStatic(f) == isStatic, TOP_DOWN)) {</span>
+<span class="fc" id="L116">            field.setAccessible(true);</span>
+<span class="fc" id="L117">            field.set(invokeOn, resolveResource(field.getAnnotation(Resource.class), field.getType()));</span>
+<span class="fc" id="L118">        }</span>
+<span class="fc" id="L119">    }</span>
+
+    private static void clearAnnotatedFields(final Class&lt;?&gt; testClass, final Object invokeOn, final boolean isStatic) throws Exception {
+<span class="fc bfc" id="L122" title="All 4 branches covered.">        for (val field : findAnnotatedFields(testClass, Resource.class, f -&gt; isStatic(f) == isStatic, TOP_DOWN)) {</span>
+<span class="fc" id="L123">            field.setAccessible(true);</span>
+<span class="fc" id="L124">            field.set(invokeOn, null);</span>
+<span class="fc" id="L125">        }</span>
+<span class="fc" id="L126">    }</span>
+
+    private static Object resolveResource(final Resource anno, final Class&lt;?&gt; type) {
+<span class="fc" id="L129">        return RESOLVERS.getOrDefault(type, path -&gt; resourceDeserialized(instantiateSerdesProvider(anno.serdes()), path, type)).apply(anno.value());</span>
+    }
+
+    private static SerdesProvider instantiateSerdesProvider(final Class&lt;? extends SerdesProvider&gt; providerClass) {
+        try {
+<span class="fc" id="L134">            return providerClass.getDeclaredConstructor().newInstance();</span>
+<span class="nc" id="L135">        } catch (Exception ex) {</span>
+<span class="nc" id="L136">            throw new RuntimeException(ex);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

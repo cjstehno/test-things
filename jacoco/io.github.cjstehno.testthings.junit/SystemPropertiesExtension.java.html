@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SystemPropertiesExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.junit</a> &gt; <span class="el_source">SystemPropertiesExtension.java</span></div><h1>SystemPropertiesExtension.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.junit;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static io.github.cjstehno.testthings.util.Reflections.extractValue;
+import static java.lang.System.getProperty;
+import static java.lang.System.setProperty;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isStatic;
+import static org.junit.platform.commons.support.ReflectionSupport.findFields;
+
+/**
+ * A test extension used to update the System properties with a configured set of properties, resetting it back to the
+ * original values after each test.
+ * &lt;p&gt;
+ * In order to provide the property values to be injected, you must provide either a &lt;code&gt;Properties&lt;/code&gt; or
+ * &lt;code&gt;Map&amp;lt;String,String&amp;gt;&lt;/code&gt; object named &quot;SYSTEM_PROPERTIES&quot; on the test class as a static field.
+ * &lt;p&gt;
+ * Alternately, you may specify the field name containing your properties using the {@link ApplyProperties} annotation
+ * on the test method.
+ * &lt;p&gt;
+ * Before each test method is executed, the configured properties will be injected into the System properties; however,
+ * the original values will be stored and replaced after the test method has finished.
+ * &lt;p&gt;
+ * &lt;strong&gt;NOTE:&lt;/strong&gt; Due to the global nature of the System properties, the test methods under this extension
+ * are locked so that only one should run at a time - that being said, if you run into odd issues, try executing these
+ * tests in a single-threaded manner (and/or report a bug if you feel the functionality could be improved).
+ */
+<span class="fc" id="L59">@Slf4j</span>
+<span class="fc" id="L60">public class SystemPropertiesExtension implements BeforeEachCallback, AfterEachCallback {</span>
+
+    private static final String SYSTEM_PROPERTIES = &quot;SYSTEM_PROPERTIES&quot;;
+<span class="fc" id="L63">    private static final Namespace NAMESPACE = create(&quot;test-things&quot;, &quot;system-props&quot;);</span>
+<span class="fc" id="L64">    private final Lock lock = new ReentrantLock();</span>
+
+    @Override public void beforeEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L67">        lock.lock();</span>
+
+<span class="fc" id="L69">        val originals = new HashMap&lt;String, String&gt;();</span>
+
+<span class="fc" id="L71">        resolveConfiguredProperties(context.getRequiredTestClass(), context.getRequiredTestMethod()).forEach((k, v) -&gt; {</span>
+<span class="fc" id="L72">            val key = k.toString();</span>
+<span class="fc" id="L73">            val value = v.toString();</span>
+
+            // store the original value
+<span class="fc" id="L76">            originals.put(key, getProperty(key, value));</span>
+
+            // replace the value
+<span class="fc" id="L79">            setProperty(key, value);</span>
+<span class="fc" id="L80">        });</span>
+
+<span class="fc" id="L82">        context.getStore(NAMESPACE).put(Thread.currentThread().getName(), originals);</span>
+<span class="fc" id="L83">    }</span>
+
+    @Override @SuppressWarnings(&quot;unchecked&quot;)
+    public void afterEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L87">        val originals = (Map&lt;String, String&gt;) context.getStore(NAMESPACE).get(Thread.currentThread().getName());</span>
+
+        // reset to the original values
+<span class="fc" id="L90">        originals.forEach(System::setProperty);</span>
+<span class="fc" id="L91">        originals.clear();</span>
+
+<span class="fc" id="L93">        lock.unlock();</span>
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * A helper method that may be used to convert a &lt;code&gt;Map&lt;/code&gt; to a &lt;code&gt;Properties&lt;/code&gt; object containing
+     * the same data.
+     *
+     * @param map the map of property data
+     * @return a Properties object containing the map data
+     */
+    public static Properties asProperties(final Map&lt;String, String&gt; map) {
+<span class="fc" id="L104">        val props = new Properties();</span>
+<span class="fc" id="L105">        props.putAll(map);</span>
+<span class="fc" id="L106">        return props;</span>
+    }
+
+    private static Properties resolveConfiguredProperties(final Class&lt;?&gt; testClass, final Method testMethod) {
+<span class="fc" id="L110">        var properties = resolveAppliedProperties(testClass, testMethod);</span>
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (properties.isEmpty()) {</span>
+<span class="fc" id="L113">            properties = resolvePropertiesField(testClass, SYSTEM_PROPERTIES);</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            if (properties.isEmpty()) {</span>
+<span class="fc" id="L116">                properties = resolveMapField(testClass, SYSTEM_PROPERTIES);</span>
+            }
+        }
+
+<span class="pc" id="L120">        return properties.orElseThrow(() -&gt; new IllegalArgumentException(&quot;No Properties have been configured.&quot;));</span>
+    }
+
+    private static Optional&lt;Properties&gt; resolveAppliedProperties(final Class&lt;?&gt; testClass, final Method testMethod) {
+<span class="fc" id="L124">        val applyPropertiesAnno = findAnnotation(testMethod, ApplyProperties.class);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (applyPropertiesAnno.isPresent()) {</span>
+<span class="fc" id="L126">            val fieldName = applyPropertiesAnno.get().value();</span>
+<span class="fc" id="L127">            val props = resolvePropertiesField(testClass, fieldName);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            return props.isEmpty() ? resolveMapField(testClass, fieldName) : props;</span>
+        } else {
+<span class="fc" id="L130">            return Optional.empty();</span>
+        }
+    }
+
+    private static Optional&lt;Properties&gt; resolvePropertiesField(final Class&lt;?&gt; testClass, final String fieldName) {
+<span class="fc" id="L135">        return resolveField(testClass, fieldName, Properties.class);</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private static Optional&lt;Properties&gt; resolveMapField(final Class&lt;?&gt; testClass, final String fieldName) {
+<span class="fc" id="L140">        return resolveField(testClass, fieldName, Map.class).map(m -&gt; asProperties((Map&lt;String, String&gt;) m));</span>
+    }
+
+    private static &lt;F&gt; Optional&lt;F&gt; resolveField(final Class&lt;?&gt; testClass, final String fieldName, final Class&lt;? extends F&gt; fieldType) {
+<span class="fc" id="L144">        return findFields(</span>
+            testClass,
+<span class="pc bpc" id="L146" title="1 of 6 branches missed.">            f1 -&gt; isStatic(f1) &amp;&amp; f1.getType().equals(fieldType) &amp;&amp; f1.getName().equals(fieldName),</span>
+            TOP_DOWN
+<span class="fc" id="L148">        ).stream()</span>
+<span class="fc" id="L149">            .findFirst()</span>
+<span class="fc" id="L150">            .map(f -&gt; extractValue(testClass, f, fieldType));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

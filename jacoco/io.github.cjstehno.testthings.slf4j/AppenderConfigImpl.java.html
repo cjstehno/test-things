@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppenderConfigImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.slf4j</a> &gt; <span class="el_source">AppenderConfigImpl.java</span></div><h1>AppenderConfigImpl.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.slf4j;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.hamcrest.Matcher;
+import org.slf4j.Logger;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.function.Consumer;
+
+import static org.hamcrest.CoreMatchers.any;
+
+/**
+ * Implementation of the {@link AppenderConfig} interface used by the {@link InMemoryLogAppender}.
+ */
+<span class="fc" id="L33">@NoArgsConstructor(access = AccessLevel.PACKAGE)</span>
+public class AppenderConfigImpl implements AppenderConfig {
+
+<span class="fc" id="L36">    private final Collection&lt;ch.qos.logback.classic.Logger&gt; loggers = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L37">    private Matcher&lt;ILoggingEvent&gt; filter = any(ILoggingEvent.class);</span>
+
+    @Override public AppenderConfig logger(final Logger logger) {
+<span class="fc" id="L40">        loggers.add((ch.qos.logback.classic.Logger) logger);</span>
+<span class="fc" id="L41">        return this;</span>
+    }
+
+    @Override public AppenderConfig filter(final Matcher&lt;ILoggingEvent&gt; filter) {
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        this.filter = filter != null ? filter : any(ILoggingEvent.class);</span>
+<span class="fc" id="L46">        return this;</span>
+    }
+
+    /**
+     * Iterates over each configured logger, applying the consumer to each one.
+     *
+     * @param consumer the consumer used to process each logger
+     */
+    void forEachLogger(final Consumer&lt;ch.qos.logback.classic.Logger&gt; consumer) {
+<span class="fc" id="L55">        loggers.forEach(consumer);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Returns &lt;code&gt;true&lt;/code&gt; if the logging event matches the internal filter (defaults to allow any).
+     *
+     * @param event the incoming event
+     * @return true if the logging event matches the filter
+     */
+    boolean matches(final ILoggingEvent event) {
+<span class="fc" id="L65">        return filter.matches(event);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

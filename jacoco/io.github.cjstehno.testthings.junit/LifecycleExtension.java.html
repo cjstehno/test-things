@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LifecycleExtension.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.junit</a> &gt; <span class="el_source">LifecycleExtension.java</span></div><h1>LifecycleExtension.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.junit;
+
+import io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.extension.*;
+import org.junit.platform.commons.support.ModifierSupport;
+
+import static io.github.cjstehno.testthings.junit.Lifecycle.LifecyclePoint.*;
+import static io.github.cjstehno.testthings.util.Reflections.invokeMethod;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatedMethods;
+import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+
+/**
+ * JUnit 5 extension used to provide a bit more control of the before/after lifecycle methods.
+ *
+ * Extensions run before the local test instance before/after methods - this can lead to chicken-and-egg issues from
+ * time to time. This extension allow you to define methods that will be run before and after, based on where this
+ * extension is defined in the list of extensions.
+ *
+ * For example, if you want to execute a specific before and after method before all of the extensions and before all
+ * the other local lifecycle methods, you can configure this extension as the first one in the list, and then the
+ * annotated method will execute before all of the other extensions, and then after all of the others at the end.
+ */
+<span class="fc" id="L39">@Slf4j</span>
+<span class="fc" id="L40">public class LifecycleExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {</span>
+
+    @Override public void beforeAll(final ExtensionContext context) throws Exception {
+<span class="fc" id="L43">        invokeMatchingStaticMethods(context.getRequiredTestClass(), BEFORE_ALL);</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Finds all the methods annotated with the &lt;code&gt;Lifecycle(BEFORE)&lt;/code&gt; annotation and executes them.
+     *
+     * @param context the current extension context; never {@code null}
+     * @throws Exception if there is a problem
+     */
+    @Override public void beforeEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L53">        invokeMatchingMethods(context.getRequiredTestInstance(), BEFORE_EACH);</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Finds all the methods annotated with the &lt;code&gt;Lifecycle(AFTER)&lt;/code&gt; annotation, and executes them.
+     *
+     * @param context the current extension context; never {@code null}
+     * @throws Exception if there is a problem
+     */
+    @Override public void afterEach(final ExtensionContext context) throws Exception {
+<span class="fc" id="L63">        invokeMatchingMethods(context.getRequiredTestInstance(), AFTER_EACH);</span>
+<span class="fc" id="L64">    }</span>
+
+    @Override public void afterAll(final ExtensionContext context) throws Exception {
+<span class="fc" id="L67">        invokeMatchingStaticMethods(context.getRequiredTestClass(), AFTER_ALL);</span>
+<span class="fc" id="L68">    }</span>
+
+    private static void invokeMatchingMethods(final Object testInstance, final LifecyclePoint point) {
+<span class="fc" id="L71">        findAnnotatedMethods(testInstance.getClass(), Lifecycle.class, TOP_DOWN).stream()</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            .filter(m -&gt; m.getAnnotationsByType(Lifecycle.class)[0].value() == point)</span>
+<span class="fc" id="L73">            .findAny()</span>
+<span class="fc" id="L74">            .ifPresent(m -&gt; invokeMethod(testInstance, m));</span>
+<span class="fc" id="L75">    }</span>
+
+    private static void invokeMatchingStaticMethods(final Class&lt;?&gt; testClass, final LifecyclePoint point) {
+<span class="fc" id="L78">        findAnnotatedMethods(testClass, Lifecycle.class, TOP_DOWN).stream()</span>
+<span class="fc" id="L79">            .filter(ModifierSupport::isStatic)</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            .filter(m -&gt; m.getAnnotationsByType(Lifecycle.class)[0].value() == point)</span>
+<span class="fc" id="L81">            .findAny()</span>
+<span class="fc" id="L82">            .ifPresent(m -&gt; invokeMethod(testClass, m));</span>
+<span class="fc" id="L83">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

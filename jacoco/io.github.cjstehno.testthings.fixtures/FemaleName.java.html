@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FemaleName.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.fixtures</a> &gt; <span class="el_source">FemaleName.java</span></div><h1>FemaleName.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.fixtures;
+
+import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+
+/**
+ * An enumeration of some female names.
+ */
+<span class="fc" id="L24">public enum FemaleName {</span>
+    /**
+     * Olivia.
+     */
+<span class="fc" id="L28">    OLIVIA,</span>
+
+    /**
+     * Emma.
+     */
+<span class="fc" id="L33">    EMMA,</span>
+
+    /**
+     * Charlotte.
+     */
+<span class="fc" id="L38">    CHARLOTTE,</span>
+
+    /**
+     * Amelia.
+     */
+<span class="fc" id="L43">    AMELIA,</span>
+
+    /**
+     * Ava.
+     */
+<span class="fc" id="L48">    AVA,</span>
+
+    /**
+     * Sophia.
+     */
+<span class="fc" id="L53">    SOPHIA,</span>
+
+    /**
+     * Isabella.
+     */
+<span class="fc" id="L58">    ISABELLA,</span>
+
+    /**
+     * Mia.
+     */
+<span class="fc" id="L63">    MIA,</span>
+
+    /**
+     * Evelyn.
+     */
+<span class="fc" id="L68">    EVELYN,</span>
+
+    /**
+     * Harper.
+     */
+<span class="fc" id="L73">    HARPER,</span>
+
+    /**
+     * Luna.
+     */
+<span class="fc" id="L78">    LUNA,</span>
+
+    /**
+     * Camila.
+     */
+<span class="fc" id="L83">    CAMILA,</span>
+
+    /**
+     * Gianna.
+     */
+<span class="fc" id="L88">    GIANNA,</span>
+
+    /**
+     * Elizabeth.
+     */
+<span class="fc" id="L93">    ELIZABETH,</span>
+
+    /**
+     * Elenor.
+     */
+<span class="fc" id="L98">    ELEANOR,</span>
+
+    /**
+     * Ella.
+     */
+<span class="fc" id="L103">    ELLA,</span>
+
+    /**
+     * Abigail.
+     */
+<span class="fc" id="L108">    ABIGAIL,</span>
+
+    /**
+     * Sofia.
+     */
+<span class="fc" id="L113">    SOFIA,</span>
+
+    /**
+     * Avery.
+     */
+<span class="fc" id="L118">    AVERY,</span>
+
+    /**
+     * Scarlett.
+     */
+<span class="fc" id="L123">    SCARLETT,</span>
+
+    /**
+     * Emily.
+     */
+<span class="fc" id="L128">    EMILY,</span>
+
+    /**
+     * Aria.
+     */
+<span class="fc" id="L133">    ARIA,</span>
+
+    /**
+     * Penelope.
+     */
+<span class="fc" id="L138">    PENELOPE,</span>
+
+    /**
+     * Chloe.
+     */
+<span class="fc" id="L143">    CHLOE,</span>
+
+    /**
+     * Layla.
+     */
+<span class="fc" id="L148">    LAYLA,</span>
+
+    /**
+     * Mila.
+     */
+<span class="fc" id="L153">    MILA,</span>
+
+    /**
+     * Nora.
+     */
+<span class="fc" id="L158">    NORA,</span>
+
+    /**
+     * Hazel.
+     */
+<span class="fc" id="L163">    HAZEL,</span>
+
+    /**
+     * Madison.
+     */
+<span class="fc" id="L168">    MADISON,</span>
+
+    /**
+     * Ellie.
+     */
+<span class="fc" id="L173">    ELLIE,</span>
+
+    /**
+     * Lily.
+     */
+<span class="fc" id="L178">    LILY,</span>
+
+    /**
+     * Nova.
+     */
+<span class="fc" id="L183">    NOVA,</span>
+
+    /**
+     * Isla.
+     */
+<span class="fc" id="L188">    ISLA,</span>
+
+    /**
+     * Grace.
+     */
+<span class="fc" id="L193">    GRACE,</span>
+
+    /**
+     * Violet.
+     */
+<span class="fc" id="L198">    VIOLET,</span>
+
+    /**
+     * Aurora.
+     */
+<span class="fc" id="L203">    AURORA,</span>
+
+    /**
+     * Riley.
+     */
+<span class="fc" id="L208">    RILEY,</span>
+
+    /**
+     * Zoey.
+     */
+<span class="fc" id="L213">    ZOEY,</span>
+
+    /**
+     * Willow.
+     */
+<span class="fc" id="L218">    WILLOW,</span>
+
+    /**
+     * Emilia.
+     */
+<span class="fc" id="L223">    EMILIA,</span>
+
+    /**
+     * Stella!
+     */
+<span class="fc" id="L228">    STELLA,</span>
+
+    /**
+     * Zoe.
+     */
+<span class="fc" id="L233">    ZOE,</span>
+
+    /**
+     * Victoria.
+     */
+<span class="fc" id="L238">    VICTORIA,</span>
+
+    /**
+     * Hannah, without her sisters.
+     */
+<span class="fc" id="L243">    HANNAH,</span>
+
+    /**
+     * Addison.
+     */
+<span class="fc" id="L248">    ADDISON,</span>
+
+    /**
+     * Leah.
+     */
+<span class="fc" id="L253">    LEAH,</span>
+
+    /**
+     * Lucy.
+     */
+<span class="fc" id="L258">    LUCY,</span>
+
+    /**
+     * Eliana.
+     */
+<span class="fc" id="L263">    ELIANA,</span>
+
+    /**
+     * Ivy.
+     */
+<span class="fc" id="L268">    IVY,</span>
+
+    /**
+     * Everly.
+     */
+<span class="fc" id="L273">    EVERLY;</span>
+
+    @Override public String toString() {
+<span class="fc" id="L276">        return capitalize(name().toLowerCase(ROOT));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoreRandomizers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.rando</a> &gt; <span class="el_source">CoreRandomizers.java</span></div><h1>CoreRandomizers.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.rando;
+
+
+import lombok.NoArgsConstructor;
+import lombok.val;
+
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Stream;
+
+import static io.github.cjstehno.testthings.rando.SharedRandom.current;
+import static lombok.AccessLevel.PRIVATE;
+
+/**
+ * Defines the core randomizers.
+ */
+@NoArgsConstructor(access = PRIVATE)
+public final class CoreRandomizers {
+
+    /**
+     * Defines a randomizer which will always return the same value... so not really random at all.
+     *
+     * @param value the value to be returned
+     * @param &lt;V&gt;   the type of the generated value
+     * @return the randomizer
+     */
+    public static &lt;V&gt; Randomizer&lt;V&gt; constant(final V value) {
+<span class="fc" id="L43">        return () -&gt; value;</span>
+    }
+
+    /**
+     * A randomizer that returns a value from a collection of values.
+     *
+     * @param options the available options
+     * @param &lt;V&gt;     the type of the generated value
+     * @return the randomizer
+     */
+    @SafeVarargs
+    public static &lt;V&gt; Randomizer&lt;V&gt; oneOf(final V... options) {
+<span class="fc" id="L55">        return () -&gt; options[current().nextInt(options.length)];</span>
+    }
+
+    /**
+     * A randomizer that returns a value from one of the defined enum values.
+     *
+     * @param enumType the type of enum (provides the values)
+     * @param &lt;V&gt;      the type of generated value
+     * @return the randomizer
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static &lt;V extends Enum&lt;V&gt;&gt; Randomizer&lt;V&gt; oneOf(final Class&lt;V&gt; enumType) {
+        try {
+<span class="fc" id="L68">            return oneOf((V[]) enumType.getMethod(&quot;values&quot;).invoke(enumType));</span>
+<span class="nc" id="L69">        } catch (Exception ex) {</span>
+<span class="nc" id="L70">            throw new RuntimeException(ex);</span>
+        }
+    }
+
+    /**
+     * A randomizer which will randomly select a value from the collection, popping that value off so that each value
+     * will only be used once.
+     *
+     * @param values the collection of values
+     * @param &lt;V&gt;    the type of the generated value
+     * @return the randomizer
+     */
+    public static &lt;V&gt; Randomizer&lt;V&gt; onceEachOf(final Collection&lt;V&gt; values) {
+<span class="fc" id="L83">        return new OnceEachRandomizer&lt;&gt;(values);</span>
+    }
+
+    private static class OnceEachRandomizer&lt;V&gt; implements Randomizer&lt;V&gt; {
+<span class="fc" id="L87">        private final List&lt;V&gt; values = new CopyOnWriteArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L89">        private OnceEachRandomizer(final Collection&lt;V&gt; values) {</span>
+<span class="fc" id="L90">            this.values.addAll(values);</span>
+<span class="fc" id="L91">        }</span>
+
+        @Override public V one() {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            return values.isEmpty() ? null : values.remove(current().nextInt(values.size()));</span>
+        }
+    }
+
+    /**
+     * A randomizer which will generate a list of random values. The size of the generated list is also random.
+     *
+     * @param countRando the randomizer used to determine the list size
+     * @param valueRando the randomizer used to determine the list values
+     * @param &lt;V&gt;        the type of the generated value
+     * @return the randomizer
+     */
+    public static &lt;V&gt; Randomizer&lt;List&lt;V&gt;&gt; listOf(final Randomizer&lt;Integer&gt; countRando, final Randomizer&lt;V&gt; valueRando) {
+<span class="fc" id="L107">        return () -&gt; valueRando.many(countRando.one());</span>
+    }
+
+    /**
+     * A randomizer which will generate a set of random values. The size of the generated set is also random.
+     *
+     * @param countRando the randomizer used to determine the set size
+     * @param valueRando the randomizer used to determine the set values
+     * @param &lt;V&gt;        the type of the generated value
+     * @return the randomizer
+     */
+    public static &lt;V&gt; Randomizer&lt;Set&lt;V&gt;&gt; setOf(final Randomizer&lt;Integer&gt; countRando, final Randomizer&lt;V&gt; valueRando) {
+<span class="fc" id="L119">        return () -&gt; new HashSet&lt;&gt;(valueRando.many(countRando.one()));</span>
+    }
+
+    /**
+     * A randomizer which will generate a map of random values. The size of the generated map is also random.
+     *
+     * @param countRando the randomizer used to determine the map size
+     * @param keyRando   the randomizer used to determine the map keys
+     * @param valueRando the randomizer used to determine the map values
+     * @param &lt;K&gt; the type of the key value
+     * @param &lt;V&gt;        the type of the generated value
+     * @return the randomizer
+     */
+    public static &lt;K, V&gt; Randomizer&lt;Map&lt;K, V&gt;&gt; mapOf(final Randomizer&lt;Integer&gt; countRando, final Randomizer&lt;K&gt; keyRando, final Randomizer&lt;V&gt; valueRando) {
+<span class="fc" id="L133">        return () -&gt; {</span>
+<span class="fc" id="L134">            val map = new LinkedHashMap&lt;K, V&gt;();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            for (int i = 0; i &lt; countRando.one(); i++) {</span>
+<span class="fc" id="L136">                map.put(keyRando.one(), valueRando.one());</span>
+            }
+<span class="fc" id="L138">            return map;</span>
+        };
+    }
+
+    /**
+     * Given a map containing Randomizers mapped to keys, the generated randomizer will generate random values for the
+     * mapped keys, based on the configured randomizers.
+     *
+     * @param randomizers the map of keys to randomizers
+     * @return the randomizer
+     * @param &lt;K&gt; the key type
+     * @param &lt;V&gt; the value type
+     */
+    public static &lt;K,V&gt; Randomizer&lt;Map&lt;K,V&gt;&gt; mapOf(final Map&lt;K, Randomizer&lt;V&gt;&gt; randomizers){
+<span class="fc" id="L152">        return ()-&gt;{</span>
+<span class="fc" id="L153">            val output = new LinkedHashMap&lt;K,V&gt;();</span>
+<span class="fc" id="L154">            randomizers.forEach((key, rando) -&gt; output.put(key, rando.one()));</span>
+<span class="fc" id="L155">            return output;</span>
+        };
+    }
+
+    /**
+     * A randomizer which will generate an array of random values. The size of the generated array is also random.
+     *
+     * @param countRando the randomizer used to determine the array size
+     * @param valueRando the randomizer used to determine the array values
+     * @param &lt;V&gt;        the type of the generated value
+     * @return the randomizer
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static &lt;V&gt; Randomizer&lt;V[]&gt; arrayOf(final Randomizer&lt;Integer&gt; countRando, final Randomizer&lt;V&gt; valueRando) {
+<span class="fc" id="L169">        return () -&gt; valueRando.many(countRando.one()).toArray((V[]) new Object[0]);</span>
+    }
+
+    /**
+     * A randomizer which will generate a stream of random values. The size of the generated stream is also random.
+     *
+     * @param countRando the randomizer used to determine the stream size
+     * @param valueRando the randomizer used to determine the stream values
+     * @param &lt;V&gt;        the type of the generated value
+     * @return the randomizer
+     */
+    public static &lt;V&gt; Randomizer&lt;Stream&lt;V&gt;&gt; streamOf(final Randomizer&lt;Integer&gt; countRando, final Randomizer&lt;V&gt; valueRando) {
+<span class="fc" id="L181">        return () -&gt; valueRando.stream(countRando.one());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

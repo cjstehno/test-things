@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumberRandomizers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.rando</a> &gt; <span class="el_source">NumberRandomizers.java</span></div><h1>NumberRandomizers.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.rando;
+
+import lombok.NoArgsConstructor;
+import lombok.val;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static io.github.cjstehno.testthings.rando.SharedRandom.current;
+import static lombok.AccessLevel.PRIVATE;
+
+/**
+ * A collection of randomizers for generating numbers.
+ */
+@NoArgsConstructor(access = PRIVATE)
+public final class NumberRandomizers {
+
+    /**
+     * Builds a randomizer which will generate a random int between the min (inclusive) and max (exclusive) bounds.
+     *
+     * @param min the min value (inclusive)
+     * @param max the max value (exclusive)
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Integer&gt; anIntBetween(final int min, final int max) {
+<span class="fc" id="L41">        return () -&gt; current().nextInt(min, max);</span>
+    }
+
+    /**
+     * Builds a randomizer which will generate a random long between the min (inclusive) and max (exclusive) bounds.
+     *
+     * @param min the min value (inclusive)
+     * @param max the max value (exclusive)
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Long&gt; aLongBetween(final long min, final long max) {
+<span class="fc" id="L52">        return () -&gt; current().nextLong(min, max);</span>
+    }
+
+    /**
+     * Builds a randomizer which will generate a random {@link BigInteger}.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;BigInteger&gt; aBigInteger() {
+<span class="fc" id="L61">        return () -&gt; BigInteger.valueOf(anInt().one());</span>
+    }
+
+    /**
+     * Builds a randomizer which will generate a random {@link BigDecimal}.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;BigDecimal&gt; aBigDecimal() {
+<span class="fc" id="L70">        return () -&gt; BigDecimal.valueOf(aDouble().one());</span>
+    }
+
+    /**
+     * Builds a randomizer which will generate a random float between the min (inclusive) and max (exclusive) bounds.
+     *
+     * @param min the min value (inclusive)
+     * @param max the max value (exclusive)
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Float&gt; aFloatBetween(final float min, final float max) {
+<span class="fc" id="L81">        return () -&gt; current().nextFloat(min, max);</span>
+    }
+
+    /**
+     * Builds a randomizer which will generate a random double between the min (inclusive) and max (exclusive) bounds.
+     *
+     * @param min the min value (inclusive)
+     * @param max the max value (exclusive)
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Double&gt; aDoubleBetween(final double min, final double max) {
+<span class="fc" id="L92">        return () -&gt; current().nextDouble(min, max);</span>
+    }
+
+    /**
+     * A randomizer which will generate a random boolean value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Boolean&gt; aBoolean() {
+<span class="fc" id="L101">        return () -&gt; current().nextBoolean();</span>
+    }
+
+    /**
+     * A randomizer which will generate a random int value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Integer&gt; anInt() {
+<span class="fc" id="L110">        return () -&gt; current().nextInt();</span>
+    }
+
+    /**
+     * A randomizer which will generate a random short value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Short&gt; aShort() {
+<span class="fc" id="L119">        return () -&gt; Integer.valueOf(current().nextInt()).shortValue();</span>
+    }
+
+    /**
+     * A randomizer which will generate a random long value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Long&gt; aLong() {
+<span class="fc" id="L128">        return () -&gt; current().nextLong();</span>
+    }
+
+    /**
+     * A randomizer which will generate a random double value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Double&gt; aDouble() {
+<span class="fc" id="L137">        return () -&gt; current().nextDouble();</span>
+    }
+
+    /**
+     * A randomizer which will generate a random float value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Float&gt; aFloat() {
+<span class="fc" id="L146">        return () -&gt; current().nextFloat();</span>
+    }
+
+    /**
+     * A randomizer which will generate a random byte value.
+     *
+     * @return the randomizer
+     */
+    public static Randomizer&lt;Byte&gt; aByte() {
+<span class="fc" id="L155">        return () -&gt; {</span>
+<span class="fc" id="L156">            val bytes = new byte[1];</span>
+<span class="fc" id="L157">            current().nextBytes(bytes);</span>
+<span class="fc" id="L158">            return bytes[0];</span>
+        };
+    }
+
+    /**
+     * A randomizer which will generate a random byte array value.
+     *
+     * @param length the length of the byte array
+     * @return the randomizer
+     */
+    public static Randomizer&lt;byte[]&gt; byteArray(int length) {
+<span class="fc" id="L169">        return () -&gt; {</span>
+<span class="fc" id="L170">            val bytes = new byte[length];</span>
+<span class="fc" id="L171">            current().nextBytes(bytes);</span>
+<span class="fc" id="L172">            return bytes;</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

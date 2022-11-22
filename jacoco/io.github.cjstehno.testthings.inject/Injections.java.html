@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Injections.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-things</a> &gt; <a href="index.source.html" class="el_package">io.github.cjstehno.testthings.inject</a> &gt; <span class="el_source">Injections.java</span></div><h1>Injections.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (C) 2022 Christopher J. Stehno
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.github.cjstehno.testthings.inject;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+/**
+ * Defines some standard injection utilities.
+ *
+ * &lt;strong&gt;Random Value Objects.&lt;/strong&gt; If the &lt;code&gt;value&lt;/code&gt; object passed into the injection methods is an
+ * instance of a &lt;code&gt;Randomizer&lt;/code&gt;, that randomizer will be used to randomly generate the value.
+ */
+public interface Injections {
+
+    /**
+     * Injects a value directly into an object field, if it exists, it not, an error is thrown.
+     *
+     * @param name  the name of the field to be injected
+     * @param value the value (may be a Randomizer).
+     * @return the configured Injections instance
+     */
+    default Injections setField(final String name, final Object value) {
+<span class="fc" id="L37">        return set(name, value, false);</span>
+    }
+
+    /**
+     * If &lt;code&gt;preferSetter&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, an attempt will be made to inject the value using a setter
+     * method for the named property, otherwise the field itself will be injected. If the &lt;code&gt;preferSetter&lt;/code&gt;
+     * value is &lt;code&gt;false&lt;/code&gt; the field will be directly injected.
+     *
+     * @param name         the name of the property or field
+     * @param value        the value (may be a Randomizer).
+     * @param preferSetter whether to prefer the setter over direct injection
+     * @return the configured Injections instance
+     */
+    Injections set(final String name, final Object value, final boolean preferSetter);
+
+    /**
+     * Trys to inject the value using a setter, if it exists, otherwise direct field injection is performed.
+     *
+     * @param name the property name
+     * @param value the value
+     * @return the configured injections instance
+     */
+    default Injections setProperty(final String name, final Object value) {
+<span class="fc" id="L60">        return set(name, value, true);</span>
+    }
+
+    /**
+     * Injects a value directly into all of the fields of the specified type.
+     *
+     * @param type the field type
+     * @param value the value to inject
+     * @return the configured injections instance
+     */
+    default Injections setField(final Class&lt;?&gt; type, final Object value) {
+<span class="nc" id="L71">        return set(type, value, false);</span>
+    }
+
+    /**
+     * Injects a value into the setters setting the specified type - if a setter does not exist, it will try to inject
+     * directly into a field of the type.
+     *
+     * If a setter and a field both match, it will only inject one of them, not both.
+     *
+     * @param type the field type
+     * @param value the value to inject
+     * @return the configured injections instance
+     */
+    default Injections setProperty(final Class&lt;?&gt; type, final Object value) {
+<span class="fc" id="L85">        return set(type, value, true);</span>
+    }
+
+    /**
+     * Injects a value into the setters setting the specified type - if a setter does not exist, it will try to inject
+     * directly into a field of the type.
+     *
+     * If a setter and a field both match, it will only inject one of them, not both.
+     *
+     * @param type the field type
+     * @param value the value to inject
+     * @param setter prefers using the setter if it exists
+     * @return the configured injections instance
+     */
+    Injections set(final Class&lt;?&gt; type, final Object value, final boolean setter);
+
+    /**
+     * Updates a field value by applying given function to the current value.
+     * &lt;p&gt;
+     * If the updater function returns a Randomizer, it will be used to generate the updated value.
+     *
+     * @param name    the property or field name
+     * @param updater the updater function
+     * @return the instance to the Injections implementation
+     */
+    default Injections updateField(final String name, final Function&lt;Object, Object&gt; updater) {
+<span class="fc" id="L111">        return update(name, updater, false);</span>
+    }
+
+    /**
+     * Updates a field value by applying given function to the current value of the field. The getter and setter method
+     * will be used, if they exist.
+     * &lt;p&gt;
+     * If the updater function returns a Randomizer, it will be used to generate the updated value.
+     *
+     * @param name    the property or field name
+     * @param updater the updater function
+     * @return the instance to the Injections implementation
+     */
+    default Injections updateProperty(final String name, final Function&lt;Object, Object&gt; updater) {
+<span class="nc" id="L125">        return update(name, updater, true);</span>
+    }
+
+    /**
+     * Updates a field value by applying given function to the current value. If the &lt;code&gt;preferProps&lt;/code&gt;
+     * parameter is &lt;code&gt;true&lt;/code&gt;, the injector will first attempt to use the named property before
+     * defaulting update the field directly.
+     * &lt;p&gt;
+     * If the updater function returns a Randomizer, it will be used to generate the updated value.
+     *
+     * @param name    the property or field name
+     * @param updater the updater function
+     * @param preferProps prefer the use of the getter and setter methods over direct field access
+     * @return the instance to the Injections implementation
+     */
+    default Injections update(final String name, final Function&lt;Object, Object&gt; updater, boolean preferProps) {
+<span class="fc" id="L141">        return update(name, updater, preferProps, preferProps);</span>
+    }
+
+    /**
+     * Updates a field value by applying given function to the current value. If the &lt;code&gt;preferProps&lt;/code&gt;
+     * parameter is &lt;code&gt;true&lt;/code&gt;, the injector will first attempt to use the named property before
+     * defaulting update the field directly.
+     * &lt;p&gt;
+     * If the updater function returns a Randomizer, it will be used to generate the updated value.
+     *
+     * @param name    the property or field name
+     * @param updater the updater function
+     * @param preferSetter will try to use the setter rather than go directly to the field
+     * @param preferGetter will try to use the getter rather than go directly to the field
+     * @return the instance to the Injections implementation
+     */
+    Injections update(final String name, final Function&lt;Object, Object&gt; updater, final boolean preferSetter, final boolean preferGetter);
+
+    /**
+     * Allows in-place modification of a value reference from the target instance. The target instance will be passed
+     * to the provided consumer for modification.
+     *
+     * @param name     the name
+     * @param modifier the modifier
+     * @return the instance of the Injections implementation
+     */
+    default Injections modifyField(final String name, final Consumer&lt;Object&gt; modifier) {
+<span class="fc" id="L168">        return modify(name, modifier, false);</span>
+    }
+
+    /**
+     * Allows in-place modification of a value reference from the target instance. The target instance will be passed
+     * to the provided consumer for modification. The getter will be used, if it exists.
+     *
+     * @param name     the name
+     * @param modifier the modifier
+     * @return the instance of the Injections implementation
+     */
+    default Injections modifyProperty(final String name, final Consumer&lt;Object&gt; modifier) {
+<span class="nc" id="L180">        return modify(name, modifier, true);</span>
+    }
+
+    /**
+     * Allows in-place modification of a value reference from the target instance. The target instance will be passed
+     * to the provided consumer for modification.
+     *
+     * @param name     the name
+     * @param modifier the modifier
+     * @param preferGetter will try to use the getter rather than going directly to the field
+     * @return the instance of the Injections implementation
+     */
+    Injections modify(final String name, final Consumer&lt;Object&gt; modifier, final boolean preferGetter);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
